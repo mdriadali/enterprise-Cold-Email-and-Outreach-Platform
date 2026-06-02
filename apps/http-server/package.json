@@ -3,6 +3,10 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run index.ts",
+    "start": "bun run index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -10,7 +14,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "db":"*",
     "@types/express": "^5.0.6",
     "express": "^5.2.1"
   }
