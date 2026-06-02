@@ -2,17 +2,21 @@
   "name": "enterprise-Cold-Email-and-Outreach-Platform",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
+    "build": "bun --env-file=.env turbo run build",
+    "dev": "bun --env-file=.env turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "check-types": "turbo run check-types",
+    "db:migrate": "cd packages/db && bunx prisma generate && cd ../..",
+    "start:web": "dotenv -e .env -- turbo run build --filter=web && dotenv -e .env -- turbo run start --filter=web",
+    "start:http": "dotenv -e .env -- turbo run start --filter=http-server"
   },
   "devDependencies": {
+    "@types/bun": "latest",
+    "dotenv-cli": "^11.0.0",
     "prettier": "^3.7.4",
     "turbo": "^2.9.16",
-    "typescript": "5.9.2",
-    "@types/bun": "latest"
+    "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=18"
@@ -23,5 +27,9 @@
     "packages/*"
   ],
   "module": "index.ts",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.11",
+    "zod": "^4.4.3"
+  }
 }
