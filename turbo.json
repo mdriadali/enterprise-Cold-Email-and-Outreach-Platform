@@ -1,12 +1,13 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
-  "globalDependencies": [".env"], 
+  "globalDependencies": [".env", ".env.local"], 
+  "globalEnv": ["DATABASE_URL", "PORT"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "start": {
       "persistent": true,
