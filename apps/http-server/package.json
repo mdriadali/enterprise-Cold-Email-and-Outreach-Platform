@@ -4,8 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run index.ts",
-    "start": "bun run index.ts"
+    "dev": "bun --env-file=../../.env.local index.ts",
+    "start": "bun --env-file=../../.env.local ./dist/index.js",
+    "build": "bun --env-file=../../.env.local && bun build ./index.ts --outdir ./dist --target bun"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -15,6 +16,8 @@
   },
   "dependencies": {
     "@types/express": "^5.0.6",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "@repo/db": "*",
+    "@repo/env": "*"
   }
 }
