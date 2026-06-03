@@ -2,14 +2,14 @@
   "name": "enterprise-Cold-Email-and-Outreach-Platform",
   "private": true,
   "scripts": {
-    "build": "bun --env-file=.env turbo run build",
+    "build": "bun --env-file=.env.local turbo run build",
     "dev": "bun --env-file=.env turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "db:migrate": "cd packages/db && bunx prisma generate && cd ../..",
-    "start:web": "dotenv -e .env -- turbo run build --filter=web && dotenv -e .env -- turbo run start --filter=web",
-    "start:http": "dotenv -e .env -- turbo run start --filter=http-server"
+    "start:web": "bun --env-file=.env.local -- turbo run build --filter=web && turbo run start --filter=web",
+    "start:http": "bun --env-file=.env.local -- turbo run build --filter=http-server && turbo run start --filter=http-server"
   },
   "devDependencies": {
     "@types/bun": "latest",
