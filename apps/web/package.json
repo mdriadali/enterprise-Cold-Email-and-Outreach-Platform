@@ -4,14 +4,16 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "dotenv -e ../../.env -- next dev --port 3000",
-    "build": "dotenv -e ../../.env -- next build",
-    "start": "dotenv -e ../../.env -- next start",
+    "dev": "dotenv -e ../../.env.local -- next dev --port 3000",
+    "build": "dotenv -e .env.local -- next build",
+    "start": "dotenv -e .env.local -- next start",
     "lint": "eslint --max-warnings 0",
     "check-types": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@repo/ui": "*",
+    "@repo/db": "*",
+    "@repo/env": "*",
     "next": "16.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
