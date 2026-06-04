@@ -6,7 +6,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
-    PORT: z.string(),
+    HTTP_PORT: z.string(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
