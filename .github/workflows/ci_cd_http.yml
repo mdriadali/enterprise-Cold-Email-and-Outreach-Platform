@@ -29,4 +29,4 @@ jobs:
           context: .
           file: ./apps/http-server/Dockerfile
           push: true
-          tags: riadofficial/enterprise-Cold-Email-and-Outreach-Platform-http-server:${{ github.sha }}
+          tags: riadofficial/enterprise-cold-email-and-outreach-platform-http-server:${{ github.sha }}
