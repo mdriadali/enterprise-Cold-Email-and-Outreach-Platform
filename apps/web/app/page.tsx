@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import {prismaClient} from '@repo/db'
 import { env } from '@repo/env';
 export default async function Home() {
