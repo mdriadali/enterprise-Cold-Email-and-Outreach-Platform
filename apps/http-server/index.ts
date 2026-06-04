@@ -3,7 +3,7 @@ import Express  from "express";
 const app = Express();
 const port=env.PORT
 app.get('/help',()=>{
-  console.log('help');
+  console.log(' end point hit help');
 })
 app.listen(port,()=>{
   console.log("port:",port)
