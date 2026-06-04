@@ -7,13 +7,11 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-
     "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
     "db:generate": "cd packages/db && bunx prisma generate && cd ../..",
-
+    "db:push": "cd packages/db && bunx prisma db push",
     "start:web": "bun --env-file=.env.local -- turbo run build --filter=web && turbo run start --filter=web",
-    
-    "start:http": "bun --env-file=.env.local -- turbo run build --filter=http-server && turbo run start --filter=http-server"
+    "start:http": "bun run db:push && bun --env-file=.env.local -- turbo run build --filter=http-server && turbo run start --filter=http-server"
   },
   "devDependencies": {
     "@types/bun": "latest",
