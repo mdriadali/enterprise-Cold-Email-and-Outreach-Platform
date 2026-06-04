@@ -3,7 +3,7 @@ FROM oven/bun:1
 WORKDIR /usr/src/app
 
 ARG DATABASE_URL
-ARG PORT
+ARG HTTP_PORT
 
 COPY ./packages ./packages
 COPY ./bun.lock ./bun.lock
@@ -16,7 +16,7 @@ COPY ./turbo.json ./turbo.json
 COPY ./apps/web ./apps/web
 
 ENV DATABASE_URL=$DATABASE_URL
-ENV PORT=$PORT
+ENV HTTP_PORT=$HTTP_PORT
 
 
 
