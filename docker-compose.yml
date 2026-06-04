@@ -21,11 +21,11 @@ services:
       dockerfile: apps/http-server/Dockerfile
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-        PORT: 4000
+        HTTP_PORT: 4000
 
     environment:
       DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-      PORT: 4000
+      HTTP_PORT: 4000
 
     depends_on:
       postgres:
@@ -40,11 +40,11 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-        PORT: 3000
+        HTTP_PORT: 4000
 
     environment:
       DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-      PORT: 3000
+      HTTP_PORT: 4000
 
     depends_on:
       postgres:
