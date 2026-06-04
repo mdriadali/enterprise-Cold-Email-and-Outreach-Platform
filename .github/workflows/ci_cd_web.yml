@@ -30,7 +30,7 @@ jobs:
           file: ./apps/web/Dockerfile
           build-args: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
-            PORT=${{ secrets.PORT }}
+            HTTP_PORT=${{ secrets.PORT }}
           push: true
           tags: riadofficial/enterprise-cold-email-and-outreach-platform-web:${{ github.sha }}
       
