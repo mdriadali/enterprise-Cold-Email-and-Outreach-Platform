@@ -1,12 +1,12 @@
 {
   "name": "http-server",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --env-file=../../.env.local index.ts",
+    "dev": "bun --env-file=../../.env.local src/index.ts",
     "start": "bun --env-file=../../.env.local ./dist/index.js",
-    "build": "bun --env-file=../../.env.local && bun build ./index.ts --outdir ./dist --target bun"
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun"
   },
   "devDependencies": {
     "@types/bun": "latest"
