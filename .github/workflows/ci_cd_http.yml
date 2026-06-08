@@ -28,5 +28,10 @@ jobs:
         with:
           context: .
           file: ./apps/http-server/Dockerfile
+          build-args: |
+           DATABASE_URL=${{ secrets.DATABASE_URL }}
+           HTTP_PORT=${{ secrets.PORT }}
+           JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
+           JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
           push: true
           tags: riadofficial/enterprise-cold-email-and-outreach-platform-http-server:${{ github.sha }}
