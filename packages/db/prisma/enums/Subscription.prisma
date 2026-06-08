@@ -1,0 +1,5 @@
+enum Subscription {
+  STARTER
+  PROFESSIONAL
+  ULTRA
+}
