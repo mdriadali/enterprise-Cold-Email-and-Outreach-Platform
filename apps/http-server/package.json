@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --env-file=../../.env.local src/index.ts",
+    "dev": "nodemon --exec \"bun --env-file=../../.env.local\" src/index.ts",
     "start": "bun --env-file=../../.env.local ./dist/index.js",
     "build": "bun build ./src/index.ts --outdir ./dist --target bun"
   },
@@ -15,9 +15,14 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@types/express": "^5.0.6",
-    "express": "^5.2.1",
     "@repo/db": "*",
-    "@repo/env": "*"
+    "@repo/env": "*",
+    "@repo/types": "*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
   }
 }
