@@ -1,0 +1,57 @@
+import type { CreatedUserData, RegisterUserInput, Userdata } from "@repo/types";
+import type { IUserRepository } from "../../application/ports/repositories/UserRepository-ports";
+import { prismaClient } from "@repo/db";
+
+
+export class PrismaUserRepository implements IUserRepository {
+
+
+  async create(data: RegisterUserInput): Promise<CreatedUserData> {
+
+    // user create now 
+    const createUser = await prismaClient.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: data.password
+      }
+    }
+    )
+    // user data returend
+    return {
+      id: createUser.id,
+      name: createUser.name,
+      email: createUser.email,
+    }
+
+  }
+
+
+  async findByEmail(email: string): Promise<Userdata | null> {
+    const findUser =
+      await prismaClient.user.findUnique({
+        where: {
+          email
+        }
+      });
+
+    if (!findUser) {
+      return null;
+    }
+
+    return {
+      id: findUser.id,
+      name: findUser?.name,
+      emai: findUser?.email,
+      password: findUser?.password,
+      role: findUser?.role,
+      subscription: findUser?.subscription,
+      aiProvider: findUser?.aiProvider,
+      apiKey: findUser?.apiKey
+    }
+  }
+
+
+
+
+}
