@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../../.env.local" });
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
+  schema: "prisma",
   migrations: {
     path: "prisma/migrations",
   },
