@@ -1,9 +1,9 @@
 import express from "express";
-import { env } from "@repo/env";
 import routes from "./presentation/routes";
+import { serverEnv } from "@repo/env/server-env";
 
 const app = express();
-const port = env.HTTP_PORT;
+const port = serverEnv.HTTP_PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
