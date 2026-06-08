@@ -22,10 +22,14 @@ services:
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
         HTTP_PORT: 4000
+        JWT_ACCESS_SECRET: "eb3a8f02b887b7953a4d4526e439216f6c15127770a2b156f7c96d5e17745130"
+        JWT_REFRESH_SECRET: "09484913e34be8eedb7ee2b2b7cf8f1f78d248e3caa1203a68ab8ce3ff5cf82c"
 
     environment:
       DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
       HTTP_PORT: 4000
+      JWT_ACCESS_SECRET: "eb3a8f02b887b7953a4d4526e439216f6c15127770a2b156f7c96d5e17745130"
+      JWT_REFRESH_SECRET: "09484913e34be8eedb7ee2b2b7cf8f1f78d248e3caa1203a68ab8ce3ff5cf82c"
 
     depends_on:
       postgres:
@@ -40,15 +44,13 @@ services:
       dockerfile: apps/web/Dockerfile
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-        HTTP_PORT: 4000
 
     environment:
       DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-      HTTP_PORT: 4000
 
     depends_on:
       postgres:
         condition: service_healthy
 
     ports:
-      - "3000:3000"
+      - "3000:3000"
