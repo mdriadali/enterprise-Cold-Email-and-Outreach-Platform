@@ -1,0 +1,5 @@
+enum AiProvider {
+  GEMINI
+  OPENAI
+  ANTHROPIC
+}
