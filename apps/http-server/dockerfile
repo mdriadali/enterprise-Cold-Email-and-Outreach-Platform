@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 ARG DATABASE_URL
 ARG HTTP_PORT
+ARG JWT_ACCESS_SECRET
+ARG JWT_REFRESH_SECRET
 
 COPY ./packages ./packages
 COPY ./bun.lock ./bun.lock
@@ -15,9 +17,16 @@ COPY ./turbo.json ./turbo.json
 
 COPY ./apps/http-server ./apps/http-server
 
-ENV DATABASE_URL=$DATABASE_URL
-ENV HTTP_PORT=$HTTP_PORT
+# ENV DATABASE_URL=$DATABASE_URL
+# ENV HTTP_PORT=$HTTP_PORT
+# ENV JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET
+# ENV JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET
 
+
+RUN echo "DATABASE_URL=$DATABASE_URL" > .env.local && \
+    echo "HTTP_PORT=$HTTP_PORT" >> .env.local && \
+    echo "JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET" >> .env.local && \
+    echo "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" >> .env.local
 
 
 RUN bun install
