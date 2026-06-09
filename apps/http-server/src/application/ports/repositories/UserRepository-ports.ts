@@ -1,4 +1,4 @@
-import type { CreatedUserData, RegisterUserInput, Userdata } from "@repo/types";
+import type { CreatedUserData,  RegisterUserInput,  Userdata } from "@repo/types";
 
 export interface IUserRepository {
     create(data: RegisterUserInput): Promise<CreatedUserData>;
