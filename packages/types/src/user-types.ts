@@ -9,11 +9,6 @@ export interface Userdata {
     apiKey: string
 }
 
-export interface RegisterUserInput {
-    name: string,
-    email: string,
-    password: string,
-}
 export interface CreatedUserData {
     id: string
     name: string,
