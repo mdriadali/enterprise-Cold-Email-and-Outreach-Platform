@@ -52,6 +52,11 @@ export class UserExistError extends Error {
         super("user already exist")
     }
 }
+export class UserNotExistError extends Error {
+    constructor() {
+        super("user not exist")
+    }
+}
 
 
 
