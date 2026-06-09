@@ -1,4 +1,4 @@
-import { UserEmailInvalidError, UserEmailRequiredError, UserExistError, UserNameMaxError, UserNameMinError, UserNameRequiredError, UserPasswordMaxError, UserPasswordMinError, UserPasswordRequiredError } from "./UserError";
+import { UserEmailInvalidError, UserEmailRequiredError, UserExistError, UserNameMaxError, UserNameMinError, UserNameRequiredError, UserNotExistError, UserPasswordMaxError, UserPasswordMinError, UserPasswordRequiredError } from "./UserError";
 import { UserRules } from "./UserRules";
 
 export class UserValidator {
@@ -41,6 +41,12 @@ export class UserValidator {
     static userExist(user:unknown){
         if(user){
             throw new UserExistError()
+        }
+    }
+
+    static UserNotExist(user:unknown){
+        if(!user){
+            throw new UserNotExistError()
         }
     }
 }
