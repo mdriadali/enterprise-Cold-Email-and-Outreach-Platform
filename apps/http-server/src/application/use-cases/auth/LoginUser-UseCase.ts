@@ -3,8 +3,8 @@ import { LoginUserEntity } from "../../../domain/auth/Login-entity";
 import type { IUserRepository } from "../../ports/repositories/UserRepository-ports";
 import { UserValidator } from "../../../domain/user/UserValidator";
 import type { IPasswordHasher } from "../../ports/auth/IPasswordHasher-ports";
-import { HashValidator } from "../../../domain/auth/HashValidator";
 import type { IJwtTokenProvider } from "../../ports/auth/IJwtTokenProvider-ports";
+import { AuthValidator } from "../../../domain/auth/AuthValidator";
 
 export class LoginUserUseCase {
     constructor(
@@ -26,7 +26,7 @@ export class LoginUserUseCase {
         console.log("[Login] user found")
 
         const isHashMatch = await this.passwordHasher.hashcompare(LoginData.password, userExist!.password)
-        HashValidator.isHashValidate(isHashMatch)
+        AuthValidator.isHashValidate(isHashMatch)
 
         console.log("[Login] password verified")
 
