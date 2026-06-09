@@ -1,3 +1,5 @@
+import type { JwtPayload } from "jsonwebtoken";
+
 export interface RegisterUserInput {
     name: string,
     email: string,
@@ -9,3 +11,8 @@ export interface LoginUserInput {
     password: string,
 }
 
+
+
+export interface TokenPayload extends JwtPayload {
+    userId: string;
+}
