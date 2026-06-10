@@ -42,7 +42,7 @@ export class PrismaUserRepository implements IUserRepository {
     return {
       id: findUser.id,
       name: findUser?.name,
-      emai: findUser?.email,
+      email: findUser?.email,
       password: findUser?.password,
       role: findUser?.role,
       subscription: findUser?.subscription,
@@ -67,7 +67,7 @@ export class PrismaUserRepository implements IUserRepository {
     return {
       id: user.id,
       name: user?.name,
-      emai: user?.email,
+      email: user?.email,
       password: user?.password,
       role: user?.role,
       subscription: user?.subscription,
