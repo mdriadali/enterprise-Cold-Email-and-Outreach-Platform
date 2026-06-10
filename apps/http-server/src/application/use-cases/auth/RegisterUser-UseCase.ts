@@ -4,6 +4,7 @@ import type { IUserRepository } from "../../ports/repositories/UserRepository-po
 import type { IJwtTokenProvider } from "../../ports/auth/IJwtTokenProvider-ports";
 import { UserValidator } from "../../../domain/user/UserValidator";
 import { RegisterUserEntity } from "../../../domain/auth/Register-entity";
+import type { IRefreshTokenRepository } from "../../ports/repositories/RefreshTokenRepository-ports";
 
 
 export class RegisterUserUseCase {
@@ -11,15 +12,17 @@ export class RegisterUserUseCase {
     constructor(
         private readonly passwordHasher: IPasswordHasher,
         private readonly userRepository: IUserRepository,
-        private readonly jwtTokenProvider: IJwtTokenProvider
+        private readonly jwtTokenProvider: IJwtTokenProvider,
+        private readonly refreshTokenRepository: IRefreshTokenRepository
     ) { }
     async execute(registerdata: RegisterUserInput) {
-        const registerEntity = new RegisterUserEntity(
+        console.log("[User register] user creating attmting", registerdata.email)
+        new RegisterUserEntity(
             registerdata.name,
             registerdata.email,
             registerdata.password,
         )
-
+        const deviceInfo = registerdata.deviceInfo
         const existUser = await this.userRepository.findByEmail(registerdata.email)
 
         UserValidator.userExist(existUser)
@@ -31,12 +34,20 @@ export class RegisterUserUseCase {
             email: registerdata.email,
             password: hashpassword
         })
-
+        console.log("[user register] user create sucessfully")
         const accessToken = await this.jwtTokenProvider.generateAccessToken(createdUser.id)
         const refreshToken = await this.jwtTokenProvider.generateRefreshToken(createdUser.id)
 
+        await this.refreshTokenRepository.create({
+            token: refreshToken.token,
+            userId: createdUser.id,
+            deviceName: deviceInfo?.deviceName,
+            ipAddress: deviceInfo?.ipAddress,
+            userAgent: deviceInfo?.userAgent,
+            expiresAt: refreshToken.expiresAt
+        })
 
-
+        console.log("[user register] user refreshToken save sucessfully")
         return {
             accessToken,
             refreshToken
