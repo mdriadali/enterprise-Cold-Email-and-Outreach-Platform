@@ -21,9 +21,15 @@ export class AuthMiddleware {
             const findUser = await this.userRepository.findById(payload.UserId)
             UserValidator.UserNotExist(findUser)
             console.log("[Auth Midlle] User valid");
-            (req as any).user = findUser;
+            req.user = {
+                id: findUser?.id,
+                name: findUser?.name,
+                email: findUser!.email,
+                role: findUser?.role,
+                subscription: findUser?.subscription,
+            };
 
-            next();
+            return next();
         } catch (error) {
             return res.status(500).json({
                 message: error instanceof Error ? error.message : "somthing went wrong"
