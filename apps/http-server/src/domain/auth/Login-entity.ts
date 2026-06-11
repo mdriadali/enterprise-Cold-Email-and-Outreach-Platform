@@ -6,7 +6,6 @@ export class LoginUserEntity{
         public readonly email:string,
         public readonly password:string
     ){
-        console.log("login entity class")
         UserValidator.validateEmail(email)
 
         if(!password){
