@@ -3,6 +3,7 @@ import { AuthValidator } from "../../domain/auth/AuthValidator";
 import type { IJwtTokenProvider } from "../../application/ports/auth/IJwtTokenProvider-ports";
 import type { IUserRepository } from "../../application/ports/repositories/UserRepository-ports";
 import { UserValidator } from "../../domain/user/UserValidator";
+import jwt from "jsonwebtoken";
 
 export class AuthMiddleware {
     constructor(
@@ -17,7 +18,6 @@ export class AuthMiddleware {
             const token = req.cookies.accessToken
             AuthValidator.tokenValidator(token)
             const payload = await this.jwtTokenProvider.validateAccessToken(token)
-            console.log(payload);
             const findUser = await this.userRepository.findById(payload.UserId)
             UserValidator.UserNotExist(findUser)
             console.log("[Auth Midlle] User valid");
@@ -31,9 +31,16 @@ export class AuthMiddleware {
 
             return next();
         } catch (error) {
-            return res.status(500).json({
-                message: error instanceof Error ? error.message : "somthing went wrong"
-            });
+            if (error instanceof jwt.TokenExpiredError) {
+                console.log("[Auth middleware] user access token expire")
+                return res.status(401).json({
+                    code: "TOKEN_EXPIRED"
+                })
+            }
+
+            return res.status(401).json({
+                code: "TOKEN_INVALID"
+            })
         }
     }
 }
