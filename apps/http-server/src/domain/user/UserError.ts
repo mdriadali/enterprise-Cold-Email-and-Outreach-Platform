@@ -2,59 +2,61 @@
 
 // Name All errors
 
-export class UserNameRequiredError extends Error {
+import { AppError } from "../AppError"
+
+export class UserNameRequiredError extends AppError {
     constructor() {
-        super("Name is required or invalid")
+        super("Name is required or invalid",400)
     }
 }
-export class UserNameMinError extends Error {
+export class UserNameMinError extends AppError {
     constructor() {
-        super("Name must be at least 2 characters long")
+        super("Name must be at least 2 characters long",400)
     }
 }
-export class UserNameMaxError extends Error {
+export class UserNameMaxError extends AppError {
     constructor() {
-        super("Name must not exceed 20 characters")
+        super("Name must not exceed 20 characters",400)
     }
 }
 
 
 //Email all errors
-export class UserEmailRequiredError extends Error {
+export class UserEmailRequiredError extends AppError {
     constructor() {
-        super("Email is required")
+        super("Email is required",400)
     }
 }
-export class UserEmailInvalidError extends Error {
+export class UserEmailInvalidError extends AppError {
     constructor() {
-        super("Email is invalid")
+        super("Email is invalid",400)
     }
 }
 
 //Password all errors
-export class UserPasswordRequiredError extends Error {
+export class UserPasswordRequiredError extends AppError {
     constructor() {
-        super("password is required")
+        super("password is required",400)
     }
 }
-export class UserPasswordMinError extends Error {
+export class UserPasswordMinError extends AppError {
     constructor() {
-        super("password must be at least 8 characters long")
+        super("password must be at least 8 characters long",400)
     }
 }
-export class UserPasswordMaxError extends Error {
+export class UserPasswordMaxError extends AppError {
     constructor() {
-        super("password must not exceed 16 characters")
+        super("password must not exceed 16 characters",400)
     }
 }
-export class UserExistError extends Error {
+export class UserExistError extends AppError {
     constructor() {
-        super("user already exist")
+        super("user already exist",400)
     }
 }
-export class UserNotExistError extends Error {
+export class UserNotExistError extends AppError {
     constructor() {
-        super("user not exist")
+        super("user not exist",400)
     }
 }
 
