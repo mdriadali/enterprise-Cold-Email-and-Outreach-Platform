@@ -1,17 +1,19 @@
 import type { Request, Response } from "express";
-
+import jwt from "jsonwebtoken";
 import type { LoginUserInput, RegisterUserInput } from "@repo/types";
 import type { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUser-UseCase";
 import type { LoginUserUseCase } from "../../application/use-cases/auth/LoginUser-UseCase";
 import type { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { AppError } from "../../domain/AppError";
+import type { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
 
 
 export class AuthController {
   constructor(
     private readonly registerUseCase: RegisterUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase,
-    private readonly logoutUserUseCase: LogoutUserUseCase
+    private readonly logoutUserUseCase: LogoutUserUseCase,
+    private readonly refreshUseCase: RefreshUseCase
   ) { }
 
   register = async (req: Request, res: Response) => {
@@ -38,7 +40,7 @@ export class AuthController {
     } catch (error) {
 
       if (error instanceof AppError) {
-        return res.status(error.statusCode).json({
+        return res.status(400).json({
           massage: error.message
         })
       }
@@ -69,18 +71,18 @@ export class AuthController {
         "refreshToken",
         result.refreshToken.token
       )
-
+      console.log("[Login] cookie send sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error: unknown) {
 
-      if(error instanceof AppError){
-        return res.status(error.statusCode).json({
-          message:error.message
+      if (error instanceof AppError) {
+        return res.status(400).json({
+          message: error.message
         })
       }
       console.log(error)
       return res.status(500).json({
-         message:"Internal Server Error"
+        message: "Internal Server Error"
       });
     }
   }
@@ -99,16 +101,50 @@ export class AuthController {
         "refreshToken",
         ""
       )
+      console.log("[Logout] user sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error) {
-      if(error instanceof AppError){
-        return res.status(error.statusCode).json({
-          message:error.message
+      if (error instanceof AppError) {
+        return res.status(400).json({
+          message: error.message
         })
       }
       return res.status(500).json({
         message: error instanceof Error ? error.message : "somthing went wrong"
       });
     }
+  }
+
+  refresh = async (req: Request, res: Response) => {
+    try {
+      console.log("[Refresh] request Recived")
+      const refreshToken = req.cookies.refreshToken
+      const result = await this.refreshUseCase.execute(refreshToken)
+      res.cookie(
+        "accessToken",
+        result.accessToken
+      )
+      console.log("[Refresh] access Token Send sucessfully")
+      return res.status(200).json({ sucess: true })
+    } catch (error) {
+
+      if (error instanceof jwt.TokenExpiredError) {
+        return res.status(402).json({
+          code: "TOKEN_EXPIRED"
+        })
+      }
+      if (error instanceof AppError) {
+        return res.status(402).json({
+          message: error.message
+        })
+      }
+
+      console.log(error)
+
+      return res.status(500).json({
+        massage: "Internal Server Error"
+      })
+    }
+
   }
 }
