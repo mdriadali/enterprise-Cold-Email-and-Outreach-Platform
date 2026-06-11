@@ -4,6 +4,7 @@ import type { LoginUserInput, RegisterUserInput } from "@repo/types";
 import type { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUser-UseCase";
 import type { LoginUserUseCase } from "../../application/use-cases/auth/LoginUser-UseCase";
 import type { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
+import { AppError } from "../../domain/AppError";
 
 
 export class AuthController {
@@ -35,9 +36,18 @@ export class AuthController {
 
       return res.status(200).json({ sucess: true });
     } catch (error) {
+
+      if (error instanceof AppError) {
+        return res.status(error.statusCode).json({
+          massage: error.message
+        })
+      }
+
+      console.log(error)
+
       return res.status(500).json({
-        message: error instanceof Error ? error.message : "somthing went wrong"
-      });
+        message: "Internal Server Error"
+      })
     }
   };
 
@@ -62,8 +72,15 @@ export class AuthController {
 
       return res.status(200).json({ sucess: true })
     } catch (error: unknown) {
+
+      if(error instanceof AppError){
+        return res.status(error.statusCode).json({
+          message:error.message
+        })
+      }
+      console.log(error)
       return res.status(500).json({
-        message: error instanceof Error ? error.message : "somthing went wrong"
+         message:"Internal Server Error"
       });
     }
   }
@@ -84,6 +101,11 @@ export class AuthController {
       )
       return res.status(200).json({ sucess: true })
     } catch (error) {
+      if(error instanceof AppError){
+        return res.status(error.statusCode).json({
+          message:error.message
+        })
+      }
       return res.status(500).json({
         message: error instanceof Error ? error.message : "somthing went wrong"
       });
