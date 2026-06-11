@@ -19,7 +19,7 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
         )
         const refreshToken: string = jwt.sign({
             UserId
-        }, serverEnv.JWT_REFRESH_SECRET, { expiresIn: '30d' });
+        }, serverEnv.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_DAYS });
 
         return { token: refreshToken, expiresAt: expiresAt }
     }
@@ -29,6 +29,14 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
         const payload = jwt.verify(
             token,
             serverEnv.JWT_ACCESS_SECRET!
+        ) as TokenPayload
+        return payload
+    }
+    async validateRefreshToken(token: string): Promise<TokenPayload> {
+        console.log("trying to validate refresh token")
+        const payload = jwt.verify(
+            token,
+            serverEnv.JWT_REFRESH_SECRET!
         ) as TokenPayload
         return payload
     }
