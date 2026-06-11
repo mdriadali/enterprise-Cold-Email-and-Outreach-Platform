@@ -18,7 +18,6 @@ export class LogoutUserUseCase {
         }
 
         await this.refreshTokenRepository.deleteByToken(refreshToken)
-        console.log("[Logout] user logout sucessfully", userId)
         return true
     }
 }
