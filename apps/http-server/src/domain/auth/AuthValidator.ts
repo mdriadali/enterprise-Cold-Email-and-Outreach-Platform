@@ -19,4 +19,10 @@ export class AuthValidator {
             throw new UnauthorizedError()
         }
     }
+
+    static refreshTokenExpire(tokenDate: Date) {
+        if (tokenDate < new Date) {
+            throw new UnauthorizedError()
+        }
+    }
 }
