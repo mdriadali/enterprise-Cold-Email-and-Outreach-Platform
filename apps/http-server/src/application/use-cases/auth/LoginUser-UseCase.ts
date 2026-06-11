@@ -22,7 +22,6 @@ export class LoginUserUseCase {
             LoginData.email,
             LoginData.password
         )
-        console.log("login entity run sucessfully ")
         const userExist = await this.userRepository.findByEmail(LoginData.email)
         UserValidator.UserNotExist(userExist)
         console.log("[Login] user found")
