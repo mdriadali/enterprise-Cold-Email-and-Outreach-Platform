@@ -1,5 +1,5 @@
 import { AppError } from "../AppError";
 
 export class UnauthorizedError extends AppError{
-constructor(){super("Unauthorized",400)}
+constructor(){super("Unauthorized")}
 }
