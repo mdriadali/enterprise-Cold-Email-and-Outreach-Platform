@@ -9,6 +9,7 @@ import { PrismaRefreshToken } from "../../infrastructure/repositories/PrismaRefr
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 import { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
+import { MeUseCase } from "../../application/use-cases/auth/Me-UseCase";
 
 const authRouter = Router();
 const bcryptPasswordHasher = new BcryptPasswordHasher
@@ -45,13 +46,18 @@ const authMiddleware = new AuthMiddleware(
     prismaUserRepository,
 )
 
+const meUsecase=new MeUseCase(
+    prismaUserRepository
+)
 
 
-const authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase,refreshUseCase);
+
+const authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase,refreshUseCase,meUsecase);
 
 authRouter.post("/register", authController.register);
 authRouter.post("/login", authController.login)
 authRouter.post("/logout", authMiddleware.execute.bind(authMiddleware), authController.logout)
 authRouter.post("/refresh", authController.refresh)
+authRouter.get("/me",authMiddleware.execute.bind(authMiddleware),authController.me)
 
 export default authRouter;
