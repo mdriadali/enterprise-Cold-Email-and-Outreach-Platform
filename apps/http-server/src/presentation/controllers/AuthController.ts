@@ -6,6 +6,7 @@ import type { LoginUserUseCase } from "../../application/use-cases/auth/LoginUse
 import type { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { AppError } from "../../domain/AppError";
 import type { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
+import type { MeUseCase } from "../../application/use-cases/auth/Me-UseCase";
 
 
 export class AuthController {
@@ -13,7 +14,8 @@ export class AuthController {
     private readonly registerUseCase: RegisterUserUseCase,
     private readonly loginUserUseCase: LoginUserUseCase,
     private readonly logoutUserUseCase: LogoutUserUseCase,
-    private readonly refreshUseCase: RefreshUseCase
+    private readonly refreshUseCase: RefreshUseCase,
+    private readonly meUsecase: MeUseCase
   ) { }
 
   register = async (req: Request, res: Response) => {
@@ -146,5 +148,24 @@ export class AuthController {
       })
     }
 
+  }
+
+  me = async (req: Request, res: Response) => {
+    try {
+      console.log("[ME] Request Recived")
+      const userId = req.user.id
+      const userData = await this.meUsecase.execute(userId)
+      return res.status(200).json({ data: userData })
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(400).json({
+          message: error.message
+        })
+      }
+      console.log(error)
+      return res.status(500).json({
+        message: "Internal Server Error" 
+      })
+    }
   }
 }
