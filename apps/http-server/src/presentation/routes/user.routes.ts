@@ -6,5 +6,6 @@ const userRouter=Router()
 
 
 userRouter.get("/profile",Auth, userController.profile)
+userRouter.patch("/profile",Auth, userController.profileUpdate)
 
 export default userRouter
