@@ -1,5 +1,8 @@
+import type { UpdateUserDto } from "@repo/types";
 import { UserEmailInvalidError, UserEmailRequiredError, UserExistError, UserNameMaxError, UserNameMinError, UserNameRequiredError, UserNotExistError, UserPasswordMaxError, UserPasswordMinError, UserPasswordRequiredError } from "./UserError";
 import { UserRules } from "./UserRules";
+import { InvalidAiProviderError, SharedApiKeyEmpty, SharedDataNotProvide } from "../sharedError";
+import { AiProvider } from "@repo/db";
 
 export class UserValidator {
     static validateName(name: string): void {
@@ -37,15 +40,52 @@ export class UserValidator {
         }
     }
 
+    static validateupdateData(data: UpdateUserDto) {
+        if (Object.keys(data).length === 0) {
+            throw new SharedDataNotProvide();
+        }
 
-    static userExist(user:unknown){
-        if(user){
+        if (data.name !== undefined) {
+
+            const name = data.name.trim();
+
+            if (name === "") {
+                throw new UserNameRequiredError();
+            }
+
+            if (name.length < UserRules.MIN_LENGTH_NAME) {
+                throw new UserNameMinError();
+            }
+
+            if (name.length > UserRules.MAX_LENGTH_NAME) {
+                throw new UserNameMaxError();
+            }
+        }
+
+        if (
+            data.aiProvider !== undefined &&
+            !Object.values(AiProvider).includes(data.aiProvider)
+        ) {
+            throw new InvalidAiProviderError();
+        }
+
+        if (
+            data.apiKey !== undefined &&
+            data.apiKey.trim() === ""
+        ) {
+            throw new SharedApiKeyEmpty()
+        }
+    }
+
+
+    static userExist(user: unknown) {
+        if (user) {
             throw new UserExistError()
         }
     }
 
-    static UserNotExist(user:unknown){
-        if(!user){
+    static UserNotExist(user: unknown) {
+        if (!user) {
             throw new UserNotExistError()
         }
     }
