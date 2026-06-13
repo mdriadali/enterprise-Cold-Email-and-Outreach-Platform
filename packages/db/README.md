@@ -1,15 +1,40 @@
-# db
+# Database Package
 
-To install dependencies:
+Shared database package for the Enterprise Cold Email & Outreach Platform.
 
-```bash
-bun install
+Provides Prisma Client, database schema, migrations, and database utilities for all applications within the monorepo.
+
+## Responsibilities
+
+* Prisma Client Generation
+* Database Models
+* Database Enums
+* Database Migrations
+* PostgreSQL Integration
+* Shared Database Access
+
+## Technologies
+
+* PostgreSQL
+* Prisma ORM
+* Prisma Adapter PG
+
+## Structure
+
+```
+prisma/
+├── models/
+├── enums/
+└── migrations/
+
+generated/
+└── prisma/
+
+index.ts
 ```
 
-To run:
+## Usage
 
-```bash
-bun run index.ts
+```ts
+import { prismaClient } from "@repo/db";
 ```
-
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
