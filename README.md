@@ -1,159 +1,283 @@
-# Turborepo starter
+# AI-Powered Cold Email & Outreach Platform
 
-This Turborepo starter is maintained by the Turborepo core team.
+Enterprise-grade cold email and outreach automation platform built with modern software architecture principles.
 
-## Using this example
+Designed to evolve from a personal outbound automation tool into a scalable enterprise outreach infrastructure with AI-powered email generation, lead management, SMTP automation, workflow orchestration, and multi-tenant scalability.
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## Tech Stack
+
+### Backend
+- Bun
+- TypeScript
+- Express.js
+- PostgreSQL
+- Prisma ORM
+- JWT Authentication
+- Nodemailer
+- Cron Jobs
+
+### Frontend
+- Next.js
+- React
+- TypeScript
+
+### Architecture
+- Hexagonal Architecture (Ports & Adapters)
+- Class-Based Design
+- Dependency Injection
+- Domain-Driven Separation
+
+### DevOps
+- Docker
+- Docker Compose
+- GitHub Actions
+- Turborepo Monorepo
+
+---
+
+## Key Features
+
+### Authentication
+- JWT Authentication
+- Refresh Token Flow
+- User Profile Management
+- API Key Management
+
+### Lead Management
+- CSV/Excel Import
+- Email Validation
+- Duplicate Detection
+- Tags & Custom Fields
+- Lead Activity Timeline
+
+### AI Email Generation
+- OpenAI / Anthropic Support
+- Personalized Email Generation
+- Dynamic Lead Variables
+- Tone & Persona Control
+- Translation & Rewrite Tools
+
+### Email Sending
+- Custom SMTP Integration
+- Scheduler Engine
+- Daily Sending Limits
+- Ramp-Up System
+- Campaign Kill Switch
+- Failure Logging
+
+### Analytics
+- Lead History Tracking
+- Delivery Monitoring
+- Campaign Statistics
+
+---
+
+# Architecture
+
+The project follows **Hexagonal Architecture (Ports & Adapters)**.
+
+```text
+Presentation Layer
+        │
+        ▼
+Application Layer
+        │
+        ▼
+Domain Layer
+        │
+        ▼
+Infrastructure Layer
 ```
 
-## What's inside?
+### Domain
+Contains pure business logic.
 
-This Turborepo includes the following packages/apps:
+- No database calls
+- No external APIs
+- No third-party dependencies
 
-### Apps and Packages
+### Application
+Contains use cases and interfaces (ports).
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Examples:
+- ILeadRepository
+- IEmailSender
+- IAIEngine
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Infrastructure
+Contains adapter implementations.
 
-### Utilities
+Examples:
+- Prisma Repositories
+- OpenAI Adapter
+- SMTP Adapter
 
-This Turborepo has some additional tools already setup for you:
+### Presentation
+Handles:
+- Controllers
+- Routes
+- Middleware
+- Dependency Injection Container
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+---
 
-### Build
+# Project Structure
 
-To build all apps and packages, run the following command:
+```text
+enterprise-Cold-Email-and-Outreach-Platform/
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+apps/
+├── web/                 # Next.js frontend
+└── http-server/         # Express backend
 
-```sh
-cd my-turborepo
-turbo build
+packages/
+├── db/                  # Prisma & PostgreSQL
+├── env/                 # Environment validation
+├── ui/                  # Shared UI components
+├── eslint-config/
+└── typescript-config/
+
+docker-compose.yml
+turbo.json
+package.json
 ```
 
-Without global `turbo`, use your package manager:
+---
 
-```sh
-cd my-turborepo
-npx turbo build
-bun dlx turbo build
-bun exec turbo build
+# Development Roadmap
+
+## Phase 1 — MVP
+- Authentication
+- Lead Management
+- AI Email Generation
+- SMTP Sending
+- Daily Limits
+- Scheduler Engine
+
+## Phase 2 — Advanced Automation
+- Email Warmup
+- SMTP Rotation
+- Lead Enrichment
+- Smart Filtering
+- Deliverability Protection
+
+## Phase 3 — AI Agent System
+- Research Agent
+- Lead Analysis Agent
+- Follow-up Agent
+- Spam Detection Agent
+- Analytics Agent
+- Multi-Agent Orchestration
+
+## Phase 4 — Enterprise Scale
+- Multi-Tenant Architecture
+- RBAC & ABAC
+- SSO/SAML
+- Audit Logs
+- Compliance Controls
+- Advanced Security
+
+---
+
+# Local Development
+
+## Clone Repository
+
+```bash
+git clone <https://github.com/mdriadali/enterprise-Cold-Email-and-Outreach-Platform>
+
+cd enterprise-Cold-Email-and-Outreach-Platform
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Install Dependencies
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+bun install
 ```
 
-Without global `turbo`:
+## Start Development Environment
 
-```sh
-npx turbo build --filter=docs
-bun exec turbo build --filter=docs
-bun exec turbo build --filter=docs
+```bash
+docker compose up -d
 ```
 
-### Develop
+## Run Applications
 
-To develop all apps and packages, run the following command:
+Frontend
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+bun run dev
 ```
 
-Without global `turbo`, use your package manager:
+Backend
 
-```sh
-cd my-turborepo
-npx turbo dev
-bun exec turbo dev
-bun exec turbo dev
+```bash
+bun run dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+# Docker
 
-```sh
-turbo dev --filter=web
+The project uses Docker for consistent local development.
+
+Services include:
+
+- PostgreSQL
+- Backend API
+- Frontend Application
+
+Start all services:
+
+```bash
+docker compose up -d
 ```
 
-Without global `turbo`:
+Stop services:
 
-```sh
-npx turbo dev --filter=web
-bun exec turbo dev --filter=web
-bun exec turbo dev --filter=web
+```bash
+docker compose down
 ```
 
-### Remote Caching
+---
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+# CI/CD
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+GitHub Actions automatically:
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+- Install dependencies
+- Run lint checks
+- Run type checking
+- Execute tests
+- Build applications
+- Validate Docker images
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+---
 
-```sh
-cd my-turborepo
-turbo login
-```
+# Contributing
 
-Without global `turbo`, use your package manager:
+1. Fork the repository
+2. Create a feature branch
+3. Follow Hexagonal Architecture principles
+4. Keep domain layer pure
+5. Submit a Pull Request
 
-```sh
-cd my-turborepo
-npx turbo login
-bun exec turbo login
-bun exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+# Design Principles
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- Clean Architecture
+- Hexagonal Architecture
+- Class-Based Design
+- SOLID Principles
+- Dependency Injection
+- Separation of Concerns
+- Scalable Monorepo Structure
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo link
-```
+# License
 
-Without global `turbo`:
-
-```sh
-npx turbo link
-bun exec turbo link
-bun exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+MIT License
