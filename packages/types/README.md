@@ -1,15 +1,28 @@
-# types
+# Types Package
 
-To install dependencies:
+Shared TypeScript types and interfaces used across the monorepo.
 
-```bash
-bun install
+Provides a single source of truth for DTOs, interfaces, request types, response types, and shared contracts.
+
+## Responsibilities
+
+* Shared Interfaces
+* DTO Definitions
+* Request Types
+* Response Types
+* Cross-App Type Sharing
+
+## Structure
+
+```text
+src/
+├── auth-types.ts
+├── user-types.ts
 ```
 
-To run:
+## Usage
 
-```bash
-bun run index.ts
+```ts
+import type { UserData } from "@repo/types/user-types";
+import type { LoginDto } from "@repo/types/auth-types";
 ```
-
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
