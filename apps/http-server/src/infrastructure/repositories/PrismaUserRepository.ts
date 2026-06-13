@@ -1,4 +1,4 @@
-import type { CreatedUserData, RegisterUserInput, Userdata } from "@repo/types";
+import type { CreatedUserData, RegisterUserInput, UpdateUserDto, Userdata } from "@repo/types";
 import type { IUserRepository } from "../../application/ports/repositories/UserRepository-ports";
 import { prismaClient } from "@repo/db";
 
@@ -75,6 +75,18 @@ export class PrismaUserRepository implements IUserRepository {
       apiKey: user?.apiKey
     }
 
+  }
+
+  async updateById(id: string, data: UpdateUserDto): Promise<Userdata> {
+    const updateUser = await prismaClient.user.update({
+      where: {
+        id
+      },
+      data,
+    },
+    )
+
+    return updateUser
   }
 
 
