@@ -1,63 +1,13 @@
 import { Router } from "express";
-import { AuthController } from "../controllers/AuthController";
-import { BcryptPasswordHasher } from "../../infrastructure/auth/BcryptPasswordHasher";
-import { PrismaUserRepository } from "../../infrastructure/repositories/PrismaUserRepository";
-import { JwtTokenGenerator } from "../../infrastructure/auth/JwtTokenGenerator";
-import { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUser-UseCase";
-import { LoginUserUseCase } from "../../application/use-cases/auth/LoginUser-UseCase";
-import { PrismaRefreshToken } from "../../infrastructure/repositories/PrismaRefreshToken";
-import { AuthMiddleware } from "../middlewares/AuthMiddleware";
-import { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
-import { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
-import { MeUseCase } from "../../application/use-cases/auth/Me-UseCase";
+import { Auth } from "../container/authMiddeleware-dependencies";
+import { authController } from "../container/authController-dependencies";
+
 
 const authRouter = Router();
-const bcryptPasswordHasher = new BcryptPasswordHasher
-const prismaUserRepository = new PrismaUserRepository
-const jwtTokenGenerator = new JwtTokenGenerator
-const prismaRefreshToken = new PrismaRefreshToken
-
-
-const registerUseCase =
-    new RegisterUserUseCase(
-        bcryptPasswordHasher,
-        prismaUserRepository,
-        jwtTokenGenerator,
-        prismaRefreshToken
-    );
-
-const loginUserUseCase = new LoginUserUseCase(
-    prismaUserRepository,
-    bcryptPasswordHasher,
-    jwtTokenGenerator,
-    prismaRefreshToken
-)
-const logoutUserUseCase = new LogoutUserUseCase(
-    prismaRefreshToken
-)
-
-const refreshUseCase=new RefreshUseCase(
-    prismaRefreshToken,
-    jwtTokenGenerator
-)
-
-const authMiddleware = new AuthMiddleware(
-    jwtTokenGenerator,
-    prismaUserRepository,
-)
-
-const meUsecase=new MeUseCase(
-    prismaUserRepository
-)
-
-
-
-const authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase,refreshUseCase,meUsecase);
 
 authRouter.post("/register", authController.register);
 authRouter.post("/login", authController.login)
-authRouter.post("/logout", authMiddleware.execute.bind(authMiddleware), authController.logout)
+authRouter.post("/logout", Auth, authController.logout)
 authRouter.post("/refresh", authController.refresh)
-authRouter.get("/me",authMiddleware.execute.bind(authMiddleware),authController.me)
 
 export default authRouter;
