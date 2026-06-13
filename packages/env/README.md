@@ -1,15 +1,27 @@
-# env
+# Environment Package
 
-To install dependencies:
+Shared environment validation package for all applications in the monorepo.
 
-```bash
-bun install
+Provides centralized environment variable validation and type-safe configuration management.
+
+## Responsibilities
+
+* Shared Environment Variables
+* Server Environment Variables
+* Runtime Validation
+* Type-Safe Configuration
+* Startup Validation
+
+## Features
+
+* Required Variable Validation
+* Type Safety
+* Fail Fast Startup Validation
+* Shared Configuration Across Apps
+
+## Usage
+
+```ts
+import { serverEnv } from "@repo/env/server-env";
+import { sharedEnv } from "@repo/env/shared-env";
 ```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.14. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
