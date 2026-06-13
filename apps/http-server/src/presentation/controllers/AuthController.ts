@@ -6,7 +6,6 @@ import type { LoginUserUseCase } from "../../application/use-cases/auth/LoginUse
 import type { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { AppError } from "../../domain/AppError";
 import type { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
-import type { MeUseCase } from "../../application/use-cases/auth/Me-UseCase";
 
 
 export class AuthController {
@@ -15,7 +14,6 @@ export class AuthController {
     private readonly loginUserUseCase: LoginUserUseCase,
     private readonly logoutUserUseCase: LogoutUserUseCase,
     private readonly refreshUseCase: RefreshUseCase,
-    private readonly meUsecase: MeUseCase
   ) { }
 
   register = async (req: Request, res: Response) => {
@@ -47,7 +45,7 @@ export class AuthController {
         })
       }
 
-      console.log(error)
+      console.error("[Register] internal server error",error)
 
       return res.status(500).json({
         message: "Internal Server Error"
@@ -82,7 +80,7 @@ export class AuthController {
           message: error.message
         })
       }
-      console.log(error)
+      console.error("[Login] internal server error",error)
       return res.status(500).json({
         message: "Internal Server Error"
       });
@@ -111,8 +109,9 @@ export class AuthController {
           message: error.message
         })
       }
+      console.error("[Logout] internal server error")
       return res.status(500).json({
-        message: error instanceof Error ? error.message : "somthing went wrong"
+        message:  "Internal server error"
       });
     }
   }
@@ -141,31 +140,12 @@ export class AuthController {
         })
       }
 
-      console.log(error)
+      console.error("[Refresh] Internal server error",error)
 
       return res.status(500).json({
         massage: "Internal Server Error"
       })
     }
 
-  }
-
-  me = async (req: Request, res: Response) => {
-    try {
-      console.log("[ME] Request Recived")
-      const userId = req.user.id
-      const userData = await this.meUsecase.execute(userId)
-      return res.status(200).json({ data: userData })
-    } catch (error) {
-      if (error instanceof AppError) {
-        return res.status(400).json({
-          message: error.message
-        })
-      }
-      console.log(error)
-      return res.status(500).json({
-        message: "Internal Server Error" 
-      })
-    }
   }
 }
