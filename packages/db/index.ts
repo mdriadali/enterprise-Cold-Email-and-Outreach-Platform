@@ -14,3 +14,5 @@ const adapter = new PrismaPg(pool);
 export const prismaClient = new PrismaClient({
   adapter,
 });
+
+export * from "./generated/prisma/enums";
