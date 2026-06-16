@@ -1,0 +1,37 @@
+model Workspace {
+  id   String @id @default(uuid())
+  name String
+
+  ownerId String
+  owner   User   @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+
+  members WorkspaceMember[]
+  // smtpAccounts   SmtpAccount[]
+  // generationJob  GenerationJob[]
+  // leads           Lead[]
+  // generatedEmail GeneratedEmail[]
+
+  // campaigns     Campaign[]
+  // campaignEmail CampaignEmail[]
+  // emailLog      EmailLog[]
+
+  @@index([ownerId])
+}
+
+// model Lead {
+//   id String @id @default(uuid())
+
+//   workspaceId String
+//   jobId String
+
+//   email String
+
+//   metadata Json?
+
+//   status LeadStatus
+
+//   generatedEmailData Json?
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
