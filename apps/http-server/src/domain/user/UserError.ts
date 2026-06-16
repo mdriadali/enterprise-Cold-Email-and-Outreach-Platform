@@ -3,6 +3,7 @@
 // Name All errors
 
 import { AppError } from "../AppError"
+import { UserRules } from "./UserRules"
 
 export class UserNameRequiredError extends AppError {
     constructor() {
@@ -11,12 +12,12 @@ export class UserNameRequiredError extends AppError {
 }
 export class UserNameMinError extends AppError {
     constructor() {
-        super("Name must be at least 2 characters long")
+        super(`Name must be at least ${UserRules.MIN_LENGTH_NAME} characters long`)
     }
 }
 export class UserNameMaxError extends AppError {
     constructor() {
-        super("Name must not exceed 20 characters")
+        super(`Name must not exceed ${UserRules.MAX_LENGTH_NAME} characters`)
     }
 }
 
