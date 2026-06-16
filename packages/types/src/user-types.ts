@@ -1,4 +1,5 @@
-import { AiProvider } from "@repo/db/generated/prisma/enums";
+import type { AiProvider } from "@repo/db"
+
 export interface Userdata {
     id: string
     name: string
