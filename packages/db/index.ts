@@ -1,6 +1,5 @@
-
-import { PrismaClient } from "./generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "@prisma/client";
 import { sharedEnv } from "@repo/env/shared-env";
 import { Pool } from "pg";
 
@@ -14,5 +13,4 @@ const adapter = new PrismaPg(pool);
 export const prismaClient = new PrismaClient({
   adapter,
 });
-
-export * from "./generated/prisma/enums";
+export * from "@prisma/client";
