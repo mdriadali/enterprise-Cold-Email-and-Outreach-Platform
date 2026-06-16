@@ -1,0 +1,13 @@
+model User {
+  id                   String            @id @default(uuid())
+  name                 String
+  email                String            @unique
+  password             String
+  refreshTokens        RefreshToken[]
+  ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  role                 Role              @default(USER)
+  subscription         Subscription      @default(STARTER)
+  aiProvider           AiProvider        @default(GEMINI)
+  apiKey               String            @default("")
+}
