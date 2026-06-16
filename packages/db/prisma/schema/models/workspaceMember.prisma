@@ -1,0 +1,15 @@
+model WorkspaceMember {
+  id String @id @default(cuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  role      WorkspaceMemberRole
+  createdAt DateTime            @default(now())
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
