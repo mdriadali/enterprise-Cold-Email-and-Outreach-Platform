@@ -1,0 +1,4 @@
+enum WorkspaceMemberRole {
+  OWNER
+  MEMBER
+}
