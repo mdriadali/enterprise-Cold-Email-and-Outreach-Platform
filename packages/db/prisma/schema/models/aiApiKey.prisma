@@ -1,0 +1,11 @@
+model AiApi {
+    id              String      @id @default(cuid())
+    ownerId         String
+    owner           User        @relation(fields: [ownerId], references: [id])
+    aiProvider      AiProvider  @default(GEMINI)
+    apiKey          String      @default("")
+    tokenUsed       Int         @default(0)
+    totalGenaration Int         @default(0)
+    status          aiApiStatus @default(STOP)
+    createdAt       DateTime    @default(now())
+}
