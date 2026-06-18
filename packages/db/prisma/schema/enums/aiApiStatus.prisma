@@ -1,0 +1,6 @@
+enum aiApiStatus {
+STOP
+RUNNING
+INVALID
+TOKENREACHED
+}
