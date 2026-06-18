@@ -39,14 +39,6 @@ export class UserController {
             if (req.body.name !== undefined) {
                 updateData.name = req.body.name;
             }
-
-            if (req.body.aiProvider !== undefined) {
-                updateData.aiProvider = req.body.aiProvider;
-            }
-
-            if (req.body.apiKey !== undefined) {
-                updateData.apiKey = req.body.apiKey;
-            }
             const updateUser = await this.profileUpdateUseCase.execute(userId, updateData)
             console.log("[profile Update] data send sucessfully")
             return res.status(200).json({
