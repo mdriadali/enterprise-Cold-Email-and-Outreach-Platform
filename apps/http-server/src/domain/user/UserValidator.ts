@@ -61,20 +61,7 @@ export class UserValidator {
                 throw new UserNameMaxError();
             }
         }
-
-        if (
-            data.aiProvider !== undefined &&
-            !Object.values(AiProvider).includes(data.aiProvider)
-        ) {
-            throw new InvalidAiProviderError();
-        }
-
-        if (
-            data.apiKey !== undefined &&
-            data.apiKey.trim() === ""
-        ) {
-            throw new SharedApiKeyEmpty()
-        }
+        
     }
 
 
