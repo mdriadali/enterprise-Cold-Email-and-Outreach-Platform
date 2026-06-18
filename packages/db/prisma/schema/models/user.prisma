@@ -8,6 +8,5 @@ model User {
   workspaceMemberships WorkspaceMember[]
   role                 Role              @default(USER)
   subscription         Subscription      @default(STARTER)
-  aiProvider           AiProvider        @default(GEMINI)
-  apiKey               String            @default("")
+  aiApi                AiApi[]
 }
