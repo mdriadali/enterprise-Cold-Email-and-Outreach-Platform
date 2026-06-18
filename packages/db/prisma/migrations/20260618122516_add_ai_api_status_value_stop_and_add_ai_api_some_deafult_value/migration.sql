@@ -1,0 +1,7 @@
+-- AlterEnum
+ALTER TYPE "aiApiStatus" ADD VALUE 'STOP';
+
+-- AlterTable
+ALTER TABLE "AiApi" ALTER COLUMN "tokenUsed" SET DEFAULT 0,
+ALTER COLUMN "totalGenaration" SET DEFAULT 0,
+ALTER COLUMN "status" SET DEFAULT 'STOP';
