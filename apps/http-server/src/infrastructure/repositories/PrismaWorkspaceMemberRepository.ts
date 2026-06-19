@@ -14,4 +14,17 @@ export class PrismaWorkspaceMember implements IWorkspaceMemberRepository {
 
         return newMember
     }
+
+
+    async findByWorkspaceAndUser(workspaceId: string, userId: string): Promise<workspaceMemberData | null> {
+        const workspaceMember = await prismaClient.workspaceMember.findUnique({
+            where: {
+                workspaceId_userId: {
+                    workspaceId,
+                    userId,
+                },
+            },
+        });
+        return workspaceMember
+    }
 }
