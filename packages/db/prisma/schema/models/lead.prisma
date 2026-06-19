@@ -1,0 +1,13 @@
+model Lead {
+  id String @id @default(uuid())
+  generationJobId String
+  generationJob GenerationJob @relation(fields: [generationJobId],references: [id])
+
+  email String
+
+  metadata Json?
+
+  status LeadStatus
+
+  generatedEmailData Json?
+}
