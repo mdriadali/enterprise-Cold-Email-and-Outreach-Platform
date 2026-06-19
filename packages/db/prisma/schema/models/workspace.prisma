@@ -6,8 +6,8 @@ model Workspace {
   owner   User   @relation("WorkspaceOwner", fields: [ownerId], references: [id])
 
   members WorkspaceMember[]
+  generationJob  GenerationJob[]
   // smtpAccounts   SmtpAccount[]
-  // generationJob  GenerationJob[]
   // leads           Lead[]
   // generatedEmail GeneratedEmail[]
 
@@ -18,20 +18,3 @@ model Workspace {
   @@index([ownerId])
 }
 
-// model Lead {
-//   id String @id @default(uuid())
-
-//   workspaceId String
-//   jobId String
-
-//   email String
-
-//   metadata Json?
-
-//   status LeadStatus
-
-//   generatedEmailData Json?
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
