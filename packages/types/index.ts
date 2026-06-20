@@ -3,3 +3,4 @@ export * from "./src/auth-types";
 export * from "./src/workspace-types";
 export * from "./src/aiApi-types";
 export * from "./src/generationJob-types";
+export * from "./src/lead-types";
