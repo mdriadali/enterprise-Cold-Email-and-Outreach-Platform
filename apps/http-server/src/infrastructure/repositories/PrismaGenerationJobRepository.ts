@@ -12,4 +12,28 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
 
         return createJob
     }
+
+    async findByidAndworkspaceMember(userId: string, generationJobId: string): Promise<GenerationJobData | null> {
+        const job = await prismaClient.generationJob.findFirst({
+            where: {
+                id: generationJobId,
+                workspace: {
+                    OR: [
+                        {
+                            ownerId: userId
+                        },
+                        {
+                            members: {
+                                some: {
+                                    userId
+                                }
+                            }
+                        }
+                    ]
+                }
+
+            }
+        })
+        return job
+    }
 }
