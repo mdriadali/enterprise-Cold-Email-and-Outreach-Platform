@@ -15,3 +15,9 @@ export class SharedApiKeyEmpty extends AppError {
         super("Api key cannot be empty")
     }
 }
+
+export class generationJobIdInvalid extends AppError{
+    constructor(){
+        super("invalid generationJobId")
+    }
+}
