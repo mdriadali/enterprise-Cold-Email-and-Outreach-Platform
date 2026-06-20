@@ -1,13 +1,15 @@
 model Lead {
-  id String @id @default(uuid())
+  id              String        @id @default(uuid())
   generationJobId String
-  generationJob GenerationJob @relation(fields: [generationJobId],references: [id])
+  generationJob   GenerationJob @relation(fields: [generationJobId], references: [id])
 
   email String
 
-  metadata Json?
+  metadata Json
 
-  status LeadStatus
+  status LeadStatus @default(PENDING)
 
   generatedEmailData Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
