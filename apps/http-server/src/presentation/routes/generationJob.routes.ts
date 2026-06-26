@@ -5,5 +5,6 @@ import { generationJobController } from "../container/generationJobController-de
 const generationJobRouter=Router()
 
 generationJobRouter.post("/create", Auth,generationJobController.create)
+generationJobRouter.post("/:jobid/start",Auth,generationJobController.start)
 
 export default generationJobRouter
