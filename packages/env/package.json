@@ -5,9 +5,14 @@
   "private": true,
   "main": "./index.ts",
   "exports": {
-     ".": "./index.ts",
-    "./shared-env": "./shared-env.ts",
-    "./server-env": "./server-env.ts"
+    "./server-env": "./src/server-env.ts",
+    "./auth-env": "./src/auth-env.ts",
+    "./worker-env": "./src/worker-env.ts",
+    "./web-env": "./src/web-env.ts",
+    "./schema": "./src/schema.ts",
+    "./db-env": "./src/db-env.ts",
+    "./queue-env": "./src/queue-env.ts"
+
   },
   "devDependencies": {
     "@types/bun": "latest"
