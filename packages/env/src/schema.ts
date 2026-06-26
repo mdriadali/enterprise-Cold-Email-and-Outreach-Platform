@@ -17,4 +17,6 @@ export const httpSchema = {
 export const redisSchema = {
   REDIS_HOST: z.string(),
   REDIS_PORT: z.coerce.number(),
+  REDIS_USERNAME:z.string(),
+  REDIS_PASSWORD:z.string(),
 };
