@@ -21,3 +21,9 @@ export class generationJobIdInvalid extends AppError{
         super("invalid generationJobId")
     }
 }
+
+export class notAccess extends AppError{
+    constructor(){
+        super("You don't have access")
+    }
+}
