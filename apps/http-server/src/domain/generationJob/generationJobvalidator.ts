@@ -1,5 +1,6 @@
-import type { workspaceMemberData } from "@repo/types";
-import { notAccessWorkspace, WorkspaceIdInvalidError } from "./generationJobError";
+import type { GenerationJobData, workspaceMemberData } from "@repo/types";
+import { GenerationIdInvalidError, WorkspaceIdInvalidError } from "./generationJobError";
+import { notAccess } from "../sharedError";
 
 export class GenerationJobValidator {
 
@@ -12,9 +13,21 @@ export class GenerationJobValidator {
     }
   }
 
-  static validatememberdata(data: workspaceMemberData|null) {
+  static validatememberdata(data: workspaceMemberData | null) {
     if (!data) {
-      throw new notAccessWorkspace()
+      throw new notAccess()
+    }
+  }
+
+  static validateGenerationId(id: string | null) {
+    if (!id) {
+      throw new GenerationIdInvalidError()
+    }
+  }
+
+  static validateUserAcessJob(data: GenerationJobData |null) {
+    if (!data) {
+      throw new notAccess()
     }
   }
 }
