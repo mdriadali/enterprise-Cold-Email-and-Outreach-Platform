@@ -1,10 +1,8 @@
-import type { RegisterUserInput } from "@repo/types";
-import type { IPasswordHasher } from "../../ports/auth/IPasswordHasher-ports";
-import type { IUserRepository } from "../../ports/repositories/UserRepository-ports";
-import type { IJwtTokenProvider } from "../../ports/auth/IJwtTokenProvider-ports";
-import { UserValidator } from "../../../domain/user/UserValidator";
-import { RegisterUserEntity } from "../../../domain/auth/Register-entity";
-import type { IRefreshTokenRepository } from "../../ports/repositories/RefreshTokenRepository-ports";
+import type { IJwtTokenProvider, IPasswordHasher, IRefreshTokenRepository, IUserRepository } from "@repo/ports"
+import type { RegisterUserInput } from "@repo/types"
+import { RegisterUserEntity } from "../../../domain/auth/Register-entity"
+import { UserValidator } from "../../../domain/user/UserValidator"
+
 
 
 export class RegisterUserUseCase {
