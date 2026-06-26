@@ -1,6 +1,7 @@
+import type { IRefreshTokenRepository } from "@repo/ports";
 import { AuthValidator } from "../../../domain/auth/AuthValidator";
 import { UnauthorizedError } from "../../../domain/auth/Error";
-import type { IRefreshTokenRepository } from "../../ports/repositories/RefreshTokenRepository-ports";
+
 
 export class LogoutUserUseCase {
     constructor(
