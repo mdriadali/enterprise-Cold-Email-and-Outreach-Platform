@@ -1,7 +1,8 @@
 import express from "express";
 import routes from "./presentation/routes";
-import { serverEnv } from "@repo/env/server-env";
 import cookieParser from "cookie-parser";
+import { serverEnv } from "@repo/env/server-env";
+
 
 const app = express();
 app.use(cookieParser());
