@@ -1,6 +1,7 @@
+import type { IWorkspaceMemberRepository, IWorkspaceRepository } from "@repo/ports"
 import { workspaceValidator } from "../../../domain/workspace/workspaceValidator"
-import type { IWorkspaceMemberRepository } from "../../ports/repositories/WorkspaceMemberRepository-ports"
-import type { IWorkspaceRepository } from "../../ports/repositories/WorkspaceRepository-ports"
+
+
 
 export class CreateWorkspaceUseCase {
     constructor(
