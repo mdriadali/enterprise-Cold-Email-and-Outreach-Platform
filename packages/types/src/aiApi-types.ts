@@ -10,3 +10,16 @@ export interface aiApiData {
     status: string,
     createdAt: Date
 }
+
+
+
+
+
+export interface ErrorResponse {
+    error: {
+        type: "RATE_LIMIT" | "INVALID_API_KEY" | "SERVICE_UNAVAILABLE";
+        code: number;
+        message: string;
+    };
+}
+
