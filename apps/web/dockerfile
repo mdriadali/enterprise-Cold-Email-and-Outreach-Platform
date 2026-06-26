@@ -2,7 +2,6 @@ FROM oven/bun:1
 
 WORKDIR /usr/src/app
 
-ARG DATABASE_URL
 
 COPY ./packages ./packages
 COPY ./bun.lock ./bun.lock
@@ -14,14 +13,10 @@ COPY ./turbo.json ./turbo.json
 
 COPY ./apps/web ./apps/web
 
-# ENV DATABASE_URL=$DATABASE_URL
 
 
 
 RUN bun install
-RUN bun run db:generate
-RUN echo "DATABASE_URL=$DATABASE_URL" > .env.local
-RUN cat .env.local
 RUN bun run build
 
 EXPOSE 3000
