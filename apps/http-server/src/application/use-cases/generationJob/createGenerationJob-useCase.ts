@@ -1,6 +1,6 @@
+import type { IGenerationJobRepository, IWorkspaceMemberRepository } from "@repo/ports";
 import { GenerationJobValidator } from "../../../domain/generationJob/generationJobvalidator";
-import type { IGenerationJobRepository } from "../../ports/repositories/GenerationJobRepository-ports";
-import type { IWorkspaceMemberRepository } from "../../ports/repositories/WorkspaceMemberRepository-ports";
+
 
 export class CreategenerationJobUseCase {
     constructor(
