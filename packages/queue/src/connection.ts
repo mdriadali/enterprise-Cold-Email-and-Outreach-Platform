@@ -6,7 +6,11 @@ import IORedis from "ioredis";
 export const redisConnectionConfig = {
   host: queueEnv.REDIS_HOST,
   port: Number(queueEnv.REDIS_PORT),
+  username: queueEnv.REDIS_USERNAME,
+  password: queueEnv.REDIS_PASSWORD,
+  tls: {},
 };
+
 
 // IORedis instance — use this for direct Redis operations (caching, sessions, verification, etc.)
 export const redisConnection = new IORedis(redisConnectionConfig);
