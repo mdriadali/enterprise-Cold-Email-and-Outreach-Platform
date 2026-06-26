@@ -1,11 +1,10 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { sharedEnv } from "@repo/env/shared-env";
+import { dbEnv } from "@repo/env/db-env";
 import { Pool } from "pg";
 
-
 const pool = new Pool({
-  connectionString: sharedEnv.DATABASE_URL,
+  connectionString: dbEnv.DATABASE_URL,
 });
 
 const adapter = new PrismaPg(pool);
