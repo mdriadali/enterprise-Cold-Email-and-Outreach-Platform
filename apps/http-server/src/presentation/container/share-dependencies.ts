@@ -1,12 +1,6 @@
-import { BcryptPasswordHasher } from "../../infrastructure/auth/BcryptPasswordHasher"
-import { JwtTokenGenerator } from "../../infrastructure/auth/JwtTokenGenerator"
-import { PrismaAiApiRepository } from "../../infrastructure/repositories/PrismaAiApiRepository"
-import { PrismaGenerationJobRepository } from "../../infrastructure/repositories/PrismaGenerationJobRepository"
-import { PrismaLeadRepository } from "../../infrastructure/repositories/PrismaLeadRepository"
-import { PrismaRefreshToken } from "../../infrastructure/repositories/PrismaRefreshToken"
-import { PrismaUserRepository } from "../../infrastructure/repositories/PrismaUserRepository"
-import { PrismaWorkspace } from "../../infrastructure/repositories/PrismaWorkspace"
-import { PrismaWorkspaceMember } from "../../infrastructure/repositories/PrismaWorkspaceMemberRepository"
+import { BcryptPasswordHasher, JwtTokenGenerator } from "@repo/infrastructure/auth"
+import { PrismaAiApiRepository, PrismaGenerationJobRepository, PrismaLeadRepository, PrismaRefreshToken, PrismaUserRepository, PrismaWorkspace, PrismaWorkspaceMember } from "@repo/infrastructure/repositories"
+
 
 export const bcryptPasswordHasher = new BcryptPasswordHasher
 export const prismaUserRepository = new PrismaUserRepository
