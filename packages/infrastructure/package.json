@@ -1,0 +1,29 @@
+{
+  "name": "@repo/infrastructure",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "exports": {
+    "./auth": "./src/auth/index.ts",
+    "./repositories": "./src/repositories/index.ts",
+    "./ai": "./src/ai/index.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^2.9.0",
+    "@repo/db": "*",
+    "@repo/env": "*",
+    "@repo/ports": "workspace:*",
+    "@repo/types": "*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "openai": "^6.44.0"
+  }
+}
