@@ -1,0 +1,20 @@
+{
+  "name": "@repo/queue",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "bullmq": "^5.79.1",
+    "ioredis": "^5.11.1",
+    "@repo/env":"workspace:*"
+  }
+}
