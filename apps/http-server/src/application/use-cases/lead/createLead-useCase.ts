@@ -1,7 +1,7 @@
 import type { leadInputdata } from "@repo/types";
 import { LeadValidator } from "../../../domain/lead/leadvalidator";
-import type { IGenerationJobRepository } from "../../ports/repositories/GenerationJobRepository-ports";
-import type { ILeadRepository } from "../../ports/repositories/LeadRepository-ports";
+import type { IGenerationJobRepository, ILeadRepository } from "@repo/ports";
+
 
 export class CreateLeadUseCase {
     constructor(
