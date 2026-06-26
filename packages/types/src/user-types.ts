@@ -7,8 +7,6 @@ export interface Userdata {
     password: string
     role: string
     subscription: string
-    aiProvider: string
-    apiKey: string
 }
 
 export interface CreatedUserData {
