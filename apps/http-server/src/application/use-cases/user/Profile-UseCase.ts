@@ -1,5 +1,6 @@
+import type { IUserRepository } from "@repo/ports"
 import { UserValidator } from "../../../domain/user/UserValidator"
-import type { IUserRepository } from "../../ports/repositories/UserRepository-ports"
+
 
 export class ProfileUseCase {
     constructor(
