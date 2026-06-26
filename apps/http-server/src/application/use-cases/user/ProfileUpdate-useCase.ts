@@ -1,6 +1,7 @@
 import type { UpdateUserDto } from "@repo/types";
-import type { IUserRepository } from "../../ports/repositories/UserRepository-ports";
+
 import { UserValidator } from "../../../domain/user/UserValidator";
+import type { IUserRepository } from "@repo/ports";
 
 
 export class ProfileUpdateUseCase {
