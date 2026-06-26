@@ -1,5 +1,6 @@
 enum AiProvider {
   GEMINI
-  OPENAI
-  ANTHROPIC
+  GROQ
+  OPENROUTER
+  CEREBRAS
 }

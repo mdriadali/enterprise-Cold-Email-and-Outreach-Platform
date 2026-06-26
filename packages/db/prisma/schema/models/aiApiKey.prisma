@@ -6,6 +6,6 @@ model AiApi {
     apiKey          String      @default("")
     tokenUsed       Int         @default(0)
     totalGenaration Int         @default(0)
-    status          aiApiStatus @default(STOP)
+    status          aiApiStatus @default(AVAILABLE)
     createdAt       DateTime    @default(now())
 }
