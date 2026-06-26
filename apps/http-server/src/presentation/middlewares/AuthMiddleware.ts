@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AuthValidator } from "../../domain/auth/AuthValidator";
-import type { IJwtTokenProvider } from "../../application/ports/auth/IJwtTokenProvider-ports";
-import type { IUserRepository } from "../../application/ports/repositories/UserRepository-ports";
+import type { IJwtTokenProvider } from "@repo/ports/src/auth/IJwtTokenProvider-ports";
+import type { IUserRepository } from "@repo/ports/src/repositories/UserRepository-ports";
 import { UserValidator } from "../../domain/user/UserValidator";
 import jwt from "jsonwebtoken";
 
