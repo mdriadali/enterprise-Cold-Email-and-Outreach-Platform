@@ -1,0 +1,7 @@
+enum GenerationJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  WAITING_FOR_API_QUOTA
+}

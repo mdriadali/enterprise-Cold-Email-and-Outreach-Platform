@@ -1,17 +1,18 @@
 model GenerationJob {
-  id             String           @id @default(ulid())
-  workspaceId    String
-  workspace      Workspace        @relation(fields: [workspaceId], references: [id])
-  status         String           @default("PENDING")
-  lead           Lead[]
-  // totalLeads     Int
-  // pendingLeads   Int
-  // successLeds    Int
-  // rejectedLeads  Int
-  // campaign      Campaign[]
-  // generatedEmail GeneratedEmail[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id           String              @id @default(uuid())
+  workspaceId  String
+  workspace    Workspace           @relation(fields: [workspaceId], references: [id])
+  status       GenerationJobStatus @default(PENDING)
+  errorMessage String?
+
+  lead Lead[]
+
+  successCount Int?
+  failedCount  Int?
+  pendingCount Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([workspaceId])
 }
