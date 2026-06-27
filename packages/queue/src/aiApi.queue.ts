@@ -1,9 +1,9 @@
 import { Queue } from "bullmq";
-import { redisConnectionConfig } from "./connection";
+import { queueConnection } from "./connection";
 
 export const quotaResetQueue = new Queue(
   "reset-api-key",
   {
-    connection: redisConnectionConfig,
+    connection: queueConnection as any,
   }
 );
