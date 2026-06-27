@@ -2,36 +2,13 @@ FROM oven/bun:1
 
 WORKDIR /usr/src/app
 
-ARG DATABASE_URL
-ARG HTTP_PORT
-ARG JWT_ACCESS_SECRET
-ARG JWT_REFRESH_SECRET
-ARG REDIS_HOST
-ARG REDIS_PORT
 
 COPY ./packages ./packages
 COPY ./bun.lock ./bun.lock
 COPY ./package.json ./package.json
 COPY ./tsconfig.json ./tsconfig.json 
 COPY ./turbo.json ./turbo.json
-
-
-
 COPY ./apps/http-server ./apps/http-server
-
-# ENV DATABASE_URL=$DATABASE_URL
-# ENV HTTP_PORT=$HTTP_PORT
-# ENV JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET
-# ENV JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET
-
-
-RUN echo "DATABASE_URL=$DATABASE_URL" > .env.local && \
-    echo "HTTP_PORT=$HTTP_PORT" >> .env.local && \
-    echo "JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET" >> .env.local && \
-    echo "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" >> .env.local && \
-    echo "REDIS_HOST=$REDIS_HOST" >> .env.local && \
-    echo "REDIS_PORT=$REDIS_PORT" >> .env.local
-
 
 RUN bun install
 RUN bun run db:generate
