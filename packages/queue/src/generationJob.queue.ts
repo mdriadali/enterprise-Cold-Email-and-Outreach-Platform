@@ -1,11 +1,11 @@
 import { Queue } from "bullmq";
-import { redisConnectionConfig } from "./connection";
+import { queueConnection } from "./connection";
 
 export const generationQueue = new Queue("generation", {
-  connection: redisConnectionConfig,
+  connection: queueConnection as any,
 });
 
 
 // export const emailSendingQueue = new Queue("email-sending", {
-//   connection: redisConnectionConfig,
+//   connection: redisConnection as any,
 // });
