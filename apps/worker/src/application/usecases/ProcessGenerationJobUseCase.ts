@@ -94,7 +94,7 @@ export class ProcessGenerationUseCase {
 
                                 await quotaResetQueue.add(
                                     "reset-api-key-status",
-                                    { apiId: api.id },
+                                    { apiKeyId: api.id },
                                     {
                                         delay: 60 * 60 * 1000,
                                         jobId: `reset-${api.id}`,
