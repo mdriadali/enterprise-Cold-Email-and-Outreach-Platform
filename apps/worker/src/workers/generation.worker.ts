@@ -1,5 +1,5 @@
 import { Worker } from "bullmq";
-import { redisConnectionConfig } from "@repo/queue";
+import { queueConnection } from "@repo/queue";
 import { prosessGenerationUseCase } from "../container/processgeneration-usecase-dependencies";
 import { generationJobRepository } from "../container/dependencies";
 
@@ -26,7 +26,7 @@ new Worker(
         }
     },
     {
-        connection: redisConnectionConfig,
+        connection: queueConnection as any,
         concurrency: 5,
     }
 );
