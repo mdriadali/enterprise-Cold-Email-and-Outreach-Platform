@@ -23,3 +23,10 @@ export interface ErrorResponse {
     };
 }
 
+
+export interface ApiSummary {
+    total:number,
+    available:number,
+    rateLimited: number,
+    invalid: number,
+}
