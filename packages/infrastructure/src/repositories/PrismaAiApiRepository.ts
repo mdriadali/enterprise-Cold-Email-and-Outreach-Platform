@@ -1,6 +1,6 @@
 import { aiApiStatus, prismaClient, type AiProvider } from "@repo/db";
 import type { IAiApiRepository } from "@repo/ports";
-import type { aiApiData } from "@repo/types";
+import type { aiApiData, ApiSummary } from "@repo/types";
 
 export class PrismaAiApiRepository implements IAiApiRepository {
     async create(ownerId: string, provider: AiProvider, key: string): Promise<aiApiData> {
@@ -27,22 +27,63 @@ export class PrismaAiApiRepository implements IAiApiRepository {
         return apis
     }
 
-    async updateStatus(id: string, status: aiApiStatus): Promise<void> {
+    async getApiSummary(ownerId: string): Promise<ApiSummary> {
+        const result = await prismaClient.aiApi.groupBy({
+            by: ["status"],
+            where: {
+                ownerId,
+            },
+            _count: {
+                status: true,
+            },
+        });
+
+        const summary: ApiSummary = {
+            total: 0,
+            available: 0,
+            rateLimited: 0,
+            invalid: 0,
+        };
+
+        for (const row of result) {
+            summary.total += row._count.status;
+
+            switch (row.status) {
+                case "AVAILABLE":
+                    summary.available = row._count.status;
+                    break;
+
+                case "RATE_LIMITED":
+                    summary.rateLimited = row._count.status;
+                    break;
+
+                case "INVALID":
+                    summary.invalid = row._count.status;
+                    break;
+            }
+        }
+
+        return summary;
+    }
+
+    async updateStatus(id: string, status: aiApiStatus): Promise<aiApiData> {
         const update = await prismaClient.aiApi.update({
             where: {
                 id
             },
             data: {
-                status:status
+                status: status
             }
         })
+
+        return update
     }
 
     async findAvailableByOwnerId(ownerId: string): Promise<aiApiData[]> {
-        const find=await prismaClient.aiApi.findMany({
-            where:{
-                ownerId:ownerId,
-                status:"AVAILABLE"
+        const find = await prismaClient.aiApi.findMany({
+            where: {
+                ownerId: ownerId,
+                status: "AVAILABLE"
             }
         })
         return find
