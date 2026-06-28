@@ -22,7 +22,7 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
         )
         const refreshToken: string = jwt.sign({
             UserId
-        }, authEnv.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_DAYS });
+        }, authEnv.JWT_REFRESH_SECRET);
 
         return { token: refreshToken, expiresAt: expiresAt }
     }
@@ -41,6 +41,7 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
             token,
             authEnv.JWT_REFRESH_SECRET!
         ) as TokenPayload
+        console.log(payload)
         return payload
     }
 }
