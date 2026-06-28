@@ -3,13 +3,12 @@ import type {
     IGenerationJobRepository,
     ILeadRepository,
     IWorkspaceRepository,
-    // IGeneratedEmailRepository // এটি আপনার প্রোজেক্টে থাকলে ইমপোর্ট করে নিবেন
 } from "@repo/ports";
 import type { AiProvider, GenerationJobStatus } from "@repo/db";
 import type { AiProviderFactory } from "@repo/infrastructure/ai";
 import { coldEmailPrompt } from "../../prompts/cold-email.prompt";
 import { isErrorResponse } from "../../utils/isErrorResponse";
-import { quotaResetQueue } from "@repo/queue";
+import { resetApiStatusQueue } from "@repo/queue";
 
 export class ProcessGenerationUseCase {
     constructor(
@@ -18,7 +17,6 @@ export class ProcessGenerationUseCase {
         private readonly workspaceRepository: IWorkspaceRepository,
         private readonly aiApiRepository: IAiApiRepository,
         private readonly aiProviderFactory: AiProviderFactory,
-        // private readonly generatedEmailRepository: IGeneratedEmailRepository // ইমেইল সেভ করার জন্য
     ) { }
 
     async execute(jobId: string): Promise<void> {
@@ -38,32 +36,45 @@ export class ProcessGenerationUseCase {
             return
         }
 
-        let apis = await this.aiApiRepository.findAvailableByOwnerId(workspace.ownerId);
-
-        console.log(`Running process for Job: ${jobId}. Total pending leads: ${leads.length}`);
-
         if (leads.length === 0) {
-            console.log(`Job ${jobId} already finished.`);
+            console.log(`Job ${jobId} Already finished.`);
             await this.generationJobRepository.updateStatusById(jobId, "COMPLETED");
             return;
         }
 
+        const apiSummary = await this.aiApiRepository.getApiSummary(workspace.ownerId)
 
-        if (apis.length === 0) {
+
+        console.log(`Running process for Job: ${jobId}. Total pending leads: ${leads.length}`);
+
+        if (apiSummary.total === 0) {
             await this.generationJobRepository.updateStatusById(jobId, "FAILED", "No API key found");
             return console.log("No API key found")
         }
+
+        if (apiSummary.invalid === apiSummary.total) {
+            await this.generationJobRepository.updateStatusById(jobId, "FAILED", "All Api Key Invalid");
+            return console.log("All Api Key Invalid")
+        }
+
+        if (apiSummary.available === 0 && apiSummary.rateLimited > 0) {
+            await this.generationJobRepository.updateStatusById(jobId, "WAITING_FOR_API_QUOTA", "Watting For Api Quota");
+            return console.log("Watting For Api Quota")
+        }
+        let apis = await this.aiApiRepository.findAvailableByOwnerId(workspace.ownerId);
+
 
 
         await this.generationJobRepository.updateStatusById(jobId, "PROCESSING");
 
         let successCount = 0;
         let failedCount = 0;
+        let apiLength = apis.length
+        let reateLimit = 0
 
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
         for (const lead of leads) {
 
-            let generated = false;
 
             while (apis.length > 0) {
 
@@ -92,7 +103,7 @@ export class ProcessGenerationUseCase {
                                     "RATE_LIMITED"
                                 );
 
-                                await quotaResetQueue.add(
+                                await resetApiStatusQueue.add(
                                     "reset-api-key-status",
                                     { apiKeyId: api.id },
                                     {
@@ -103,6 +114,7 @@ export class ProcessGenerationUseCase {
                                     }
                                 );
 
+                                reateLimit++
 
                                 continue;
 
@@ -111,7 +123,6 @@ export class ProcessGenerationUseCase {
                                     api.id,
                                     "INVALID"
                                 );
-
                                 continue;
 
                             case "SERVICE_UNAVAILABLE":
@@ -124,14 +135,23 @@ export class ProcessGenerationUseCase {
                                 continue;
                         }
                     }
-                    console.log(response)
-                    const cleanedResponse = response
-                        .replace(/^```json\s*/i, "")
-                        .replace(/^```\s*/i, "")
-                        .replace(/\s*```$/, "")
-                        .trim();
+                    console.log("lead generated jobid :", jobId)
+                    // console.log(response)
 
-                    const emailData = JSON.parse(cleanedResponse);
+                    let emailData
+
+                    try {
+                        const cleanedResponse = response
+                            .replace(/^```json\s*/i, "")
+                            .replace(/^```\s*/i, "")
+                            .replace(/\s*```$/, "")
+                            .trim();
+
+                        emailData = JSON.parse(cleanedResponse);
+                    } catch (error) {
+                        continue
+                    }
+
 
                     await this.leadRepository.updateGeneratedEmailData(
                         lead.id,
@@ -147,8 +167,6 @@ export class ProcessGenerationUseCase {
 
 
                     apis.push(api);
-
-                    generated = true;
 
                     await delay(4000);
 
@@ -170,15 +188,18 @@ export class ProcessGenerationUseCase {
 
         let finalStatus: GenerationJobStatus;
 
-        if (failedCount === leads.length) {
-            finalStatus = "FAILED";
-        } else if (successCount === leads.length) {
+        if (successCount === leads.length) {
             finalStatus = "COMPLETED";
-        } else {
+        } else if (reateLimit === apiLength) {
             finalStatus = "WAITING_FOR_API_QUOTA";
+        } else {
+            finalStatus = "FAILED";
         }
+
+        console.log("successCount:", successCount)
+        console.log("failedCount:", failedCount)
         await this.generationJobRepository.updateStatusById(jobId, finalStatus);
 
-        console.log(`Job ${jobId} finished. Success: ${successCount}, Failed: ${failedCount}`);
+        console.log(`Job ${jobId} finished. Success: ${successCount},  Failed: ${failedCount}`);
     }
 }
