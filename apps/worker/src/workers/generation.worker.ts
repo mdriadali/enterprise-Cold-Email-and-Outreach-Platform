@@ -2,7 +2,7 @@ import { Worker } from "bullmq";
 import { queueConnection } from "@repo/queue";
 import { prosessGenerationUseCase } from "../container/processgeneration-usecase-dependencies";
 import { generationJobRepository } from "../container/dependencies";
-
+console.log("Generation Worker Start");
 new Worker(
     "generation",
     async (job) => {
