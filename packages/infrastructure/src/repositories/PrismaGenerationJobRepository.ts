@@ -55,7 +55,8 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
                 id
             },
             data:{
-                status:status
+                status:status,
+                errorMessage:errorMassage
             }
         })
         return updatejob
