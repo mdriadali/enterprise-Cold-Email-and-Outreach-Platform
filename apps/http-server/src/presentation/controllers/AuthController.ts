@@ -133,7 +133,13 @@ export class AuthController {
       const result = await this.refreshUseCase.execute(refreshToken)
       res.cookie(
         "accessToken",
-        result.accessToken
+        result.accessToken,
+         {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000,
+        sameSite: "lax",
+        secure: false
+      }
       )
       console.log("[Refresh] access Token Send sucessfully")
       return res.status(200).json({ sucess: true })
