@@ -26,15 +26,19 @@ export class AuthController {
       }
       const result = await this.registerUseCase.execute({ ...data, deviceInfo });
 
-      res.cookie(
-        "accessToken",
-        result.accessToken
-      );
+      res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000, 
+        sameSite: "lax",
+        secure: false
+      });
 
-      res.cookie(
-        "refreshToken",
-        result.refreshToken.token
-      );
+      res.cookie("refreshToken", result.refreshToken.token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, 
+        sameSite: "lax",
+        secure: false
+      });
 
       return res.status(200).json({ sucess: true });
     } catch (error) {
@@ -45,7 +49,7 @@ export class AuthController {
         })
       }
 
-      console.error("[Register] internal server error",error)
+      console.error("[Register] internal server error", error)
 
       return res.status(500).json({
         message: "Internal Server Error"
@@ -63,14 +67,20 @@ export class AuthController {
         userAgent: req.headers["user-agent"]
       }
       const result = await this.loginUserUseCase.execute({ ...loginData, deviceInfo })
-      res.cookie(
-        "accessToken",
-        result.accessToken
-      )
-      res.cookie(
-        "refreshToken",
-        result.refreshToken.token
-      )
+
+      res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000,
+        sameSite: "lax",
+        secure: false
+      });
+
+      res.cookie("refreshToken", result.refreshToken.token, {
+        httpOnly: true,
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        sameSite: "lax",
+        secure: false
+      });
       console.log("[Login] cookie send sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error: unknown) {
@@ -80,7 +90,7 @@ export class AuthController {
           message: error.message
         })
       }
-      console.error("[Login] internal server error",error)
+      console.error("[Login] internal server error", error)
       return res.status(500).json({
         message: "Internal Server Error"
       });
@@ -111,7 +121,7 @@ export class AuthController {
       }
       console.error("[Logout] internal server error")
       return res.status(500).json({
-        message:  "Internal server error"
+        message: "Internal server error"
       });
     }
   }
@@ -140,7 +150,7 @@ export class AuthController {
         })
       }
 
-      console.error("[Refresh] Internal server error",error)
+      console.error("[Refresh] Internal server error", error)
 
       return res.status(500).json({
         massage: "Internal Server Error"
