@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun --env-file=../../.env.local src/workers/generation.worker.ts",
-    "dev": "bun --env-file=../../.env.local --watch src/workers/generation.worker.ts",
-    "build": "bun build ./src/workers/generation.worker.ts --outdir ./dist --target bun",
+    "start": "bun --env-file=../../.env.local src/index.ts",
+    "dev": "bun --env-file=../../.env.local --watch src/index.ts",
+    "build": "bun build ./index.ts --outdir ./dist --target bun",
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {
