@@ -10,3 +10,9 @@ constructor(){
     super("You don't have access to this generation job")
 }
 }
+export class LeadError extends AppError{
+constructor(message:string){
+    super(message)
+}
+}
+
