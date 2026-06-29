@@ -10,7 +10,9 @@ export class StartGenerationJobUseCase {
     async execute(userId: string, generationJobId: string) {
         GenerationJobValidator.validateGenerationId(generationJobId)
         const job = await this.generationJobRepository.findByidAndworkspaceMember(userId, generationJobId)
-        GenerationJobValidator.validateUserAcessJob(job)
+        GenerationJobValidator.isGenerationJobExist(job)
+
+        GenerationJobValidator.jobCanStart(job!.status)
 
         const addQuue = await generationQueue.add(
             "job",
