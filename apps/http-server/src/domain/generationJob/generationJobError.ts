@@ -7,8 +7,8 @@ export class WorkspaceIdInvalidError extends AppError{
 }
 
 
-export class GenerationIdInvalidError extends AppError{
-    constructor(){
-        super("Generation Id Invalid")
+export class GenerationError extends AppError{
+    constructor(message:string){
+        super(message)
     }
 }
