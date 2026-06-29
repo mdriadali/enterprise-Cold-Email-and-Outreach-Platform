@@ -39,6 +39,7 @@ export class CreateBulkLeadUseCase {
                 );
 
         LeadValidator.validateJobAcess(job);
+        LeadValidator.isJobPending(job?.status ?? null)
 
         // Validate every lead
         for (const lead of leads) {
