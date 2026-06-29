@@ -14,6 +14,7 @@ export class CreateLeadUseCase {
         const job = await this.generationJobRepository.findByidAndworkspaceMember(userId, generationJobId)
 
         LeadValidator.validateJobAcess(job)
+        LeadValidator.isJobPending(job?.status??null)
 
         const createLead = await this.leadRepository.create(generationJobId, leadData)
         return createLead
