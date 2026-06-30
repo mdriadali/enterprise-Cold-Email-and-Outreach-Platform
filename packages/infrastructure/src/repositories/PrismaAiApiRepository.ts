@@ -3,10 +3,11 @@ import type { IAiApiRepository } from "@repo/ports";
 import type { aiApiData, ApiSummary } from "@repo/types";
 
 export class PrismaAiApiRepository implements IAiApiRepository {
-    async create(ownerId: string, provider: AiProvider, key: string): Promise<aiApiData> {
+    async create(ownerId: string, workspaceid: string, provider: AiProvider, key: string): Promise<aiApiData> {
         const createApi = await prismaClient.aiApi.create({
             data: {
                 ownerId: ownerId,
+                workspaceId: workspaceid,
                 aiProvider: provider,
                 apiKey: key
             }
