@@ -11,9 +11,11 @@ export class LeadController {
     create = async (req: Request, res: Response) => {
         try {
             console.log("[Lead create] Request Recived")
-            const uderid = req.user.id
-            const { generationJobId, leadData } = req.body
-            const lead = await this.createLeadUseCase.execute(uderid, generationJobId, leadData)
+            const userid = req.user.id
+            const { leadData } = req.body
+            const { generationJobId } = req.params
+            console.log("genId", generationJobId)
+            const lead = await this.createLeadUseCase.execute(userid, generationJobId as string, leadData)
             console.log("[Lead create] Sucessfully")
             return res.status(200).json({
                 lead
@@ -39,11 +41,11 @@ export class LeadController {
 
             const userId = req.user.id;
 
-            const { generationJobId, leads } = req.body;
-
+            const { leads } = req.body;
+            const { generationJobId } = req.params
             const createdLeads = await this.createBulkLeadUseCase.execute(
                 userId,
-                generationJobId,
+                generationJobId as string,
                 leads
             );
 
