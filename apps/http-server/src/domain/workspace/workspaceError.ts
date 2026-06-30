@@ -17,3 +17,7 @@ export class workspaceNameMaxError extends AppError {
         super(`Name must not exceed ${workspacerules.MAX_NAME} characters`)
     }
 }
+
+export class WorkspaceError extends AppError{
+    constructor(messae:string){super(messae)}
+}
