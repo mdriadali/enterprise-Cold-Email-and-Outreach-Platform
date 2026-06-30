@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { workspaceController } from "../container/workspacecontroller-dependencies";
-import { Auth } from "../container/authMiddeleware-dependencies";
+import { Auth, Workspace } from "../container/Middeleware-dependencies";
+import workspaceIdRouter from "./workspaceId.routes";
 
-const workspaceRouter=Router()
+const workspaceRouter = Router()
 
-workspaceRouter.post("/create",Auth, workspaceController.create)
+workspaceRouter.post("/create", Auth, workspaceController.create)
+
+
+workspaceRouter.use("/:workspaceId", Auth ,Workspace,workspaceIdRouter)
 
 export default workspaceRouter
