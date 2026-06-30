@@ -3,6 +3,7 @@ import { string } from "zod"
 export interface aiApiData {
     id: string,
     ownerId: string,
+    workspaceId:string
     aiProvider: string,
     apiKey: string,
     tokenUsed: Number,
