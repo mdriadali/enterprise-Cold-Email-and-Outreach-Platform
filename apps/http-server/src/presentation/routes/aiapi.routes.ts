@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { Auth } from "../container/authMiddeleware-dependencies";
+import { Auth } from "../container/Middeleware-dependencies";
 import { aiApiController } from "../container/aiApiController-dependencies";
 
-const aiApiRouter=Router()
+const aiApiRouter = Router()
 
-aiApiRouter.post("/create",Auth,aiApiController.create)
+aiApiRouter.post("/create", aiApiController.create)
 
 export default aiApiRouter
