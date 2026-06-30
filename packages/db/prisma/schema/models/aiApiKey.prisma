@@ -2,6 +2,8 @@ model AiApi {
     id              String      @id @default(cuid())
     ownerId         String
     owner           User        @relation(fields: [ownerId], references: [id])
+    workspaceId     String
+    workspace       Workspace   @relation(fields: [workspaceId], references: [id])
     aiProvider      AiProvider  @default(GEMINI)
     apiKey          String      @default("")
     tokenUsed       Int         @default(0)
