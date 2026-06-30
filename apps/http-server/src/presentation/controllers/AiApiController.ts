@@ -12,7 +12,8 @@ export class AiApiController {
             console.log("[aiApi create] Request Recived")
             const userId=req.user.id
             const {provider, key}=req.body
-            const newApi=await this.createAiAPiUseCase.execute(userId,provider,key)
+            const workspaceId = req.workspaceMember!.workspaceId
+            const newApi=await this.createAiAPiUseCase.execute(userId,workspaceId,provider,key)
             console.log("[aiApi create] sucessfully")
             return res.status(200).json({
                 apiData:newApi
