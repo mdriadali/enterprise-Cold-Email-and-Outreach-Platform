@@ -12,7 +12,7 @@ export class GenerationJobController {
         try {
             console.log("[GenerationJob Create] Request Recived ")
             const userid = req.user.id
-            const { workspaceId } = req.body
+            const  workspaceId  = req.workspaceMember!.workspaceId
             const generationJob = await this.creategenerationJobUseCase.execute(userid, workspaceId)
             console.log("[GenerationJob Create] Sucessfully")
             return res.status(200).json({
