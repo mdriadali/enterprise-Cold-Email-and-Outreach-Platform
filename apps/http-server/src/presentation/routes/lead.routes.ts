@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { Auth } from "../container/authMiddeleware-dependencies";
+import { Auth } from "../container/Middeleware-dependencies";
 import { leadController } from "../container/leadController-dependencie";
 
-const leadRouter=Router()
+const leadRouter = Router({ mergeParams: true })
 
-leadRouter.post("/create",Auth, leadController.create)
-leadRouter.post("/bulk-create",Auth,leadController.bulkCreate)
+leadRouter.post("/create", leadController.create)
+leadRouter.post("/bulk-create",leadController.bulkCreate)
 export default leadRouter
