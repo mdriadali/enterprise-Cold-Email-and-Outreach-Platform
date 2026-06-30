@@ -1,5 +1,6 @@
 import type { IWorkspaceMemberRepository, IWorkspaceRepository } from "@repo/ports"
-import { workspaceValidator } from "../../../domain/workspace/workspaceValidator"
+import { WorkspaceValidator } from "../../../domain/workspace/workspaceValidator"
+
 
 
 
@@ -10,7 +11,7 @@ export class CreateWorkspaceUseCase {
     ) { }
     async execute(userId: string, name: string) {
         console.log("[workspace create] trying user", userId)
-        workspaceValidator.validateName(name)
+        WorkspaceValidator.validateName(name)
 
         const newWorkspace = await this.workspaceRepository.create(userId, name)
         const newWorkspaceMember = await this.workspaceMemberRepository.create({
