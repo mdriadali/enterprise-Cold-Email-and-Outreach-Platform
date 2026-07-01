@@ -59,6 +59,7 @@ export class PrismaWorkspace implements IWorkspaceRepository {
                 id: true,
                 name: true,
                 email: true,
+                subscription:true
               },
             },
           },
