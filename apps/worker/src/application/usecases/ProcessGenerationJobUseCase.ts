@@ -42,7 +42,7 @@ export class ProcessGenerationUseCase {
             return;
         }
 
-        const apiSummary = await this.aiApiRepository.getApiSummary(workspace.ownerId)
+        const apiSummary = await this.aiApiRepository.getApiSummary(workspace.id)
 
 
         console.log(`Running process for Job: ${jobId}. Total pending leads: ${leads.length}`);
@@ -61,7 +61,7 @@ export class ProcessGenerationUseCase {
             await this.generationJobRepository.updateStatusById(jobId, "WAITING_FOR_API_QUOTA", "Watting For Api Quota");
             return console.log("Watting For Api Quota")
         }
-        let apis = await this.aiApiRepository.findAvailableByOwnerId(workspace.ownerId);
+        let apis = await this.aiApiRepository.findAvailableByWorkspaceId(workspace.id);
 
 
 
