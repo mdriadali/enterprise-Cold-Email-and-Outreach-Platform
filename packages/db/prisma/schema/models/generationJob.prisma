@@ -1,12 +1,13 @@
 model GenerationJob {
   id           String              @id @default(uuid())
+  name         String
   workspaceId  String
   workspace    Workspace           @relation(fields: [workspaceId], references: [id])
   status       GenerationJobStatus @default(PENDING)
   errorMessage String?
 
-  lead Lead[]
-
+  leads        Lead[]
+  totalLeads   Int?
   successCount Int?
   failedCount  Int?
   pendingCount Int?
