@@ -1,25 +1,24 @@
-import type { aiApiStatus, AiProvider, GenerationJobStatus, WorkspaceMemberRole } from "@repo/db"
-import type { GenerationJobData } from "./generationJob-types"
-import type { aiApiData } from "./aiApi-types"
+import type { aiApiStatus, AiProvider, GenerationJobStatus, Subscription, WorkspaceMemberRole } from "@repo/db"
+
 
 export interface workspaceData {
-    id: string,
-    name: string,
-    ownerId: string,
+  id: string,
+  name: string,
+  ownerId: string,
 }
 
 export interface workspaceMemberCreateData {
-    workspaceId: string,
-    memberId: string,
-    role: WorkspaceMemberRole
+  workspaceId: string,
+  memberId: string,
+  role: WorkspaceMemberRole
 }
 
 export interface workspaceMemberData {
-    id: string,
-    workspaceId: string,
-    userId: string,
-    role: WorkspaceMemberRole,
-    createdAt: Date
+  id: string,
+  workspaceId: string,
+  userId: string,
+  role: WorkspaceMemberRole,
+  createdAt: Date
 }
 
 
@@ -43,6 +42,7 @@ export interface workspaceInfoData {
       id: string;
       name: string;
       email: string;
+      subscription: Subscription
     };
   }[];
 
@@ -51,7 +51,7 @@ export interface workspaceInfoData {
     name: string;
     status: GenerationJobStatus;
 
-    totalLeads: number |null;
+    totalLeads: number | null;
     successCount: number | null;
     failedCount: number | null;
     pendingCount: number | null;
