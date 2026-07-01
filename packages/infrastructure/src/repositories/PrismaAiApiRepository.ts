@@ -15,10 +15,10 @@ export class PrismaAiApiRepository implements IAiApiRepository {
         return createApi
     }
 
-    async findByOwnerId(ownerId: string): Promise<aiApiData[]> {
+    async findByWorkspaceId(workspaceId: string): Promise<aiApiData[]> {
         const apis = await prismaClient.aiApi.findMany({
             where: {
-                ownerId
+                workspaceId
             }
         })
 
@@ -28,11 +28,11 @@ export class PrismaAiApiRepository implements IAiApiRepository {
         return apis
     }
 
-    async getApiSummary(ownerId: string): Promise<ApiSummary> {
+    async getApiSummary(workspaceId: string): Promise<ApiSummary> {
         const result = await prismaClient.aiApi.groupBy({
             by: ["status"],
             where: {
-                ownerId,
+                workspaceId:workspaceId
             },
             _count: {
                 status: true,
@@ -80,10 +80,10 @@ export class PrismaAiApiRepository implements IAiApiRepository {
         return update
     }
 
-    async findAvailableByOwnerId(ownerId: string): Promise<aiApiData[]> {
+    async findAvailableByWorkspaceId(workspaceId: string): Promise<aiApiData[]> {
         const find = await prismaClient.aiApi.findMany({
             where: {
-                ownerId: ownerId,
+                workspaceId: workspaceId,
                 status: "AVAILABLE"
             }
         })
