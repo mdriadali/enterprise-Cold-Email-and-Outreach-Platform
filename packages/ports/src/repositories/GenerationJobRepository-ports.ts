@@ -3,7 +3,7 @@ import type { GenerationJobData } from "@repo/types";
 
 export interface IGenerationJobRepository {
     create(workspaceId: string , name:string): Promise<GenerationJobData>
-    findById(jobId: string): Promise<GenerationJobData | null>
+    findById(workspaceId: string ,jobId: string): Promise<GenerationJobData | null>
     findByidAndworkspaceMember(userId: string, generationJobId: string): Promise<GenerationJobData | null>
     updateStatusById(id: string, status: GenerationJobStatus, errorMassage?: string): Promise<GenerationJobData>
     updateCounters(id: string,
