@@ -23,13 +23,33 @@ export class PrismaLeadRepository implements ILeadRepository {
         return leads
     }
 
+    async findByJobIdAndWorkspaceId(jobId: string, workspaceId: string, page: number): Promise<LeadData[]> {
+        const LIMIT = 10;
+        const skip = (page - 1) * LIMIT;
+        const leads = await prismaClient.lead.findMany({
+            where: {
+                generationJobId: jobId,
+                generationJob: {
+                    workspaceId: workspaceId
+                }
+            },
+            skip,
+            take:LIMIT
+        })
+        if (!leads) {
+            return []
+        }
+
+        return leads
+    }
+
     async updateGeneratedEmailData(id: string, data: Prisma.JsonObject): Promise<LeadData> {
-        const update=await prismaClient.lead.update({
-            where:{
+        const update = await prismaClient.lead.update({
+            where: {
                 id
             },
-            data:{
-                generatedEmailData:data
+            data: {
+                generatedEmailData: data
             }
         })
         return update
@@ -60,7 +80,7 @@ export class PrismaLeadRepository implements ILeadRepository {
         return uplodLeads.count
     }
 
-    async findByStatus(jobId: string ,status: LeadStatus): Promise<LeadData[]> {
+    async findByStatus(jobId: string, status: LeadStatus): Promise<LeadData[]> {
         const leads = await prismaClient.lead.findMany({
             where: {
                 generationJobId: jobId,
