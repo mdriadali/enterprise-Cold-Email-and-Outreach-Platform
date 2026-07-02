@@ -14,7 +14,13 @@ export interface LeadData {
 
     status: LeadStatus
 
-   generatedEmailData?: Prisma.JsonValue | null;
+    generatedEmailData?: Prisma.JsonValue | null;
     createdAt: Date
     updatedAt: Date
+}
+
+export interface FindAllLeadInputdata {
+    workspaceId: string,
+    generationJobId: string,
+    page: number
 }
