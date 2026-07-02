@@ -2,11 +2,13 @@ import type { Request, Response } from "express"
 import { AppError } from "../../domain/AppError"
 import type { CreateLeadUseCase } from "../../application/use-cases/lead/createLead-useCase"
 import type { CreateBulkLeadUseCase } from "../../application/use-cases/lead/createBulkLeadUseCase"
+import type { AllLeadFindUseCase } from "../../application/use-cases/lead/allLeadFind-UseCase"
 
 export class LeadController {
     constructor(
         private readonly createLeadUseCase: CreateLeadUseCase,
-        private readonly createBulkLeadUseCase: CreateBulkLeadUseCase
+        private readonly createBulkLeadUseCase: CreateBulkLeadUseCase,
+        private readonly allLeadFindUseCase: AllLeadFindUseCase
     ) { }
     create = async (req: Request, res: Response) => {
         try {
@@ -75,4 +77,36 @@ export class LeadController {
             });
         }
     };
+    allLeadFind = async (req: Request, res: Response) => {
+        try {
+            console.log("[All Leads Find] Request Recived")
+            const workspaceId = req.workspaceMember?.workspaceId
+            const { generationJobId } = req.params
+            const page = Number(req.query.page ?? 1)
+            const leads = await this.allLeadFindUseCase.execute(
+                {
+                    workspaceId: workspaceId as string,
+                    generationJobId: generationJobId as string,
+                    page: page
+                })
+            console.log("[All Leads Find] Data Send Sucessfully")
+            return res.status(200).json(leads)
+
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            console.error(
+                "[All Leads Find] Internal Server Error",
+                error
+            );
+
+            return res.status(500).json({
+                message: "Internal Server Error"
+            });
+        }
+    }
 }
