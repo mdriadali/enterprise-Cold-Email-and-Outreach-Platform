@@ -14,10 +14,11 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
 
         return createJob
     }
-    async findById(jobId: string): Promise<GenerationJobData |null> {
+    async findById(workspaceId: string ,jobId: string): Promise<GenerationJobData |null> {
         const job = await prismaClient.generationJob.findUnique({
             where: {
-                id: jobId
+                id: jobId,
+                workspaceId:workspaceId
             }
         })
         if (!job) {
