@@ -4,6 +4,7 @@ import type {LeadData, leadInputdata } from "@repo/types";
 export interface ILeadRepository {
     create(generationJobId: string, leadData: leadInputdata): Promise<LeadData>
     findPendingByJobId(jobId: string): Promise<LeadData[]>
+    findByJobIdAndWorkspaceId(jobId:string, workspaceId:string , page:number):Promise<LeadData[]>
 
     updateGeneratedEmailData(id: string,  data: Prisma.JsonObject): Promise<LeadData>
 
