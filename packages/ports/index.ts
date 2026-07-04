@@ -11,6 +11,6 @@ export type { IRefreshTokenRepository } from "./src/repositories/RefreshTokenRep
 export type { IUserRepository } from "./src/repositories/UserRepository-ports";
 export type { IWorkspaceMemberRepository } from "./src/repositories/WorkspaceMemberRepository-ports";
 export type { IWorkspaceRepository } from "./src/repositories/WorkspaceRepository-ports";
-
+export type { ISmtpAccountRepository } from "./src/repositories/SmtpAccountRepository-ports";
 // Ai ports
 export type { IAiProvider } from "./src/ai/AiProvider-ports";
