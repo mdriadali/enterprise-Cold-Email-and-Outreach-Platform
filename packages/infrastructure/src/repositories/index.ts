@@ -5,3 +5,4 @@ export { PrismaRefreshToken } from "./PrismaRefreshToken";
 export { PrismaUserRepository } from "./PrismaUserRepository";
 export { PrismaWorkspace } from "./PrismaWorkspace";
 export { PrismaWorkspaceMember } from "./PrismaWorkspaceMemberRepository";
+export { PrismaSmtpAccountRepository } from "./PrismaSmtpAccountRepository";
