@@ -8,7 +8,7 @@ model Workspace {
   members WorkspaceMember[]
   generationJob  GenerationJob[]
   AiApiKeys      AiApi[]
-  // smtpAccounts   SmtpAccount[]
+  smtpAccounts   SmtpAccount[]
   // leads           Lead[]
   // generatedEmail GeneratedEmail[]
 

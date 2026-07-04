@@ -1,0 +1,27 @@
+model SmtpAccount {
+  id String @id @default(uuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  name String
+
+  host String
+  port Int
+
+  username String
+  password String
+
+  fromName  String
+  fromEmail String
+  replyTo   String?
+
+  encryption SmtpEncryption
+  error      String?
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  @@index([workspaceId])
+}
