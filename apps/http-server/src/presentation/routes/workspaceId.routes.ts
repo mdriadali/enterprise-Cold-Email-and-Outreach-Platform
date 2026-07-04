@@ -9,5 +9,5 @@ workspaceIdRouter.get("/info",workspaceController.info)
 
 workspaceIdRouter.use("/aiapi", aiApiRouter)
 workspaceIdRouter.use("/generationjob", generationJobRouter)
-workspaceIdRouter.use("/smtp", smtpRouter)
+workspaceIdRouter.use("/smtpaccount", smtpRouter)
 export default workspaceIdRouter
