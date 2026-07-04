@@ -1,0 +1,5 @@
+enum SmtpEncryption {
+  NONE
+  SSL
+  TLS
+}
