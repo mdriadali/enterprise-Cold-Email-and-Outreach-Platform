@@ -1,6 +1,7 @@
 import { Router } from "express";
+import { smtpAccountController } from "../container/smtpAccountController-dependencie";
 
 const smtpRouter=Router()
 
-// smtpRouter.post("/create")
+smtpRouter.post("/create",smtpAccountController.create)
 export default smtpRouter
