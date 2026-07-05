@@ -1,0 +1,12 @@
+enum AiProvider {
+  GEMINI
+  GROQ
+  OPENROUTER
+  CEREBRAS
+}
+enum aiApiStatus {
+AVAILABLE
+RATE_LIMITED
+INVALID
+DISABLED
+}
