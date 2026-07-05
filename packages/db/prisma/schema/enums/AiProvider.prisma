@@ -1,6 +1,0 @@
-enum AiProvider {
-  GEMINI
-  GROQ
-  OPENROUTER
-  CEREBRAS
-}
