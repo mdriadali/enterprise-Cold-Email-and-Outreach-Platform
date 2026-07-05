@@ -1,6 +1,0 @@
-enum aiApiStatus {
-AVAILABLE
-RATE_LIMITED
-INVALID
-DISABLED
-}
