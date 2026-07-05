@@ -7,7 +7,7 @@ export class GetGenerationJobUseCase {
     ) { }
     async execute(workspaceId:string,generationJobId: string,) {
         GenerationJobValidator.validateGenerationId(generationJobId)
-        const generationJob = await this.generationJobRepository.findById(workspaceId,generationJobId)
+        const generationJob = await this.generationJobRepository.findByworkspaceIdAndId(workspaceId,generationJobId)
         GenerationJobValidator.isGenerationJobExist(generationJob)
         return generationJob
     }
