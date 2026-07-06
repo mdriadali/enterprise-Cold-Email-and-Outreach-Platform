@@ -6,3 +6,6 @@ export { PrismaUserRepository } from "./PrismaUserRepository";
 export { PrismaWorkspace } from "./PrismaWorkspace";
 export { PrismaWorkspaceMember } from "./PrismaWorkspaceMemberRepository";
 export { PrismaSmtpAccountRepository } from "./PrismaSmtpAccountRepository";
+export { PrismaCampaignRepository } from "./PrismaCampaignRepository";
+export { PrismaCampaignEmailRepository } from "./PrismaCampaignEmailRepository";
+

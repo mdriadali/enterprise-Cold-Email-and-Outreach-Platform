@@ -1,0 +1,20 @@
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  RUNNING
+  PAUSED
+  COMPLETED
+  CANCELLED
+  FAILED
+}
+
+
+
+enum CampaignEmailStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  BOUNCED
+  REPLIED
+}

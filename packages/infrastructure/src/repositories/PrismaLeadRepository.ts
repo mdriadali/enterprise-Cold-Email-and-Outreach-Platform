@@ -1,4 +1,4 @@
-import type { LeadData, leadInputdata } from "@repo/types";
+import type { LeadData, LeadEmailData, leadInputdata } from "@repo/types";
 import type { ILeadRepository } from "@repo/ports";
 import { LeadStatus, Prisma, prismaClient } from "@repo/db";
 
@@ -34,13 +34,47 @@ export class PrismaLeadRepository implements ILeadRepository {
                 }
             },
             skip,
-            take:LIMIT
+            take: LIMIT
         })
         if (!leads) {
             return []
         }
 
         return leads
+    }
+    async findAllEmailData(jobId: string, workspaceId: string): Promise<LeadEmailData[]> {
+        const leads = await prismaClient.lead.findMany({
+            where: {
+                generationJobId: jobId,
+                generationJob: {
+                    workspaceId: workspaceId
+                }
+            },
+            select: {
+                email: true,
+                generatedEmailData: true
+            }
+        })
+        if (!leads) {
+            return []
+        }
+        return leads.map((lead) => {
+            const emailData = lead.generatedEmailData as {
+                subject: string;
+                greeting:string;
+                body: string;
+                closing?: string;
+
+            };
+
+            return {
+                email: lead.email,
+                subject: emailData.subject,
+                greeting:emailData.greeting,
+                body: emailData.body,
+                signature: emailData.closing,
+            };
+        });
     }
 
     async updateGeneratedEmailData(id: string, data: Prisma.JsonObject): Promise<LeadData> {

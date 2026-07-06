@@ -9,4 +9,5 @@ model User {
   role                 Role              @default(USER)
   subscription         Subscription      @default(STARTER)
   aiApi                AiApi[]
+  campaign             Campaign[]
 }

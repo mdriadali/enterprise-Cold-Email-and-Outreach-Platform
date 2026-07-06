@@ -24,3 +24,11 @@ export interface FindAllLeadInputdata {
     generationJobId: string,
     page: number
 }
+
+export interface LeadEmailData {
+    email: string;
+    subject: string;
+    greeting:string
+    body: string;
+    signature?: string;
+}

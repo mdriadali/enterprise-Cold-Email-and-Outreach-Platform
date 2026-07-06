@@ -1,0 +1,43 @@
+model Campaign {
+  id String @id @default(uuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  name        String
+  description String?
+
+  status CampaignStatus @default(DRAFT)
+
+  // Scheduling
+  timezone String    @default("Asia/Dhaka")
+  startAt  DateTime?
+  endAt    DateTime?
+
+  // Sending Rules
+  dailyLimit      Int  @default(50)
+  sendingFromHour Int? // 9
+  sendingToHour   Int? // 17
+
+  randomDelayMin Int? // seconds
+  randomDelayMax Int?
+
+  // Options
+  followUpEnabled Boolean @default(false)
+  stopOnReply     Boolean @default(true)
+  stopOnBounce    Boolean @default(true)
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  //   followUps      CampaignFollowUpTemplate[]
+  smtpAccountId String
+  smtpAccount   SmtpAccount     @relation(fields: [smtpAccountId], references: [id])
+  campaignEmail CampaignEmail[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@index([status])
+}

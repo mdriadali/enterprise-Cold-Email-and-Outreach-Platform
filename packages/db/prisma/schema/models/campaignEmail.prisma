@@ -1,0 +1,39 @@
+model CampaignEmail {
+    id String @id @default(uuid())
+
+    campaignId String
+    campaign   Campaign @relation(fields: [campaignId], references: [id])
+
+    email String
+
+    subject   String
+    greeting  String
+    body      String
+    signature String?
+
+    smtpId String?
+
+    stepNumber Int @default(1)
+
+    status CampaignEmailStatus @default(PENDING)
+
+    sentAt DateTime?
+
+    providerMessageId String?
+
+    errorMessage String?
+
+    openedAt DateTime?
+
+    clickedAt DateTime?
+
+    repliedAt DateTime?
+
+    bouncedAt DateTime?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([campaignId])
+    @@index([status])
+}

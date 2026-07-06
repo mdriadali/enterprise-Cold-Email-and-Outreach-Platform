@@ -21,7 +21,8 @@ model SmtpAccount {
 
   isActive Boolean @default(true)
 
-  createdAt DateTime @default(now())
+  campaigns Campaign[]
+  createdAt DateTime   @default(now())
 
   @@index([workspaceId])
 }
