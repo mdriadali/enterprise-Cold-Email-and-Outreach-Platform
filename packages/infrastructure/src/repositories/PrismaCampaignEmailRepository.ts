@@ -17,4 +17,11 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
         })
         return campaignEmail
     }
+
+    async createMany(createData: CampaignEmailCreateData[]): Promise<void> {
+        const campaignEmail=await prismaClient.campaignEmail.createMany({
+            data:createData
+        })
+  
+    }
 }

@@ -21,17 +21,18 @@ export class CreateCampignUseCase {
         CampaignValidator.validateEmailData(emailsData)
         inputData.emails = emailsData
         const createCampaign = await this.campaignRepository.create(inputData)
-        await Promise.all(emailsData.map(emailData => {
-            return this.campaignEmailRepository.create({
+
+        await this.campaignEmailRepository.createMany(
+            emailsData.map(emailData => ({
                 campaignId: createCampaign.id,
                 email: emailData.email,
                 subject: emailData.subject,
                 greeting: emailData.greeting,
                 body: emailData.body,
                 signature: emailData.signature,
-                smtpId: inputData.smtpAccountId
-            })
-        }))
+                smtpId: inputData.smtpAccountId,
+            }))
+        )
 
         return createCampaign
 
