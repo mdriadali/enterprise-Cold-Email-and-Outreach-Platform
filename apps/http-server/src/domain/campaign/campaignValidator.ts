@@ -1,13 +1,35 @@
 import type { CreateCampaignInput, LeadEmailData } from "@repo/types";
 import { CampaignError } from "./campaignError";
+import type { CampaignStatus } from "@repo/db";
 
 export class CampaignValidator {
-    static validateInputemailSource(generationId?: string, emails?: LeadEmailData[]) {
-        if (generationId && emails?.length) {
-            throw new CampaignError("Provide either generationJobId or emails, not both.")
+    static validateCreateInput(input: CreateCampaignInput): void {
+
+        if (!input.workspaceId) throw new CampaignError("Workspace ID is required.");
+        if (!input.name.trim()) throw new CampaignError("Campaign name is required.");
+        if (!input.timezone) throw new CampaignError("Timezone is required.");
+        if (!input.startAt) throw new CampaignError("Start date is required.");
+        if (!input.endAt) throw new CampaignError("End date is required.");
+        if (!input.createdById) throw new CampaignError("CreatedBy ID is required.");
+        if (!input.smtpAccountId) throw new CampaignError("SMTP Account ID is required.");
+
+
+        const hasGenerationJob =
+            !!input.generationJobId && input.generationJobId.trim().length > 0;
+
+        const hasEmails =
+            Array.isArray(input.emails) && input.emails.length > 0;
+
+        if (!hasGenerationJob && !hasEmails) {
+            throw new CampaignError(
+                "Either generationJobId or emails must be provided."
+            );
         }
-        if (!generationId && !emails?.length) {
-            throw new CampaignError("Either generationJobId or emails is required.")
+
+        if (hasGenerationJob && hasEmails) {
+            throw new CampaignError(
+                "Provide either generationJobId or emails, not both."
+            );
         }
     }
     static validateEmailData(emailsData: LeadEmailData[]) {

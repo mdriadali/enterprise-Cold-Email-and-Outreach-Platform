@@ -9,7 +9,7 @@ export class CreateCampignUseCase {
         private readonly campaignEmailRepository: ICampaignEmailRepository
     ) { }
     async execute(inputData: CreateCampaignInput) {
-        CampaignValidator.validateInputemailSource(inputData.generationJobId, inputData.emails)
+        CampaignValidator.validateCreateInput(inputData)
         let emailsData = []
         if (inputData.generationJobId) {
             const emails = await this.leadRepository.findAllEmailData(inputData.generationJobId, inputData.workspaceId)
