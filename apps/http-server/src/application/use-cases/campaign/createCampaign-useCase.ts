@@ -1,6 +1,7 @@
 import type { ICampaignEmailRepository, ICampaignRepository, ILeadRepository } from "@repo/ports";
 import type { CreateCampaignInput } from "@repo/types";
 import { CampaignValidator } from "../../../domain/campaign/campaignValidator";
+import { DateHelper } from "@repo/common"
 
 export class CreateCampignUseCase {
     constructor(
@@ -20,7 +21,12 @@ export class CreateCampignUseCase {
 
         CampaignValidator.validateEmailData(emailsData)
         inputData.emails = emailsData
-        const createCampaign = await this.campaignRepository.create(inputData)
+
+        const createCampaign = await this.campaignRepository.create({
+            ...inputData,
+            startAt: DateHelper.toUtcDate(inputData.startAt, inputData.timezone).toISOString(),
+            endAt: DateHelper.toUtcDate(inputData.endAt, inputData.timezone).toISOString()
+        })
 
         await this.campaignEmailRepository.createMany(
             emailsData.map(emailData => ({

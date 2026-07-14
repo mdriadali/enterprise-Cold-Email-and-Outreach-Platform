@@ -8,8 +8,8 @@ export interface CreateCampaignInput {
 
     // Scheduling
     timezone: string
-    startAt: Date
-    endAt: Date
+    startAt: string
+    endAt: string
 
     // Sending Rules
     dailyLimit: number
