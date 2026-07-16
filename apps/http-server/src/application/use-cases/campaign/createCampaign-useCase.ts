@@ -22,10 +22,13 @@ export class CreateCampignUseCase {
         CampaignValidator.validateEmailData(emailsData)
         inputData.emails = emailsData
 
+        const nextrun=DateHelper.getUtcDateTime(inputData.startAt,inputData.sendingFromHour,inputData.timezone)
+
         const createCampaign = await this.campaignRepository.create({
             ...inputData,
             startAt: DateHelper.toUtcDate(inputData.startAt, inputData.timezone).toISOString(),
-            endAt: DateHelper.toUtcDate(inputData.endAt, inputData.timezone).toISOString()
+            endAt: DateHelper.toUtcDate(inputData.endAt, inputData.timezone).toISOString(),
+            nextRunAt:nextrun
         })
 
         await this.campaignEmailRepository.createMany(

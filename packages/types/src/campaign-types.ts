@@ -10,6 +10,7 @@ export interface CreateCampaignInput {
     timezone: string
     startAt: string
     endAt: string
+    nextRunAt ?: Date
 
     // Sending Rules
     dailyLimit: number
@@ -49,6 +50,8 @@ export interface CampaignData {
     dailyLimit: number
     sendingFromHour: number | null
     sendingToHour: number | null
+
+    nextRunAt :Date | null
 
     randomDelayMin: number | null
     randomDelayMax: number | null
