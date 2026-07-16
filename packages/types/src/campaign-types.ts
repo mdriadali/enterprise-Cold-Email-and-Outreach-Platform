@@ -66,6 +66,10 @@ export interface CampaignData {
     //   followUps      CampaignFollowUpTemplate[]
     smtpAccountId: string
 
+    _count?: {
+        campaignEmail: number
+    }
+
     createdAt: Date
     updatedAt: Date
 
