@@ -1,6 +1,7 @@
-import type { CreateCampaignInput, LeadEmailData } from "@repo/types";
+import type { CampaignData, CreateCampaignInput, LeadEmailData } from "@repo/types";
 import { CampaignError } from "./campaignError";
-import type { CampaignStatus } from "@repo/db";
+import { CampaignStatus } from "@repo/db";
+import { BadRequestError } from "../sharedError";
 
 export class CampaignValidator {
     static validateCreateInput(input: CreateCampaignInput): void {
@@ -53,5 +54,73 @@ export class CampaignValidator {
                 throw new CampaignError("Signature is required In Email Data.")
             }
         })
+    }
+    static validateUpdateStatusInput(campaignId: string, status: CampaignStatus) {
+        if (!campaignId) {
+            throw new CampaignError("CampaignId Invalid")
+        }
+        if (!status) {
+            throw new CampaignError("Status Invalid")
+        }
+    }
+
+    static validateCampaignData(data: CampaignData | null) {
+        if (!data) {
+            throw new CampaignError("Campaign data not found")
+        }
+    }
+
+    static canSchedule(campaign: CampaignData) {
+        // Status check
+        if (campaign.status !== CampaignStatus.DRAFT) {
+            throw new BadRequestError(
+                "Only draft campaigns can be scheduled."
+            );
+        }
+
+        // Required fields
+        if (!campaign.smtpAccountId) {
+            throw new BadRequestError("SMTP account is required.");
+        }
+
+        if (!campaign.startAt) {
+            throw new BadRequestError("Start date is required.");
+        }
+
+        if (!campaign.timezone) {
+            throw new BadRequestError("Timezone is required.");
+        }
+
+        // Date validation
+        const now = new Date();
+
+        if (campaign.startAt < now) {
+            throw new BadRequestError(
+                "Start date cannot be in the past."
+            );
+        }
+
+        if (campaign.endAt && campaign.endAt <= campaign.startAt) {
+            throw new BadRequestError(
+                "End date must be after start date."
+            );
+        }
+
+        // Sending rules
+        if (
+            campaign.sendingFromHour &&
+            campaign.sendingToHour &&
+            campaign.sendingFromHour >= campaign.sendingToHour
+        ) {
+            throw new BadRequestError(
+                "Sending window is invalid."
+            );
+        }
+    }
+
+    static isemailsExist(count: number) {
+        if (count <= 0) {
+            throw new BadRequestError("Campaign must contain at least one email.")
+        }
     }
 }
