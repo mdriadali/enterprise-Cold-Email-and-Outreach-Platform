@@ -20,7 +20,9 @@
     "@repo/infrastructure": "workspace:*",
     "@repo/ports": "workspace:*",
     "@repo/queue": "workspace:*",
-    "@repo/types":"workspace:*",
-    "bullmq": "^5.79.1"
+    "@repo/types": "workspace:*",
+    "@repo/common":"workspace:*",
+    "bullmq": "^5.79.1",
+    "node-cron": "^4.6.0"
   }
 }

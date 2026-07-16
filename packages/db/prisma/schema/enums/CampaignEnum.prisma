@@ -3,12 +3,11 @@ enum CampaignStatus {
   SCHEDULED
   RUNNING
   PAUSED
+  QUEUED
   COMPLETED
   CANCELLED
   FAILED
 }
-
-
 
 enum CampaignEmailStatus {
   PENDING

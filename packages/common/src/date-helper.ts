@@ -31,4 +31,25 @@ export class DateHelper {
             .fromJSDate(date)
             .setZone(timezone);
     }
+
+    static startOfToday() {
+        const startOfToday = new Date();
+        startOfToday.setUTCHours(0, 0, 0, 0);
+        return startOfToday
+    }
+    static endOfToday() {
+        const endOfToday = new Date();
+        endOfToday.setUTCHours(23, 59, 59, 999)
+        return endOfToday
+    }
+
+
+
+    static startOfTomorrow(startOfToday: Date) {
+        const startOfTomorrow = new Date(startOfToday);
+        startOfTomorrow.setUTCDate(startOfTomorrow.getUTCDate() + 1);
+        return startOfTomorrow
+    }
+
+
 }
