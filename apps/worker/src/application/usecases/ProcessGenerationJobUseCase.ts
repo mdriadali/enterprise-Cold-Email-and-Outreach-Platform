@@ -6,7 +6,7 @@ import type {
 } from "@repo/ports";
 import type { AiProvider, GenerationJobStatus } from "@repo/db";
 import type { AiProviderFactory } from "@repo/infrastructure/ai";
-import { coldEmailPrompt } from "../../prompts/cold-email.prompt";
+import { coldEmailPrompt } from "../../infrastructure/prompts/cold-email.prompt";
 import { isErrorResponse } from "../../utils/isErrorResponse";
 import { resetApiStatusQueue } from "@repo/queue";
 
