@@ -1,4 +1,4 @@
-import { prismaClient } from "@repo/db";
+import { CampaignEmailStatus, prismaClient } from "@repo/db";
 import type { ICampaignEmailRepository } from "@repo/ports";
 import type { CampaignEmailCreateData, CampaingEmailData } from "@repo/types";
 
@@ -19,9 +19,33 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
     }
 
     async createMany(createData: CampaignEmailCreateData[]): Promise<void> {
-        const campaignEmail=await prismaClient.campaignEmail.createMany({
-            data:createData
+        const campaignEmail = await prismaClient.campaignEmail.createMany({
+            data: createData
         })
-  
+
+    }
+
+
+
+    async findFirst(campaignId: string, status: CampaignEmailStatus): Promise<CampaingEmailData | null> {
+        const mail = await prismaClient.campaignEmail.findFirst({
+            where: {
+                campaignId,
+                status: status
+            }
+        })
+
+        return mail
+
+    }
+    async campaignEmailsCount(campaignId: string, workspaceId: string): Promise<number> {
+        return await prismaClient.campaignEmail.count({
+            where: {
+                campaignId,
+                campaign: {
+                    workspaceId,
+                },
+            },
+        });
     }
 }
