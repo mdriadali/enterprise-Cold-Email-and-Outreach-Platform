@@ -30,7 +30,7 @@ export class ScheduleTodayCampaignUseCase {
 
                 await campaignMailSendQueue.add(
                     "mail-send",
-                    { campaignId: campaign.id, maxDelay: maxDelay },
+                    { campaignId: campaign.id, minDelay:campaign.randomDelayMin, maxDelay: maxDelay },
                     {
                         delay: delay,
                         jobId: `campaign-${campaign.id}`,
