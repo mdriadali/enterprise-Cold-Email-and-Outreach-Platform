@@ -1,5 +1,5 @@
 {
-  "name": "config",
+  "name": "@repo/config",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -8,5 +8,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@repo/db": "*"
   }
 }

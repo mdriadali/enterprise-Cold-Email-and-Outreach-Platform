@@ -6,14 +6,17 @@ export const PLAN_LIMITS = {
     campaigns: 60,
     apiKeys: 20,
     smtpAccounts: 5,
+    mailSentDaily: 50,
+    workspaceMailSentDaily:50,
   },
   PROFESSIONAL: {
-    workspaces: 5,
+    workspaces: 4,
     members: 30,
     generationJobs: 300,
     campaigns: 30,
     apiKeys: 50,
     smtpAccounts: 20,
+    mailSentDaily: 200,
   },
   ULTRA: {
     workspaces: 20,
@@ -22,5 +25,6 @@ export const PLAN_LIMITS = {
     campaigns: 200,
     apiKeys: 200,
     smtpAccounts: 100,
+     mailSentDaily:500,
   },
 } as const;

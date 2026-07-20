@@ -1,6 +1,7 @@
 import type { IWorkspaceRepository } from "@repo/ports";
 import { WorkspaceValidator } from "../../../domain/workspace/workspaceValidator";
-import { PlanService } from "../../../domain/subscription/PlanService";
+import { PlanService } from "@repo/config";
+
 
 export class GetWorkspaceInfoUseCase {
     constructor(

@@ -22,6 +22,7 @@
     "@repo/queue": "workspace:*",
     "@repo/types": "*",
     "@repo/common":"workspace:*",
+     "@repo/config":"workspace:*",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
