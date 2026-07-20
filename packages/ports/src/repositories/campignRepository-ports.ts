@@ -1,9 +1,13 @@
 import type { CampaignStatus } from "@repo/db";
-import type { CampaignData, CreateCampaignInput } from "@repo/types";
+import type { CampaignData, CreateCampaignInput, Updatecampaign } from "@repo/types";
 
 export interface ICampaignRepository {
     create(data: CreateCampaignInput): Promise<CampaignData>
     updateStatus(campaignId: string, workspaceId: string, status: CampaignStatus): Promise<CampaignData>
+    updateStatusByID(id:string , status:CampaignStatus):Promise<CampaignData|null>
+    findById(id: string): Promise<CampaignData|null>
     findByIdAndWorkspaceId(id: string, workspaceId: string): Promise<CampaignData | null>
-    findByNextRunAtAndStatus(nextRunAt:Date, status: CampaignStatus): Promise<CampaignData[] | null>
+    findByNextRunAtAndStatus(nextRunAt: Date, status: CampaignStatus): Promise<CampaignData[] | null>
+    updateById(id:string, data:Updatecampaign):Promise<CampaignData|null>
+    findCampaignContext(id:string):Promise<CampaignData|null>
 }

@@ -30,10 +30,10 @@ export interface SmtpData {
 
     fromName: string,
     fromEmail: string,
-    replyTo?: string | null,
+    replyTo: string | null,
     encryption: SmtpEncryption,
 
-    error?: string | null
+    error: string | null
     isActive: boolean
 
     createdAt: Date

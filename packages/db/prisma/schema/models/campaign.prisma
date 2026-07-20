@@ -10,10 +10,10 @@ model Campaign {
   status CampaignStatus @default(DRAFT)
 
   // Scheduling
-  timezone String    @default("Asia/Dhaka")
-  startAt  DateTime?
-  endAt    DateTime?
-  nextRunAt  DateTime?
+  timezone  String    @default("Asia/Dhaka")
+  startAt   DateTime?
+  endAt     DateTime?
+  nextRunAt DateTime?
 
   // Sending Rules
   dailyLimit      Int  @default(50)
@@ -35,6 +35,8 @@ model Campaign {
   smtpAccountId String
   smtpAccount   SmtpAccount     @relation(fields: [smtpAccountId], references: [id])
   campaignEmail CampaignEmail[]
+
+  error String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

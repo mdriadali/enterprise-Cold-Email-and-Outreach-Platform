@@ -22,6 +22,14 @@ export class PrismaSmtpAccountRepository implements ISmtpAccountRepository {
         return create
 
     }
+    async findById(id: string): Promise<SmtpData | null> {
+        const smtp=await prismaClient.smtpAccount.findUnique({
+            where:{
+                id
+            }
+        })
+        return smtp
+    }
     async findByIdAndWorspaceId(id: string, workspaceId: string): Promise<SmtpData | null> {
         const smtp = await prismaClient.smtpAccount.findUnique({
             where: {

@@ -1,6 +1,6 @@
 import { CampaignStatus, prismaClient } from "@repo/db";
 import type { ICampaignRepository } from "@repo/ports";
-import type { CampaignData, CreateCampaignInput } from "@repo/types";
+import type { CampaignData, CreateCampaignInput, Updatecampaign } from "@repo/types";
 
 export class PrismaCampaignRepository implements ICampaignRepository {
     async create(data: CreateCampaignInput): Promise<CampaignData> {
@@ -15,7 +15,7 @@ export class PrismaCampaignRepository implements ICampaignRepository {
                 dailyLimit: data.dailyLimit,
                 sendingFromHour: data.sendingFromHour,
                 sendingToHour: data.sendingToHour,
-                nextRunAt:data.nextRunAt,
+                nextRunAt: data.nextRunAt,
                 randomDelayMin: data.randomDelayMin,
                 followUpEnabled: data.followUpEnabled,
                 stopOnReply: data.stopOnReply,
@@ -25,6 +25,18 @@ export class PrismaCampaignRepository implements ICampaignRepository {
 
             }
         })
+        return campaign
+    }
+
+    async findById(id: string): Promise<CampaignData | null> {
+        const campaign = await prismaClient.campaign.findUnique({
+            where: {
+                id
+            }
+        })
+        if (!campaign) {
+            return null
+        }
         return campaign
     }
 
@@ -55,19 +67,30 @@ export class PrismaCampaignRepository implements ICampaignRepository {
 
         return update
     }
+    async updateStatusByID(id: string, status: CampaignStatus): Promise<CampaignData | null> {
+        const update = await prismaClient.campaign.update({
+            where: {
+                id
+            },
+            data: {
+                status
+            }
+        })
+        return update
+    }
 
-    async findByNextRunAtAndStatus(nextRunAt:Date,status: CampaignStatus): Promise<CampaignData[] | null> {
+    async findByNextRunAtAndStatus(nextRunAt: Date, status: CampaignStatus): Promise<CampaignData[] | null> {
         const campaigns = await prismaClient.campaign.findMany({
             where: {
-                nextRunAt:{
-                    lte:nextRunAt
+                nextRunAt: {
+                    lte: nextRunAt
                 },
                 status: status
             },
-            include:{
-                _count:{
-                    select:{
-                        campaignEmail:true
+            include: {
+                _count: {
+                    select: {
+                        campaignEmail: true
                     }
                 }
             }
@@ -76,5 +99,37 @@ export class PrismaCampaignRepository implements ICampaignRepository {
             return []
         }
         return campaigns
+    }
+
+    async updateById(id: string, data: Updatecampaign): Promise<CampaignData | null> {
+        return await prismaClient.campaign.update({
+            where: {
+                id
+            },
+            data
+        })
+    }
+
+    async findCampaignContext(id: string): Promise<CampaignData | null> {
+        return await prismaClient.campaign.findUnique({
+            where: {
+                id
+            },
+            include: {
+                workspace: {
+                    include: {
+                        owner: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                role: true,
+                                subscription: true
+                            }
+                        }
+                    }
+                }
+            }
+        })
     }
 }

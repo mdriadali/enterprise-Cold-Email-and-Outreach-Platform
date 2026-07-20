@@ -48,4 +48,19 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
             },
         });
     }
+
+    async updateStatus(id: string, status: CampaignEmailStatus): Promise<CampaingEmailData | null> {
+        const update = await prismaClient.campaignEmail.update({
+            where: {
+                id
+            },
+            data: {
+                status
+            }
+        })
+        if (!update) {
+            return null
+        }
+        return update
+    }
 }

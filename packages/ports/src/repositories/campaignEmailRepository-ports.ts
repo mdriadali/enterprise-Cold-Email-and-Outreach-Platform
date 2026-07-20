@@ -1,8 +1,10 @@
 import type { CampaignEmailStatus } from "@repo/db";
 import type { CampaignEmailCreateData, CampaingEmailData } from "@repo/types";
 
-export interface ICampaignEmailRepository{
-    create(createData:CampaignEmailCreateData):Promise<CampaingEmailData>
-    createMany(createData:CampaignEmailCreateData[]):Promise<void>
-    campaignEmailsCount(campaignId:string,workspaceId:string):Promise<number>
+export interface ICampaignEmailRepository {
+    create(createData: CampaignEmailCreateData): Promise<CampaingEmailData>
+    createMany(createData: CampaignEmailCreateData[]): Promise<void>
+    campaignEmailsCount(campaignId: string, workspaceId: string): Promise<number>
+    findFirst(campaignId: string, status: CampaignEmailStatus): Promise<CampaingEmailData | null>
+    updateStatus(id:string,status:CampaignEmailStatus):Promise<CampaingEmailData|null>
 }

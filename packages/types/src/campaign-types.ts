@@ -1,4 +1,4 @@
-import { CampaignEmailStatus, CampaignStatus } from "@repo/db"
+import { CampaignEmailStatus, CampaignStatus, Role, Subscription } from "@repo/db"
 import type { LeadEmailData } from "./lead-types"
 
 export interface CreateCampaignInput {
@@ -10,7 +10,7 @@ export interface CreateCampaignInput {
     timezone: string
     startAt: string
     endAt: string
-    nextRunAt ?: Date
+    nextRunAt?: Date
 
     // Sending Rules
     dailyLimit: number
@@ -36,7 +36,20 @@ export interface CreateCampaignInput {
 
 export interface CampaignData {
     id: string
-    workspaceId: string
+    workspaceId: string,
+    workspace?: {
+        id: string,
+        name: string,
+        ownerId: string,
+        owner: {
+            id: string,
+            name: string,
+            email: string,
+            role: Role,
+            subscription: Subscription,
+        },
+    },
+
     name: string
     description?: string | null
     status: CampaignStatus
@@ -51,7 +64,7 @@ export interface CampaignData {
     sendingFromHour: number | null
     sendingToHour: number | null
 
-    nextRunAt :Date | null
+    nextRunAt: Date | null
 
     randomDelayMin: number | null
     randomDelayMax: number | null
@@ -70,10 +83,49 @@ export interface CampaignData {
         campaignEmail: number
     }
 
+    error?: string
+
     createdAt: Date
     updatedAt: Date
 
 
+}
+
+export interface Updatecampaign {
+    name?: string
+    description?: string | null
+    status?: CampaignStatus
+
+    // Scheduling
+    timezone?: string
+    startAt?: Date | null
+    endAt?: Date | null
+
+    // Sending Rules
+    dailyLimit?: number
+    sendingFromHour?: number | null
+    sendingToHour?: number | null
+
+    nextRunAt?: Date | null
+
+    randomDelayMin?: number | null
+    randomDelayMax?: number | null
+
+    // Options
+    followUpEnabled?: boolean
+    stopOnReply?: boolean
+    stopOnBounce?: boolean
+
+    createdById?: string
+
+    //   followUps      CampaignFollowUpTemplate[]
+    smtpAccountId?: string
+
+    _count?: {
+        campaignEmail: number
+    }
+
+    error?: string
 }
 
 
