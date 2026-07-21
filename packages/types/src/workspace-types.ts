@@ -1,11 +1,6 @@
 import type { aiApiStatus, AiProvider, GenerationJobStatus, Subscription, WorkspaceMemberRole } from "@repo/db"
 
 
-export interface workspaceData {
-  id: string,
-  name: string,
-  ownerId: string,
-}
 
 export interface workspaceMemberCreateData {
   workspaceId: string,
@@ -42,7 +37,6 @@ export interface workspaceInfoData {
       id: string;
       name: string;
       email: string;
-      subscription: Subscription
     };
   }[];
 

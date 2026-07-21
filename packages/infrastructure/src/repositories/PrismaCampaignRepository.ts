@@ -124,7 +124,6 @@ export class PrismaCampaignRepository implements ICampaignRepository {
                                 name: true,
                                 email: true,
                                 role: true,
-                                subscription: true
                             }
                         }
                     }

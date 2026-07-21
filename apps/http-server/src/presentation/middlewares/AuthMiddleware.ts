@@ -26,7 +26,6 @@ export class AuthMiddleware {
                 name: findUser?.name,
                 email: findUser!.email,
                 role: findUser?.role,
-                subscription: findUser?.subscription,
             };
 
             return next();

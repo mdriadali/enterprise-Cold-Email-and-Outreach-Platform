@@ -10,6 +10,7 @@ model Workspace {
   AiApiKeys     AiApi[]
   smtpAccounts  SmtpAccount[]
   campaign      Campaign[]
+  subscription  Subscription 
   // leads           Lead[]
   // generatedEmail GeneratedEmail[]
 

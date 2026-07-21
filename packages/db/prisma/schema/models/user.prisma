@@ -7,7 +7,6 @@ model User {
   ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
   workspaceMemberships WorkspaceMember[]
   role                 Role              @default(USER)
-  subscription         Subscription      @default(STARTER)
   aiApi                AiApi[]
   campaign             Campaign[]
 }

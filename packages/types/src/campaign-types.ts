@@ -46,7 +46,6 @@ export interface CampaignData {
             name: string,
             email: string,
             role: Role,
-            subscription: Subscription,
         },
     },
 
@@ -83,7 +82,7 @@ export interface CampaignData {
         campaignEmail: number
     }
 
-    error?: string
+    error?: string |null
 
     createdAt: Date
     updatedAt: Date

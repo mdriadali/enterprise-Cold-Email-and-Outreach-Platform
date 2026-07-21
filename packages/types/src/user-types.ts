@@ -6,7 +6,6 @@ export interface Userdata {
     email: string
     password: string
     role: string
-    subscription: string
 }
 
 export interface CreatedUserData {
