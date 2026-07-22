@@ -1,4 +1,5 @@
 
+
 // Auth ports
 export type { IJwtTokenProvider } from "./src/auth/IJwtTokenProvider-ports";
 export type { IPasswordHasher } from "./src/auth/IPasswordHasher-ports";
@@ -16,3 +17,7 @@ export type { ICampaignRepository } from "./src/repositories/campignRepository-p
 export type{ ICampaignEmailRepository } from "./src/repositories/campaignEmailRepository-ports";
 // Ai ports
 export type { IAiProvider } from "./src/ai/AiProvider-ports";
+
+// cache Repository
+
+export type {IWorkspaceLimitCounter} from "./src/cache/repositories/IworkspaceLimitCounter"

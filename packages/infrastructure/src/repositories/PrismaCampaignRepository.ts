@@ -116,18 +116,7 @@ export class PrismaCampaignRepository implements ICampaignRepository {
                 id
             },
             include: {
-                workspace: {
-                    include: {
-                        owner: {
-                            select: {
-                                id: true,
-                                name: true,
-                                email: true,
-                                role: true,
-                            }
-                        }
-                    }
-                }
+                workspace: true
             }
         })
     }

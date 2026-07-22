@@ -1,6 +1,6 @@
 import { MailSendUseCase } from "../application/usecases/mailsendUseCase";
 
-import { campaignEmailRepository, campaignRepository, emailSender, smtpAccountRepository, userRepository } from "./dependencies";
+import { campaignEmailRepository, campaignRepository, emailSender, smtpAccountRepository, userRepository, workspaceLimitCounter } from "./dependencies";
 
 
 
@@ -9,4 +9,5 @@ export const mailSendUseCase = new MailSendUseCase(
     smtpAccountRepository,
     emailSender,
     campaignRepository,
+    workspaceLimitCounter
 )

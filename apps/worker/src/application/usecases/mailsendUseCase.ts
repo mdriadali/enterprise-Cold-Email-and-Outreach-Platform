@@ -1,9 +1,11 @@
-import type {  ICampaignEmailRepository, ICampaignRepository, ISmtpAccountRepository, } from "@repo/ports";
+import type { ICampaignEmailRepository, ICampaignRepository, ISmtpAccountRepository, IWorkspaceLimitCounter, } from "@repo/ports";
 import { generateEmailTemplate } from "../../infrastructure/email/templates/campaign-email.template";
 import type { IEmailSender } from "../Ports/iEmailSender-ports";
 import { generatePlainText } from "../../infrastructure/email/templates/email.generatePlainText";
 import { RandomHelper } from "../../utils/randomHelper";
 import { campaignMailSendQueue, } from "@repo/queue";
+import { PlanService } from "@repo/config";
+
 
 export class MailSendUseCase {
     constructor(
@@ -11,14 +13,23 @@ export class MailSendUseCase {
         private readonly smtpAccountRepository: ISmtpAccountRepository,
         private readonly emailSender: IEmailSender,
         private readonly campaignRepository: ICampaignRepository,
-
+        private readonly workspaceLimitCounter: IWorkspaceLimitCounter
 
     ) { }
     async execute(campaignId: string, minDelay: number, maxDelay: number) {
 
 
         const campaignContex = await this.campaignRepository.findCampaignContext(campaignId)
+        const limit = PlanService.getLimits(campaignContex?.workspace?.subscription!)
 
+        const mailsent = await this.workspaceLimitCounter.get(campaignContex?.workspaceId!, "mailSentDaily")
+
+
+        if (mailsent >= limit.mailSentDaily) {
+            const nextRun = campaignContex?.nextRunAt;
+            const nextday = new Date(nextRun!.setDate(nextRun!.getDate() + 1))
+            return this.campaignRepository.updateById(campaignId, {status:"SCHEDULED", nextRunAt: nextday ,  error: "You have reached your daily email sending limit"})
+        }
 
 
         const mailData = await this.campaignEmailRepository.findFirst(campaignId, "PENDING")
@@ -70,6 +81,8 @@ export class MailSendUseCase {
                 removeOnFail: true,
             }
         )
+
+        await this.workspaceLimitCounter.increment(campaignContex?.workspaceId!, "mailSentDaily")
 
     }
 }
