@@ -1,7 +1,7 @@
-import type { workspaceInfoData, workspaceMemberData } from "@repo/types"
+import type {  workspaceMemberData } from "@repo/types"
 import { WorkspaceError, workspaceNameInvlid, workspaceNameMaxError, workspaceNameMinError } from "./workspaceError"
 import { workspacerules } from "./workspaceRules"
-import { Subscription } from "@repo/db"
+import { Subscription, type Workspace } from "@repo/db"
 import { BadRequestError } from "../sharedError"
 
 export class WorkspaceValidator {
@@ -30,7 +30,7 @@ export class WorkspaceValidator {
             throw new WorkspaceError("This user is not a member of this workspace.")
         }
     }
-    static validateInfoData(data: workspaceInfoData | null) {
+    static validateInfoData(data: Workspace | null) {
         if (!data) {
             throw new WorkspaceError("this Workspace Have No Data")
         }
