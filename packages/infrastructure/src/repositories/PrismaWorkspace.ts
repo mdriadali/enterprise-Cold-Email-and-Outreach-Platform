@@ -1,4 +1,3 @@
-import type {  workspaceInfoData } from "@repo/types";
 import { prismaClient, Subscription, type Workspace } from "@repo/db";
 import type { IWorkspaceRepository } from "@repo/ports";
 
@@ -27,7 +26,7 @@ export class PrismaWorkspace implements IWorkspaceRepository {
     return workspace
   }
 
-  async info(workspaceId: string): Promise<workspaceInfoData | null> {
+  async info(workspaceId: string): Promise<Workspace | null> {
       const info=await prismaClient.workspace.findUnique({
       where: {
         id: workspaceId,
@@ -35,14 +34,17 @@ export class PrismaWorkspace implements IWorkspaceRepository {
       select: {
         id: true,
         name: true,
+        subscription:true,
+        ownerId:true,
+
 
         _count: {
           select: {
             members: true,
             generationJob: true,
             AiApiKeys: true,
-            // smtpAccounts: true,
-            // campaigns: true,
+            smtpAccounts: true,
+            campaign:true
           },
         },
 

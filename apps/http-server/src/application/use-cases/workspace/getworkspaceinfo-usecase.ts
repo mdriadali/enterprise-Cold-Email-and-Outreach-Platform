@@ -11,8 +11,8 @@ export class GetWorkspaceInfoUseCase {
         WorkspaceValidator.validateId(workspaceid)
         const info = await this.workspaceRepository.info(workspaceid)
         WorkspaceValidator.validateInfoData(info)
-        const owner = info?.members.find(member => member.role === "OWNER")
-      const limits=  PlanService.getLimits(owner!.user.subscription)
-        return {limits,info}
+        const limits = PlanService.getLimits(info?.subscription!)
+        return { limits, info }
     }
 }
+
