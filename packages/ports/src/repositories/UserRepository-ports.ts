@@ -1,8 +1,10 @@
+import type { User } from "@repo/db";
 import type { CreatedUserData,  RegisterUserInput,  UpdateUserDto,  Userdata } from "@repo/types";
 
 export interface IUserRepository {
     create(data: RegisterUserInput): Promise<CreatedUserData>;
-    findByEmail(email: string): Promise<Userdata|null>
-    findById(id:string):Promise<Userdata|null>
-    updateById(id:string,data:UpdateUserDto):Promise <Userdata>
+    findByEmail(email: string): Promise<User|null>
+    findById(id:string):Promise<User|null>
+    updateById(id:string,data:UpdateUserDto):Promise <User>
+    decrementFreeWorkspaceQuota(id:string):Promise<User>
 }

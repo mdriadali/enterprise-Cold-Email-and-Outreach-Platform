@@ -1,12 +1,13 @@
 model User {
-  id                   String            @id @default(uuid())
-  name                 String
-  email                String            @unique
-  password             String
-  refreshTokens        RefreshToken[]
-  ownedWorkspaces      Workspace[]       @relation("WorkspaceOwner")
-  workspaceMemberships WorkspaceMember[]
-  role                 Role              @default(USER)
-  aiApi                AiApi[]
-  campaign             Campaign[]
+  id                      String            @id @default(uuid())
+  name                    String
+  email                   String            @unique
+  password                String
+  remainingFreeWorkspaces Int               @default(1)
+  refreshTokens           RefreshToken[]
+  ownedWorkspaces         Workspace[]       @relation("WorkspaceOwner")
+  workspaceMemberships    WorkspaceMember[]
+  role                    Role              @default(USER)
+  aiApi                   AiApi[]
+  campaign                Campaign[]
 }

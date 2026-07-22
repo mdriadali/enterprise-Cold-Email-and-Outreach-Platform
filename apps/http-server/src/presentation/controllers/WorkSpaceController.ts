@@ -13,8 +13,8 @@ export class WorkspaceController {
         console.log("[workspace create] Request Recived ")
         try {
             const userId = req.user.id
-            const {name} = req.body
-            const createworkspace = await this.createWorkspaceUseCase.execute(userId, name)
+            const {name,subscription} = req.body
+            const createworkspace = await this.createWorkspaceUseCase.execute(userId, name,subscription)
             console.log("[workspce create] created sucessfully ")
             return res.status(200).json({
                 createworkspace

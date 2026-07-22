@@ -1,9 +1,11 @@
 import type { workspaceInfoData, workspaceMemberData } from "@repo/types"
 import { WorkspaceError, workspaceNameInvlid, workspaceNameMaxError, workspaceNameMinError } from "./workspaceError"
 import { workspacerules } from "./workspaceRules"
+import { Subscription } from "@repo/db"
+import { BadRequestError } from "../sharedError"
 
 export class WorkspaceValidator {
-    static validateName(name: string) {
+    static validateInputData(name: string, subscription: Subscription) {
         if (!name) {
             throw new workspaceNameInvlid()
         }
@@ -13,6 +15,9 @@ export class WorkspaceValidator {
         if (name.length > workspacerules.MAX_NAME) {
             throw new workspaceNameMaxError()
         }
+        if (!Object.values(Subscription).includes(subscription)) {
+            throw new BadRequestError("Subscription invalid")
+        }
     }
     static validateId(id: string | null) {
         if (!id) {
@@ -20,14 +25,32 @@ export class WorkspaceValidator {
         }
     }
 
-    static validateMemberdata(data:workspaceMemberData |null){
-        if(!data){
+    static validateMemberdata(data: workspaceMemberData | null) {
+        if (!data) {
             throw new WorkspaceError("This user is not a member of this workspace.")
         }
     }
-    static validateInfoData(data:workspaceInfoData |null){
-        if(!data){
+    static validateInfoData(data: workspaceInfoData | null) {
+        if (!data) {
             throw new WorkspaceError("this Workspace Have No Data")
         }
     }
+
+    static validateFreeWorkspaceQuota(
+        subscription: Subscription,
+        remainingFreeWorkspaces: number
+    ) {
+
+        if (subscription !== Subscription.STARTER) {
+            return;
+        }
+
+
+        if (remainingFreeWorkspaces <= 0) {
+            throw new BadRequestError(
+                "You have already used your free workspace quota."
+            );
+        }
+    }
+
 }

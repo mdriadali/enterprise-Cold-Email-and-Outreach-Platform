@@ -1,4 +1,4 @@
-import type { AiProvider } from "@repo/db"
+import type { AiProvider, Role } from "@repo/db"
 
 export interface Userdata {
     id: string
@@ -15,7 +15,8 @@ export interface CreatedUserData {
 }
 
 export interface UpdateUserDto {
-  name?: string;
-  aiProvider?:AiProvider;
-  apiKey?: string;
+   name?: string;
+    email?: string;
+    remainingFreeWorkspaces?: number;
+    role?: Role;
 }
