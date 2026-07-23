@@ -1,4 +1,4 @@
-import type { CampaignStatus } from "@repo/db";
+import type { Campaign, CampaignStatus } from "@repo/db";
 import type { CampaignData, CreateCampaignInput, Updatecampaign } from "@repo/types";
 
 export interface ICampaignRepository {
@@ -10,4 +10,5 @@ export interface ICampaignRepository {
     findByNextRunAtAndStatus(nextRunAt: Date, status: CampaignStatus): Promise<CampaignData[] | null>
     updateById(id:string, data:Updatecampaign):Promise<CampaignData|null>
     findCampaignContext(id:string):Promise<CampaignData|null>
+    delete(id:string,workspaceId:string):Promise<Campaign>
 }

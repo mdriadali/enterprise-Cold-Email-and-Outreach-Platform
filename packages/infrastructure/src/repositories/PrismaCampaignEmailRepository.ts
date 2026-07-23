@@ -77,4 +77,16 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
         }
         return update;
     }
-}
+
+    async delete(campaignId: string, workspaceId: string): Promise<{count: number}> {
+        const remove=await prismaClient.campaignEmail.deleteMany({
+            where:{
+                campaignId,
+                campaign:{
+                    workspaceId:workspaceId
+                }
+            }
+        })
+        return remove
+    }
+}

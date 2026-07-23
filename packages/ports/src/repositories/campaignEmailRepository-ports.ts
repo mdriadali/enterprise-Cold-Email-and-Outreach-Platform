@@ -8,4 +8,5 @@ export interface ICampaignEmailRepository {
     findFirst(campaignId: string, status: CampaignEmailStatus): Promise<CampaingEmailData | null>
     updateStatus(id:string,status:CampaignEmailStatus):Promise<CampaingEmailData|null>
     updateError(id: string, errorMessage: string): Promise<CampaingEmailData | null>
+    delete(campaignId:string,workspaceId:string):Promise<{count: number}>
 }

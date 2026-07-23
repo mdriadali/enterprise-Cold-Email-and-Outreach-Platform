@@ -12,7 +12,8 @@
   "exports": {
     "./auth": "./src/auth/index.ts",
     "./repositories": "./src/repositories/index.ts",
-    "./ai": "./src/ai/index.ts"
+    "./ai": "./src/ai/index.ts",
+    "./cache":"./src/cache/repositories/index.ts"
   },
   "dependencies": {
     "@google/genai": "^2.9.0",
@@ -20,6 +21,7 @@
     "@repo/env": "*",
     "@repo/ports": "workspace:*",
     "@repo/types": "*",
+    "@repo/queue":"*",
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "bcrypt": "^6.0.0",

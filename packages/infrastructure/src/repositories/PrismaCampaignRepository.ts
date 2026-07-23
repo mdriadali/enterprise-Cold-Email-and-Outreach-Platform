@@ -1,4 +1,4 @@
-import { CampaignStatus, prismaClient } from "@repo/db";
+import { CampaignStatus, prismaClient, type Campaign } from "@repo/db";
 import type { ICampaignRepository } from "@repo/ports";
 import type { CampaignData, CreateCampaignInput, Updatecampaign } from "@repo/types";
 
@@ -120,4 +120,15 @@ export class PrismaCampaignRepository implements ICampaignRepository {
             }
         })
     }
+
+    async delete(id: string, workspaceId: string): Promise<Campaign> {
+        return await prismaClient.campaign.delete({
+            where: {
+                id,
+                workspaceId
+            }
+        })
+
+    }
+
 }
