@@ -1,12 +1,13 @@
 import { DateHelper } from "@repo/common";
-import type { ICampaignRepository } from "@repo/ports";
+import type { ICampaignqueue, ICampaignRepository } from "@repo/ports";
 import { campaignMailSendQueue } from "@repo/queue";
 import { Campaignvalidator } from "../../domain/campaignValidator";
 
 
 export class ScheduleTodayCampaignUseCase {
     constructor(
-        private readonly campaignRepository: ICampaignRepository
+        private readonly campaignRepository: ICampaignRepository,
+        private readonly campaignqueue: ICampaignqueue
     ) { }
     async execute() {
         const nextRunAt = new Date();
@@ -28,16 +29,7 @@ export class ScheduleTodayCampaignUseCase {
 
                 const delay = Math.max(0, sendingStartUtcDate.getTime() - Date.now())
 
-                await campaignMailSendQueue.add(
-                    "mail-send",
-                    { campaignId: campaign.id, minDelay:campaign.randomDelayMin, maxDelay: maxDelay },
-                    {
-                        delay: delay,
-                        jobId: `campaign-${campaign.id}`,
-                        removeOnComplete: true,
-                        removeOnFail: true,
-                    }
-                )
+                await this.campaignqueue.addMailSendQueue( campaign.id, delay, campaign.randomDelayMin!, maxDelay)
 
                 await this.campaignRepository.updateStatus(campaign.id, campaign.workspaceId, "QUEUED")
 

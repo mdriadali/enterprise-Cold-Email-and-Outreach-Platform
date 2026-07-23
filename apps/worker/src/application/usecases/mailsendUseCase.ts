@@ -1,4 +1,4 @@
-import type { ICampaignEmailRepository, ICampaignRepository, ISmtpAccountRepository, IWorkspaceLimitCounter, } from "@repo/ports";
+import type { ICampaignEmailRepository, ICampaignqueue, ICampaignRepository, ISmtpAccountRepository, IWorkspaceLimitCounter, } from "@repo/ports";
 import { generateEmailTemplate } from "../../infrastructure/email/templates/campaign-email.template";
 import type { IEmailSender } from "../Ports/iEmailSender-ports";
 import { generatePlainText } from "../../infrastructure/email/templates/email.generatePlainText";
@@ -14,7 +14,8 @@ export class MailSendUseCase {
         private readonly smtpAccountRepository: ISmtpAccountRepository,
         private readonly emailSender: IEmailSender,
         private readonly campaignRepository: ICampaignRepository,
-        private readonly workspaceLimitCounter: IWorkspaceLimitCounter
+        private readonly workspaceLimitCounter: IWorkspaceLimitCounter,
+        private readonly campaignqueue:ICampaignqueue
 
     ) { }
     async execute(campaignId: string, minDelay: number, maxDelay: number) {
@@ -154,16 +155,7 @@ export class MailSendUseCase {
         // (for REJECTED / UNKNOWN errors we still continue; for fatal errors we returned early above)
         const randomDealy = RandomHelper.randomDealy(minDelay, maxDelay) * 1000
 
-        await campaignMailSendQueue.add(
-            "mail-send",
-            { campaignId: campaignId, minDelay: minDelay, maxDelay: maxDelay },
-            {
-                delay: randomDealy,
-                jobId: `campaign-${campaignId}-${mailData.id}`,
-                removeOnComplete: true,
-                removeOnFail: true,
-            }
-        )
+        await this.campaignqueue.addMailSendQueue(campaignId,randomDealy,minDelay,maxDelay)
 
     }
 }

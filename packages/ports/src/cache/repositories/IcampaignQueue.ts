@@ -1,0 +1,3 @@
+export interface ICampaignqueue{
+    addMailSendQueue( campaignId: string, delay:number,minDelay:number, maxDelay: number ):Promise<void>
+}

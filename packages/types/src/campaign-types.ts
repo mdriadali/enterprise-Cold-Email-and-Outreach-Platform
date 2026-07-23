@@ -33,7 +33,12 @@ export interface CreateCampaignInput {
 
     emails?: LeadEmailData[]
 }
-export type CampaignData = Campaign &{workspace?:Workspace}
+export type CampaignData = Campaign & {
+    workspace?: Workspace
+    _count?: {
+        campaignEmail: number
+    }
+}
 
 
 export interface Updatecampaign {
@@ -65,10 +70,6 @@ export interface Updatecampaign {
 
     //   followUps      CampaignFollowUpTemplate[]
     smtpAccountId?: string
-
-    _count?: {
-        campaignEmail: number
-    }
 
     error?: string
 }
