@@ -1,6 +1,6 @@
 import { ScheduleTodayCampaignUseCase } from "../application/usecases/scheduleTodayCampaignUseCase";
 import { CronCampaignMailScheduler } from "../infrastructure/corn/CronCampaignMailScheduler";
-import { campaignRepository } from "./dependencies";
+import { campaignqueue, campaignRepository } from "./dependencies";
 
-const scheduleTodayCampaignUseCase=new ScheduleTodayCampaignUseCase(campaignRepository)
+const scheduleTodayCampaignUseCase=new ScheduleTodayCampaignUseCase(campaignRepository,campaignqueue)
  export const cronCampaignMailScheduler= new CronCampaignMailScheduler(scheduleTodayCampaignUseCase)
