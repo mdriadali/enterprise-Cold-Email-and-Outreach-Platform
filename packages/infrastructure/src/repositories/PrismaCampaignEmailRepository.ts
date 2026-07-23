@@ -63,4 +63,18 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
         }
         return update
     }
-}
+
+    async updateError(id: string, errorMessage: string): Promise<CampaingEmailData | null> {
+        const update = await prismaClient.campaignEmail.update({
+            where: { id },
+            data: {
+                status: "FAILED",
+                errorMessage,
+            },
+        });
+        if (!update) {
+            return null;
+        }
+        return update;
+    }
+}
