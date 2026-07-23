@@ -1,7 +1,23 @@
-import type { CampaignData, CreateCampaignInput, LeadEmailData } from "@repo/types";
+import type { CampaignData, CreateCampaignInput, LeadEmailData, Updatecampaign } from "@repo/types";
 import { CampaignError } from "./campaignError";
-import { CampaignStatus } from "@repo/db";
+import { CampaignStatus, type Campaign } from "@repo/db";
 import { BadRequestError } from "../sharedError";
+const ALLOWED_FIELDS = [
+    "name",
+    "description",
+    "timezone",
+    "startAt",
+    "endAt",
+    "dailyLimit",
+    "sendingFromHour",
+    "sendingToHour",
+    "randomDelayMin",
+    "followUpEnabled",
+    "stopOnReply",
+    "stopOnBounce",
+    "createdById",
+    "smtpAccountId",
+] as const;
 
 export class CampaignValidator {
     static validateCreateInput(input: CreateCampaignInput): void {
@@ -123,4 +139,49 @@ export class CampaignValidator {
             throw new BadRequestError("Campaign must contain at least one email.")
         }
     }
+
+
+
+    static validateUpdateData(data: Updatecampaign) {
+        // null / undefined check
+        if (!data || typeof data !== "object") {
+            throw new BadRequestError("Invalid request body.");
+        }
+
+        const keys = Object.keys(data);
+
+        // At least one field required
+        if (keys.length === 0) {
+            throw new BadRequestError(
+                "At least one field must be provided for update."
+            );
+        }
+
+        // Unknown field check
+        const invalidFields = keys.filter(
+            (key) => !ALLOWED_FIELDS.includes(key as (typeof ALLOWED_FIELDS)[number])
+        );
+
+        if (invalidFields.length > 0) {
+            throw new BadRequestError(
+                `Invalid field(s): ${invalidFields.join(", ")}`
+            );
+        }
+    }
+
+    static isStatusDraft(data: Campaign | null) {
+        if (!data) {
+            throw new BadRequestError("Campaign not found")
+        }
+        if (data.status != "DRAFT") {
+            throw new BadRequestError("Plese update campaign status to draft")
+        }
+    }
+    static alredyThisStatus(data: Campaign | null, status: CampaignStatus , message?:string) {
+        if (data?.status === status) {
+            throw new BadRequestError(message?message:`Alreday ${status}`)
+        }
+    }
+
+    // is()
 }

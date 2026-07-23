@@ -58,5 +58,28 @@ export class CampaignController {
             })
         }
     }
-   
+    update = async (req: Request, res: Response) => {
+        console.log("[Update Campaign] Request Recived")
+        const workspaceId = req.workspaceMember?.workspaceId as string
+        const { id } = req.params
+        const { data } = req.body
+
+        try {
+            const upadte = await this.updateCampaignUseCase.execute(workspaceId, id as string, data)
+            console.log("[Update Campaign] sucessfully")
+            return res.status(200).json(upadte)
+
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                })
+            }
+
+            console.log("[Update Campaign] Internal Server Error", error)
+            return res.status(500).json({
+                message: "Internal Server Error"
+            })
+        }
+    }
 }

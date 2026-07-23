@@ -30,5 +30,6 @@ draftCampiagnUseCase
 )
 
 
+const updateCampaignUseCase=new UpdateCampaignUseCase(campaignRepository)
 
-export const campaignController=new CampaignController(createCampignUseCase,updateCampaignStatusUseCase)
+export const campaignController=new CampaignController(createCampignUseCase,updateCampaignStatusUseCase,updateCampaignUseCase)

@@ -9,6 +9,7 @@ export interface ICampaignRepository {
     findByIdAndWorkspaceId(id: string, workspaceId: string): Promise<CampaignData | null>
     findByNextRunAtAndStatus(nextRunAt: Date, status: CampaignStatus): Promise<CampaignData[] | null>
     updateById(id:string, data:Updatecampaign):Promise<CampaignData|null>
+    updatebyIdAndWorkspaceId(id:string, workspaceId:string,data:Updatecampaign):Promise<CampaignData|null>
     findCampaignContext(id:string):Promise<CampaignData|null>
     delete(id:string,workspaceId:string):Promise<Campaign>
 }

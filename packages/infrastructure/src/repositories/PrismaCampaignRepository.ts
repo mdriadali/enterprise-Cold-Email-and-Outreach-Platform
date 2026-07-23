@@ -109,6 +109,15 @@ export class PrismaCampaignRepository implements ICampaignRepository {
             data
         })
     }
+    async updatebyIdAndWorkspaceId(id: string, workspaceId: string, data: Updatecampaign): Promise<CampaignData | null> {
+        return await prismaClient.campaign.update({
+            where: {
+                id,
+                workspaceId
+            },
+            data
+        })
+    }
 
     async findCampaignContext(id: string): Promise<CampaignData | null> {
         return await prismaClient.campaign.findUnique({
