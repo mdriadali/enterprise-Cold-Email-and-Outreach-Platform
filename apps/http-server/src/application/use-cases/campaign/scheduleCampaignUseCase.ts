@@ -9,6 +9,11 @@ export class SchudleCampaignUseCase {
     async execute(workspaceId: string, campaignId: string) {
         const campaign = await this.campaignRepository.findByIdAndWorkspaceId(campaignId, workspaceId)
 
+
+        CampaignValidator.alredyThisStatus(campaign,"SCHEDULED")
+
+        CampaignValidator.isStatusDraft(campaign)
+
         CampaignValidator.validateCampaignData(campaign)
          const totalEmails=await this.campaignEmailRepository.campaignEmailsCount(campaignId,workspaceId)
 
