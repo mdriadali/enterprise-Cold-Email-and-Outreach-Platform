@@ -130,11 +130,14 @@ export class PrismaCampaignRepository implements ICampaignRepository {
         })
     }
 
-    async delete(id: string, workspaceId: string): Promise<Campaign> {
+    async delete(id: string, workspaceId: string, ownerId:string): Promise<Campaign> {
         return await prismaClient.campaign.delete({
             where: {
                 id,
-                workspaceId
+                workspaceId,
+                workspace:{
+                    ownerId:ownerId
+                }
             }
         })
 

@@ -11,5 +11,5 @@ export interface ICampaignRepository {
     updateById(id:string, data:Updatecampaign):Promise<CampaignData|null>
     updatebyIdAndWorkspaceId(id:string, workspaceId:string,data:Updatecampaign):Promise<CampaignData|null>
     findCampaignContext(id:string):Promise<CampaignData|null>
-    delete(id:string,workspaceId:string):Promise<Campaign>
+    delete(id:string,workspaceId:string, ownerId:string):Promise<Campaign>
 }

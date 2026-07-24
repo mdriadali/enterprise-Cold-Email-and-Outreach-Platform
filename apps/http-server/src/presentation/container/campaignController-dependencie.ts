@@ -1,5 +1,6 @@
 import { CanceledcampaignuseCase } from "../../application/use-cases/campaign/canceledCampaign-useCase";
 import { CreateCampignUseCase } from "../../application/use-cases/campaign/createCampaign-useCase";
+import { DeleteCampaignUseCase } from "../../application/use-cases/campaign/deleteCampaign-useCase";
 import { DraftCampiagnUseCase } from "../../application/use-cases/campaign/draftcampaign-useCase";
 import { PausedCampaignUseCase } from "../../application/use-cases/campaign/pausedcampaign-usecase";
 import { SchudleCampaignUseCase } from "../../application/use-cases/campaign/scheduleCampaignUseCase";
@@ -33,4 +34,6 @@ draftCampiagnUseCase
 
 const updateCampaignUseCase=new UpdateCampaignUseCase(campaignRepository)
 
-export const campaignController=new CampaignController(createCampignUseCase,updateCampaignStatusUseCase,updateCampaignUseCase)
+const deleteCampaignUseCase =new DeleteCampaignUseCase(campaignRepository) 
+
+export const campaignController=new CampaignController(createCampignUseCase,updateCampaignStatusUseCase,updateCampaignUseCase,deleteCampaignUseCase)

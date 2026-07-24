@@ -3,12 +3,14 @@ import { AppError } from "../../domain/AppError";
 import type { CreateCampignUseCase } from "../../application/use-cases/campaign/createCampaign-useCase";
 import type { UpdateCampaignStatusUseCase } from "../../application/use-cases/campaign/updateCampaignStatus-useCase";
 import type { UpdateCampaignUseCase } from "../../application/use-cases/campaign/updateCampaign-useCase";
+import type { DeleteCampaignUseCase } from "../../application/use-cases/campaign/deleteCampaign-useCase";
 
 export class CampaignController {
     constructor(
         private readonly createCampignUseCase: CreateCampignUseCase,
         private readonly updateCampaignStatusUseCase: UpdateCampaignStatusUseCase,
-        private readonly updateCampaignUseCase: UpdateCampaignUseCase
+        private readonly updateCampaignUseCase: UpdateCampaignUseCase,
+        private readonly deleteCampaignUseCase: DeleteCampaignUseCase
     ) { }
     create = async (req: Request, res: Response) => {
         console.log("[Create Campaign] Request Recived")
@@ -65,7 +67,9 @@ export class CampaignController {
         const { data } = req.body
 
         try {
+
             const upadte = await this.updateCampaignUseCase.execute(workspaceId, id as string, data)
+
             console.log("[Update Campaign] sucessfully")
             return res.status(200).json(upadte)
 
@@ -77,6 +81,28 @@ export class CampaignController {
             }
 
             console.log("[Update Campaign] Internal Server Error", error)
+            return res.status(500).json({
+                message: "Internal Server Error"
+            })
+        }
+    }
+
+    delete = async (req: Request, res: Response) => {
+        console.log("[Delete Campaign] Request Recived")
+        const workspaceId = req.workspaceMember?.workspaceId as string
+        const { id } = req.params
+        const userId = req.user.id
+        try {
+            const deleteCampaign = await this.deleteCampaignUseCase.execute(id as string, workspaceId, userId)
+            return res.status(200).json(deleteCampaign)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                })
+            }
+
+            console.log("[Delete Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
