@@ -1,7 +1,7 @@
-import type {  workspaceMemberData } from "@repo/types"
+import type { workspaceMemberData } from "@repo/types"
 import { WorkspaceError, workspaceNameInvlid, workspaceNameMaxError, workspaceNameMinError } from "./workspaceError"
 import { workspacerules } from "./workspaceRules"
-import { Subscription, type Workspace } from "@repo/db"
+import { Subscription, WorkspaceMemberRole, type Workspace } from "@repo/db"
 import { BadRequestError } from "../sharedError"
 
 export class WorkspaceValidator {
@@ -50,6 +50,24 @@ export class WorkspaceValidator {
             throw new BadRequestError(
                 "You have already used your free workspace quota."
             );
+        }
+    }
+
+    static isOwner(userId: string, ownerId: string) {
+        if (userId != ownerId) {
+            throw new BadRequestError(" You are not owner this workspcae")
+        }
+    }
+
+    static roleNotowner(role: WorkspaceMemberRole) {
+        if (role === "OWNER") {
+            throw new BadRequestError("Can not add another owner")
+        }
+    }
+
+    static  validateMemberLimit(limitmember: number, membercount: number) {
+        if (membercount >= limitmember) {
+            throw new BadRequestError("Your plan member limit has been reached.")
         }
     }
 

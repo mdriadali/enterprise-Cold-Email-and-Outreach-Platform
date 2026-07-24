@@ -1,5 +1,6 @@
 import { prismaClient, Subscription, type Workspace } from "@repo/db";
 import type { IWorkspaceRepository } from "@repo/ports";
+import type { WorkspaceInfo } from "@repo/types";
 
 export class PrismaWorkspace implements IWorkspaceRepository {
   async create(userId: string, name: string,subscription:Subscription): Promise<Workspace> {
@@ -26,7 +27,7 @@ export class PrismaWorkspace implements IWorkspaceRepository {
     return workspace
   }
 
-  async info(workspaceId: string): Promise<Workspace | null> {
+  async info(workspaceId: string): Promise<WorkspaceInfo | null> {
       const info=await prismaClient.workspace.findUnique({
       where: {
         id: workspaceId,
