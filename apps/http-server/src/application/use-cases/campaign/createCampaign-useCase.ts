@@ -1,16 +1,29 @@
-import type { ICampaignEmailRepository, ICampaignRepository, ILeadRepository } from "@repo/ports";
+import type { ICampaignEmailRepository, ICampaignRepository, ILeadRepository, IWorkspaceRepository } from "@repo/ports";
 import type { CreateCampaignInput } from "@repo/types";
 import { CampaignValidator } from "../../../domain/campaign/campaignValidator";
 import { DateHelper } from "@repo/common"
+import { PlanService } from "@repo/config";
 
 export class CreateCampignUseCase {
     constructor(
         private readonly leadRepository: ILeadRepository,
         private readonly campaignRepository: ICampaignRepository,
-        private readonly campaignEmailRepository: ICampaignEmailRepository
+        private readonly campaignEmailRepository: ICampaignEmailRepository,
+        private readonly workspaceRepository: IWorkspaceRepository
     ) { }
     async execute(inputData: CreateCampaignInput) {
         CampaignValidator.validateCreateInput(inputData)
+
+
+
+        const workspaceInfo = await this.workspaceRepository.info(inputData.workspaceId)
+
+        const limit = PlanService.getLimits(workspaceInfo?.subscription!)
+
+        CampaignValidator.validateCampaignLimit(limit.campaigns, workspaceInfo?._count.campaign!)
+
+
+        
         let emailsData = []
         if (inputData.generationJobId) {
             const emails = await this.leadRepository.findAllEmailData(inputData.generationJobId, inputData.workspaceId)
@@ -22,13 +35,13 @@ export class CreateCampignUseCase {
         CampaignValidator.validateEmailData(emailsData)
         inputData.emails = emailsData
 
-        const nextrun=DateHelper.getUtcDateTime(inputData.startAt,inputData.sendingFromHour,inputData.timezone)
+        const nextrun = DateHelper.getUtcDateTime(inputData.startAt, inputData.sendingFromHour, inputData.timezone)
 
         const createCampaign = await this.campaignRepository.create({
             ...inputData,
             startAt: DateHelper.toUtcDate(inputData.startAt, inputData.timezone).toISOString(),
             endAt: DateHelper.toUtcDate(inputData.endAt, inputData.timezone).toISOString(),
-            nextRunAt:nextrun
+            nextRunAt: nextrun
         })
 
         await this.campaignEmailRepository.createMany(

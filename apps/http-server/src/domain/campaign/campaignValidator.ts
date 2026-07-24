@@ -177,11 +177,17 @@ export class CampaignValidator {
             throw new BadRequestError("Plese update campaign status to draft")
         }
     }
-    static alredyThisStatus(data: Campaign | null, status: CampaignStatus , message?:string) {
+    static alredyThisStatus(data: Campaign | null, status: CampaignStatus, message?: string) {
         if (data?.status === status) {
-            throw new BadRequestError(message?message:`Alreday ${status}`)
+            throw new BadRequestError(message ? message : `Alreday ${status}`)
         }
     }
 
-    // is()
+    static validateCampaignLimit(limitCampaign: number, campaignCount: number) {
+        if (campaignCount >= limitCampaign) {
+            throw new BadRequestError("Your plan Campaign  limit has been reached.")
+        }
+    }
+
+
 }

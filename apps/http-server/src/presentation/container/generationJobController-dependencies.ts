@@ -2,10 +2,10 @@ import { CreategenerationJobUseCase } from "../../application/use-cases/generati
 import { GetGenerationJobUseCase } from "../../application/use-cases/generationJob/getGenerationJob-useCase";
 import { StartGenerationJobUseCase } from "../../application/use-cases/generationJob/startGenerationJob-usecase";
 import { GenerationJobController } from "../controllers/generationJobController";
-import { generationJobRepository, workspaceMemberRepository } from "./share-dependencies";
+import { generationJobRepository, workspaceRepository } from "./share-dependencies";
 
 const creategenerationJobUseCase = new CreategenerationJobUseCase(
-    workspaceMemberRepository,
+    workspaceRepository,
     generationJobRepository
 )
 

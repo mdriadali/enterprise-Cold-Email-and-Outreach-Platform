@@ -1,6 +1,6 @@
 import { AiProvider } from "@repo/db";
 import { aiapiproviderInvalidError } from "./aiapierror";
-import { SharedApiKeyEmpty } from "../sharedError";
+import { BadRequestError, SharedApiKeyEmpty } from "../sharedError";
 
 export class AiApiValidator {
     static createInput(provider: AiProvider, key: string) {
@@ -17,4 +17,12 @@ export class AiApiValidator {
             throw new SharedApiKeyEmpty()
         }
     }
+
+    static validateAiApiLimit(limitAiApi: number, aiApiCount: number) {
+        if (aiApiCount >= limitAiApi) {
+            throw new BadRequestError("Your plan Ai Api  limit has been reached.")
+
+        }
+    }
+
 }

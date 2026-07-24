@@ -6,12 +6,13 @@ import { SchudleCampaignUseCase } from "../../application/use-cases/campaign/sch
 import { UpdateCampaignUseCase } from "../../application/use-cases/campaign/updateCampaign-useCase";
 import { UpdateCampaignStatusUseCase } from "../../application/use-cases/campaign/updateCampaignStatus-useCase";
 import { CampaignController } from "../controllers/CampaignController";
-import { campaignEmailRepository, campaignqueue, campaignRepository, leadRepository } from "./share-dependencies";
+import { campaignEmailRepository, campaignqueue, campaignRepository, leadRepository, workspaceRepository } from "./share-dependencies";
 
 const createCampignUseCase=new CreateCampignUseCase(
     leadRepository,
     campaignRepository,
-    campaignEmailRepository
+    campaignEmailRepository,
+    workspaceRepository
 )
 
 

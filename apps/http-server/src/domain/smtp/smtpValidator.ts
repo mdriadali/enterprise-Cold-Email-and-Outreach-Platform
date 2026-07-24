@@ -1,5 +1,6 @@
 import type { SmtpCreateInputData } from "@repo/types";
 import { SmtpError } from "./smtpError";
+import { BadRequestError } from "../sharedError";
 
 export class SmtpValidator {
     static inputDataValidate(inputdata: SmtpCreateInputData) {
@@ -28,4 +29,13 @@ export class SmtpValidator {
             throw new SmtpError("Invalid fromEmail")
         }
     }
+
+
+     static validateSmtpLimit(limitSmtp: number, smtpCount: number) {
+            if (smtpCount >= limitSmtp) {
+                throw new BadRequestError("Your plan Smtp Account Add  limit has been reached.")
+    
+            }
+        }
+    
 }
