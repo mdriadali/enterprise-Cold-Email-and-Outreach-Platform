@@ -7,9 +7,9 @@ export class StartGenerationJobUseCase {
     constructor(
         private readonly generationJobRepository: IGenerationJobRepository
     ) { }
-    async execute(userId: string, generationJobId: string) {
+    async execute(workspaceId: string, generationJobId: string) {
         GenerationJobValidator.validateGenerationId(generationJobId)
-        const job = await this.generationJobRepository.findByidAndworkspaceMember(userId, generationJobId)
+        const job = await this.generationJobRepository.findByIdWorkspaceId(generationJobId, workspaceId)
         GenerationJobValidator.isGenerationJobExist(job)
 
         GenerationJobValidator.jobCanStart(job!.status)
@@ -23,4 +23,24 @@ export class StartGenerationJobUseCase {
         return addQuue
 
     }
+     status = async (req: Request, res: Response) => {
+        try {
+
+             const workspaceId = req.workspaceMember?.workspaceId
+            const { jobId, status } = req.params;
+ 
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                })
+            }
+
+            console.log("[GenerationJob Start] Internal Server Error", error)
+            return res.status(500).json({
+                message: "Internal Server Error"
+            })
+        }
+    }
+  
 }

@@ -59,9 +59,9 @@ export class GenerationJobController {
         try {
             console.log("[GenerationJob Start] Request Recived")
 
-            const userId = req.user.id
+            const workspaceId = req.workspaceMember?.workspaceId
             const { jobid } = req.params;
-            const start = await this.startGenerationJobUseCase.execute(userId, jobid as string)
+            const start = await this.startGenerationJobUseCase.execute(workspaceId as string, jobid as string)
 
             console.log("[GenerationJob Start] Sucessfully JobId:", jobid)
 
@@ -81,4 +81,6 @@ export class GenerationJobController {
             })
         }
     }
+
+     
 }
