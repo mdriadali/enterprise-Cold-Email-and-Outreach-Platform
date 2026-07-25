@@ -1,4 +1,5 @@
 import { CreateSmtpAccountuseCase } from "../../application/use-cases/smtp/createSmtpAccount-usecase";
+import { DeleteSmtpAccountUseCase } from "../../application/use-cases/smtp/deleteSmtpAccount-usecase";
 import { FindAllSmtpAccountUseCase } from "../../application/use-cases/smtp/findAllSmtpAccount-useCase";
 import { UpdateSmtpAccountUseCase } from "../../application/use-cases/smtp/updateSmtpAccount-useCase";
 import { SmtpAccountController } from "../controllers/smtpController";
@@ -13,4 +14,6 @@ const findAllSmtpAccountUseCase=new FindAllSmtpAccountUseCase(
 )
 const updateSmtpAccountUseCase=new UpdateSmtpAccountUseCase(workspaceRepository,smtpAccountRepository)
 
-export const smtpAccountController=new SmtpAccountController(createSmtpAccountuseCase,findAllSmtpAccountUseCase,updateSmtpAccountUseCase)
+const deleteSmtpAccountUseCase=new DeleteSmtpAccountUseCase(workspaceRepository,smtpAccountRepository)
+
+export const smtpAccountController=new SmtpAccountController(createSmtpAccountuseCase,findAllSmtpAccountUseCase,updateSmtpAccountUseCase,deleteSmtpAccountUseCase)

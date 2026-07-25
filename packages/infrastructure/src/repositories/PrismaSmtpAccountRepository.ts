@@ -64,4 +64,13 @@ export class PrismaSmtpAccountRepository implements ISmtpAccountRepository {
             data: data
         })
     }
+
+    async delete(id: string, workspaceId: string): Promise<SmtpData |null> {
+        return await prismaClient.smtpAccount.delete({
+            where:{
+                id,
+                workspaceId
+            }
+        })
+    }
 }

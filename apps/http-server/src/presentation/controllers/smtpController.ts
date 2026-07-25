@@ -3,12 +3,14 @@ import type { CreateSmtpAccountuseCase } from "../../application/use-cases/smtp/
 import { AppError } from "../../domain/AppError";
 import type { FindAllSmtpAccountUseCase } from "../../application/use-cases/smtp/findAllSmtpAccount-useCase";
 import type { UpdateSmtpAccountUseCase } from "../../application/use-cases/smtp/updateSmtpAccount-useCase";
+import type { DeleteSmtpAccountUseCase } from "../../application/use-cases/smtp/deleteSmtpAccount-usecase";
 
 export class SmtpAccountController {
     constructor(
         private readonly createSmtpAccountuseCase: CreateSmtpAccountuseCase,
         private readonly findAllSmtpAccountUseCase: FindAllSmtpAccountUseCase,
-        private readonly updateSmtpAccountUseCase: UpdateSmtpAccountUseCase
+        private readonly updateSmtpAccountUseCase: UpdateSmtpAccountUseCase,
+        private readonly deleteSmtpAccountUseCase: DeleteSmtpAccountUseCase
     ) { }
     create = async (req: Request, res: Response) => {
         console.log("[Smtp Account create] Request Recived")
@@ -81,6 +83,33 @@ export class SmtpAccountController {
 
             console.error(
                 "[Update Smtp Account] Internal Server Error",
+                error
+            );
+
+            return res.status(500).json({
+                message: "Internal Server Error"
+            });
+        }
+    }
+
+    delete = async (req: Request, res: Response) => {
+        console.log("[Delete Smtp Account ] Request Recived")
+        const workspaceId = req.workspaceMember?.workspaceId
+        const { id } = req.params
+        const userid = req.user.id
+        try {
+            const remove = await this.deleteSmtpAccountUseCase.execute(workspaceId as string, id as string, userid)
+            console.log("[Delete Smtp Account ] Sucessfully")
+            return res.status(200).json(remove)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            console.error(
+                "[Delete Smtp Account] Internal Server Error",
                 error
             );
 

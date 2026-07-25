@@ -6,5 +6,5 @@ const smtpRouter = Router()
 smtpRouter.post("/create", smtpAccountController.create)
 smtpRouter.get("/all", smtpAccountController.findAllAcounts)
 smtpRouter.put("/:id",smtpAccountController.update)
-
+smtpRouter.delete("/:id",smtpAccountController.delete)
 export default smtpRouter
