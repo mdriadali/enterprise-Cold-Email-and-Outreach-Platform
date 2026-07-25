@@ -40,6 +40,9 @@ export class SmtpValidator {
     }
 
     static validateUpdateData(data: SmtpUpdateData) {
+        if(!data){
+               throw new SmtpError("At least one field is required.");
+        }
         const hasValue = Object.values(data).some(
             value => value != null
         );
