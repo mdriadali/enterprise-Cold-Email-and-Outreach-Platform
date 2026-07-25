@@ -4,7 +4,7 @@ import generationJobRouter from "./generationJob.routes";
 import smtpRouter from "./smtp.routes";
 import { workspaceController } from "../container/workspacecontroller-dependencies";
 import campaignRouter from "./campaign.routes";
-import workspaceMemberRouter from "./workspaceMember";
+import workspaceMemberRouter from "./workspaceMember.routes";
 
 const workspaceIdRouter = Router()
 workspaceIdRouter.get("/info",workspaceController.info)
