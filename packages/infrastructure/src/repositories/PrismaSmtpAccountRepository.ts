@@ -1,6 +1,6 @@
 import { prismaClient } from "@repo/db";
 import type { ISmtpAccountRepository } from "@repo/ports";
-import type { SmtpCreateInputData, SmtpData } from "@repo/types";
+import type { SmtpCreateInputData, SmtpData, SmtpUpdateData } from "@repo/types";
 
 export class PrismaSmtpAccountRepository implements ISmtpAccountRepository {
     async create(data: SmtpCreateInputData): Promise<SmtpData> {
@@ -23,8 +23,8 @@ export class PrismaSmtpAccountRepository implements ISmtpAccountRepository {
 
     }
     async findById(id: string): Promise<SmtpData | null> {
-        const smtp=await prismaClient.smtpAccount.findUnique({
-            where:{
+        const smtp = await prismaClient.smtpAccount.findUnique({
+            where: {
                 id
             }
         })
@@ -44,14 +44,24 @@ export class PrismaSmtpAccountRepository implements ISmtpAccountRepository {
     }
 
     async findByWorkspaceId(workspaceId: string): Promise<SmtpData[]> {
-        const smtps=await prismaClient.smtpAccount.findMany({
-            where:{
+        const smtps = await prismaClient.smtpAccount.findMany({
+            where: {
                 workspaceId
             }
         })
-        if(!smtps){
+        if (!smtps) {
             return []
         }
         return smtps
+    }
+
+    async updateByIdAndWorkspaceId(id: string, workspaceId: string, data: SmtpUpdateData): Promise<SmtpData | null> {
+        return await prismaClient.smtpAccount.update({
+            where: {
+                id: id,
+                workspaceId: workspaceId
+            },
+            data: data
+        })
     }
 }

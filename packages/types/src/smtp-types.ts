@@ -40,3 +40,18 @@ export interface SmtpData {
 
 
 }
+
+export interface SmtpUpdateData {
+    name?: string;
+
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+
+    fromName?: string;
+    fromEmail?: string;
+    replyTo?: string;
+
+    encryption?: SmtpEncryption;
+}
