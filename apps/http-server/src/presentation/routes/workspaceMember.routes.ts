@@ -3,6 +3,6 @@ import { workspaceMemberController } from "../container/workspaceMemberControlle
 
 const workspaceMemberRouter = Router()
 workspaceMemberRouter.post("/add", workspaceMemberController.add)
-workspaceMemberRouter.delete("/:memberId")
+workspaceMemberRouter.delete("/:memberId",workspaceMemberController.delete)
 
 export default workspaceMemberRouter
