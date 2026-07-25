@@ -65,9 +65,15 @@ export class WorkspaceValidator {
         }
     }
 
-    static  validateMemberLimit(limitmember: number, membercount: number) {
+    static validateMemberLimit(limitmember: number, membercount: number) {
         if (membercount >= limitmember) {
             throw new BadRequestError("Your plan member limit has been reached.")
+        }
+    }
+
+    static validateRemoveMember(memberId: string, ownerId: string) {
+        if (memberId === ownerId) {
+            throw new BadRequestError("Owner Can not remove")
         }
     }
 

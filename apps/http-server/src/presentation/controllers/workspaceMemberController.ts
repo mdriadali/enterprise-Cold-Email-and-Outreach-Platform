@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 import { AppError } from "../../domain/AppError";
 import type { AddMemberUseCase } from "../../application/use-cases/workspace/addMember-useCase";
+import type { DeleteMemberUseCase } from "../../application/use-cases/workspace/deleteMember-useCase";
 
 export class WorkspaceMemberController {
     constructor(
-        private readonly addMemberUseCase: AddMemberUseCase
+        private readonly addMemberUseCase: AddMemberUseCase,
+        private readonly deleteMemberUseCase: DeleteMemberUseCase
     ) { }
     add = async (req: Request, res: Response,) => {
         console.log("[Add workspace member] Request Recived")
@@ -24,6 +26,31 @@ export class WorkspaceMemberController {
             }
 
             console.log("[Add workspace member] Internal Server Error", error)
+            return res.status(500).json({
+                message: "Internal Server Error"
+            })
+        }
+    }
+    delete = async (req: Request, res: Response,) => {
+        console.log("[Delete workspace member] Request Recived")
+        const workspaceId = req.workspaceMember!.workspaceId
+        const { memberId } = req.params
+        const userId = req.user.id
+
+        try {
+            const remove = await this.deleteMemberUseCase.execute(workspaceId, memberId as string, userId)
+            console.log("[Delete workspace member] Sucessfully")
+            return res.status(200).json(remove)
+
+        } catch (error) {
+
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                })
+            }
+
+            console.log("[Delete workspace member] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })

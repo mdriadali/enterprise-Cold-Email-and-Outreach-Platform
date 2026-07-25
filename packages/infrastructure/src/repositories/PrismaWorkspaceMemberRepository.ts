@@ -27,4 +27,13 @@ export class PrismaWorkspaceMember implements IWorkspaceMemberRepository {
         });
         return workspaceMember
     }
+
+    async delete(workspaceId: string, memberId: string): Promise<workspaceMemberData|null> {
+        return  await prismaClient.workspaceMember.delete({
+            where:{
+                id:memberId,
+                workspaceId:workspaceId,
+            }
+        })
+    }
 }
