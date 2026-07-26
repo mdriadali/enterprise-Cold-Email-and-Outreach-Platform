@@ -36,4 +36,12 @@ export class PrismaWorkspaceMember implements IWorkspaceMemberRepository {
             }
         })
     }
+
+    async findbyUserId(userId: string): Promise<workspaceMemberData[]> {
+       return await prismaClient.workspaceMember.findMany({
+            where:{
+                userId:userId
+            }
+        })
+    }
 }

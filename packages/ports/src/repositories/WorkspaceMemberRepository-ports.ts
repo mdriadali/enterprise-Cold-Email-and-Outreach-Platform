@@ -4,4 +4,5 @@ export interface IWorkspaceMemberRepository{
     create(data:workspaceMemberCreateData):Promise<workspaceMemberData>
     findByWorkspaceAndUser(workspaceId:string,UserId:string):Promise<workspaceMemberData |null>
     delete(workspaceId:string, memberId:string):Promise<workspaceMemberData|null>
+    findbyUserId(userId:string):Promise<workspaceMemberData[]>
 }
