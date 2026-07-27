@@ -1,6 +1,6 @@
-name: Deploy the web
+name: Deploy the http server
 
-on: 
+on:
   push:
     branches:
       - main
@@ -27,10 +27,9 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./apps/web/Dockerfile
+          file: ./apps/http-server/Dockerfile
           build-args: |
-            APP_NAME=${{secrets.APP_NAME}}
-            HTTP_SERVER_URL=${{secrets.HTTP_SERVER_URL}}
+           DATABASE_URL=${{ secrets.DATABASE_URL }}
+           REDIS_URL=${{secrets.REDIS_URL}}
           push: true
-          tags: riadofficial/enterprise-cold-email-and-outreach-platform-web:${{ github.sha }}
-      
+          tags: riadofficial/enterprise-cold-email-and-outreach-platform-http-server:${{ github.sha }}
