@@ -11,7 +11,9 @@
     "HTTP_PORT",
     "JWT_ACCESS_SECRET",
     "JWT_REFRESH_SECRET",
-    "REDIS_URL"
+    "REDIS_URL",
+    "APP_NAME",
+    "HTTP_SERVER_URL"
   ],
   "tasks": {
     "build": {
