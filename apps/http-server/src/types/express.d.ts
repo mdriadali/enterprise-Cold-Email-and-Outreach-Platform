@@ -1,10 +1,9 @@
-import type { workspaceMemberData } from "@repo/types";
-import type { User } from "../domain/user/User";
+import type { User, workspaceMemberData } from "@repo/types";
 
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user: User;
        workspaceMember?: workspaceMemberData
     }
   }

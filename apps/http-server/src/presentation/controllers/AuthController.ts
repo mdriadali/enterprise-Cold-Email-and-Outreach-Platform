@@ -119,7 +119,7 @@ export class AuthController {
           message: error.message
         })
       }
-      console.error("[Logout] internal server error")
+      console.error("[Logout] internal server error",error)
       return res.status(500).json({
         message: "Internal server error"
       });
