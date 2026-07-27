@@ -20,3 +20,11 @@ export interface UpdateUserDto {
     remainingFreeWorkspaces?: number;
     role?: Role;
 }
+
+
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: Role;
+}
