@@ -1,13 +1,8 @@
 "use server";
 
-import axios from "axios";
-import { webEnv } from "@repo/env/web-env";
-
+import { callApi } from "./api-client";
 import type { AuthenticationState } from "../../states/auth.states";
-import { persistSessionCookies } from "./session";
 import { signInSchema } from "../../components/auth/auth-schemas";
-
-import { extractMessage } from "./shared";
 
 export async function signInEnterpriseAccount(formData: FormData): Promise<AuthenticationState> {
   const validation = signInSchema.safeParse({
@@ -19,18 +14,13 @@ export async function signInEnterpriseAccount(formData: FormData): Promise<Authe
     return { status: "error", message: "Please correct the highlighted fields.", fieldErrors: validation.error.flatten().fieldErrors };
   }
 
-  try {
-    const response = await axios.post(new URL("auth/login", webEnv.HTTP_SERVER_URL).toString(), validation.data);
-    if (!isSuccessfulResponse(response.data)) {
-      return { status: "error", message: extractMessage(response.data) ?? "Authentication failed." };
-    }
-    await persistSessionCookies(response.headers["set-cookie"]);
-    return { status: "success", message: "You are signed in successfully." };
-  } catch (error: unknown) {
-    return { status: "error", message: extractMessage(axios.isAxiosError(error) ? error.response?.data : error) ?? "Authentication failed." };
-  }
-}
+  const result = await callApi({ method: "POST", url: "auth/login", data: validation.data });
+  if (result.status === "error") return result;
 
-function isSuccessfulResponse(payload: unknown): boolean {
-  return typeof payload === "object" && payload !== null && "sucess" in payload && payload.sucess === true;
+  const payload = result.data as Record<string, unknown>;
+  if (!payload || !("sucess" in payload) || payload.sucess !== true) {
+    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Authentication failed." };
+  }
+
+  return { status: "success", message: "You are signed in successfully." };
 }

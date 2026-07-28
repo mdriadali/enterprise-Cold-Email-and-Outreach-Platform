@@ -2,17 +2,53 @@
 
 import { cookies } from "next/headers";
 
-/** Copies the HTTP service session cookies into the browser response from a server action. */
-export async function persistSessionCookies(setCookieHeader: string[] | undefined) {
+function parseSetCookie(cookie: string) {
+  const [pair = ""] = cookie.split(";");
+  const sep = pair.indexOf("=");
+
+  if (sep === -1) return null;
+
+  const name = pair.slice(0, sep).trim();
+  const value = pair.slice(sep + 1);
+
+  const maxAgeMatch = cookie.match(/;\s*Max-Age\s*=\s*(\d+)/i);
+
+  return {
+    name,
+    value,
+    maxAge: maxAgeMatch ? Number(maxAgeMatch[1]) : undefined,
+  };
+}
+
+export async function persistSessionCookies(
+  setCookieHeader: string[] | undefined
+) {
   if (!setCookieHeader) return;
+
   const cookieStore = await cookies();
+
   for (const rawCookie of setCookieHeader) {
-    const [pair = ""] = rawCookie.split(";");
-    const separator = pair.indexOf("=");
-    if (separator === -1) continue;
-    const name = pair.slice(0, separator).trim();
-    const value = pair.slice(separator + 1);
-    if (name !== "accessToken" && name !== "refreshToken") continue;
-    cookieStore.set({ name, value, httpOnly: true, sameSite: "lax", path: "/" });
+    const parsed = parseSetCookie(rawCookie);
+
+    if (!parsed) continue;
+
+    if (
+      parsed.name !== "accessToken" &&
+      parsed.name !== "refreshToken"
+    ) {
+      continue;
+    }
+
+    cookieStore.set({
+      name: parsed.name,
+      value: parsed.value,
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: false,
+      ...(parsed.maxAge !== undefined && {
+        maxAge: parsed.maxAge,
+      }),
+    });
   }
 }

@@ -1,16 +1,8 @@
 "use server";
 
-import { webEnv } from "@repo/env/web-env";
+import { callApi } from "./api-client";
 import { RegistrationState } from "../../states/auth.states";
-import { persistSessionCookies } from "./session";
-import axios from "axios";
 import { registrationSchema } from "../../components/auth/auth-schemas";
-
-import { extractMessage } from "./shared";
-
-type RegisterResponse = {
-  sucess: true;
-};
 
 export async function registerEnterpriseAccount(formData: FormData): Promise<RegistrationState> {
   const validation = registrationSchema.safeParse({
@@ -26,37 +18,13 @@ export async function registerEnterpriseAccount(formData: FormData): Promise<Reg
 
   const { name, email, password } = validation.data;
 
-  try {
-    const response = await axios.post(
-      new URL("auth/register", webEnv.HTTP_SERVER_URL).toString(),
-      {
-        name,
-        email,
-        password,
-      },
-    );
+  const result = await callApi({ method: "POST", url: "auth/register", data: { name, email, password } });
+  if (result.status === "error") return result;
 
-    const payload: unknown = response.data;
-
-    if (!isSuccessfulRegistration(payload)) {
-      return { status: "error", message: extractMessage(payload) ?? "Registration failed." };
-    }
-
-    await persistSessionCookies(response.headers["set-cookie"]);
-    return { status: "success" };
-  } catch (error: unknown) {
-    return {
-      status: "error",
-      message: extractMessage(axios.isAxiosError(error) ? error.response?.data : error) ?? "Registration failed.",
-    };
+  const payload = result.data as Record<string, unknown>;
+  if (!payload || !("sucess" in payload) || payload.sucess !== true) {
+    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Registration failed." };
   }
-}
 
-function isSuccessfulRegistration(payload: unknown): payload is RegisterResponse {
-  return (
-    typeof payload === "object" &&
-    payload !== null &&
-    "sucess" in payload &&
-    payload.sucess === true
-  );
+  return { status: "success" };
 }

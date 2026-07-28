@@ -1,6 +1,6 @@
 "use client";
-
-import { Hexagon, PlusCircle, Home, Rocket, UsersRound } from "lucide-react";
+import Link from "next/link";
+import { Hexagon, Home, Rocket, UsersRound } from "lucide-react";
 
 export type WorkspaceData = {
   id: string;
@@ -30,7 +30,10 @@ export function WorkspaceList({ workspaces }: WorkspaceListProps) {
       {workspaces.map((workspace, i) => (
         <WorkspaceCard key={workspace.id} workspace={workspace} index={i} />
       ))}
-      <div className="border-2 border-dashed border-[#c3c6d7] rounded-xl p-12 flex flex-col items-center justify-center text-center gap-4 hover:bg-[#f3f3fe] transition-colors group cursor-pointer min-h-[224px]">
+      <Link
+        href="/workspaces/new"
+        className="border-2 border-dashed border-[#c3c6d7] rounded-xl p-12 flex flex-col items-center justify-center text-center gap-4 hover:bg-[#f3f3fe] transition-colors group cursor-pointer min-h-[224px]"
+      >
         <div className="size-16 rounded-full bg-[#e1e2ed] flex items-center justify-center text-[#434655] group-hover:scale-110 transition-transform">
           <Home className="size-8" />
         </div>
@@ -38,7 +41,7 @@ export function WorkspaceList({ workspaces }: WorkspaceListProps) {
           <p className="text-sm leading-5 font-semibold tracking-[0.05em] text-[#191b23]">Collaborate on a new project?</p>
           <p className="text-xs leading-4 text-[#434655]">Create a separate workspace to isolate campaigns and teams.</p>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }
@@ -63,9 +66,9 @@ function WorkspaceCard({ workspace, index }: { workspace: WorkspaceData; index: 
       </div>
       <div className="flex items-center gap-6">
         <span className="text-xs leading-4 font-medium px-4 py-1 bg-[#e7e7f3] rounded-full text-[#434655]">{workspace.role === "OWNER" ? "Owner" : "Member"}</span>
-        <a href={`/workspace/${workspace.workspaceId}`} className="px-6 py-2 bg-[#2563eb] text-[#eeefff] text-sm leading-5 font-semibold tracking-[0.05em] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95">
+        <Link href={`/workspace/${workspace.workspaceId}`} className="px-6 py-2 bg-[#2563eb] text-[#eeefff] text-sm leading-5 font-semibold tracking-[0.05em] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95">
           Manage
-        </a>
+        </Link>
       </div>
     </div>
   );

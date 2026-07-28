@@ -1,9 +1,6 @@
-import { ControlPanelShell } from "@repo/ui/control-panel-shell";
-
-import { requireSession } from "../src/auth/require-session";
 import { SidebarAccount } from "../src/components/auth/sidebar-account";
+import { ActiveShell } from "./active-shell";
 
 export default async function ControlPanelLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  await requireSession();
-  return <ControlPanelShell activePath="/editor" sidebarAccount={<SidebarAccount />}>{children}</ControlPanelShell>;
+  return <ActiveShell sidebarAccount={<SidebarAccount />}>{children}</ActiveShell>;
 }

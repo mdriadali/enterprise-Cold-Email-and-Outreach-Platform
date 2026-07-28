@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { WorkspaceList } from "@repo/ui/workspace-list";
 import { PlusCircle } from "lucide-react";
 
@@ -19,10 +20,10 @@ export default async function WorkspacesPage() {
       <div className="mx-auto max-w-[1000px]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[36px] leading-[44px] font-bold tracking-[-0.01em] text-[#191b23]">Your Workspaces</h2>
-          <button className="flex items-center gap-1 text-[#004ac6] text-sm leading-5 font-semibold tracking-[0.05em] hover:bg-[#dbe1ff] px-4 py-2 rounded-lg transition-all active:scale-95" type="button">
+          <Link href="/workspaces/new" className="inline-flex items-center gap-1 text-[#004ac6] text-sm leading-5 font-semibold tracking-[0.05em] hover:bg-[#dbe1ff] px-4 py-2 rounded-lg transition-all active:scale-95">
             <PlusCircle className="size-5" />
             Create New Workspace
-          </button>
+          </Link>
         </div>
         <WorkspaceList workspaces={profile.data.workspaceMember} />
       </div>

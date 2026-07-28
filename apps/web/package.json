@@ -15,6 +15,7 @@
     "@repo/db": "*",
     "@repo/env": "*",
     "@repo/ui": "*",
+    "@repo/config": "*",
     "axios": "^1.18.1",
     "lucide-react": "^1.27.0",
     "next": "16.2.0",

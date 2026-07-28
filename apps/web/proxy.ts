@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const HTTP_SERVER_URL = process.env.HTTP_SERVER_URL ?? "http://localhost:4000/api/v1";
+const HTTP_SERVER_URL =
+  process.env.HTTP_SERVER_URL ?? "http://localhost:4000/api/v1";
 
 function decodeJwt(token: string): { exp?: number } | null {
   try {
     const payload = token.split(".")[1];
     if (!payload) return null;
-    return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+
+    return JSON.parse(
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+    );
   } catch {
     return null;
   }
@@ -15,35 +19,77 @@ function decodeJwt(token: string): { exp?: number } | null {
 
 function isTokenExpired(token: string): boolean {
   const decoded = decodeJwt(token);
+
   if (!decoded?.exp) return true;
-  return decoded.exp * 1000 < Date.now();
+
+  return decoded.exp * 1000 <= Date.now();
 }
 
-export default async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+function parseSetCookie(
+  cookie: string
+): {
+  name: string;
+  value: string;
+  maxAge?: number;
+} | null {
+  const [pair = ""] = cookie.split(";");
 
-  if (
-    pathname === "/login" || pathname.startsWith("/login/") ||
-    pathname === "/register" || pathname.startsWith("/register/") ||
-    pathname.startsWith("/_next") || pathname === "/favicon.ico"
-  ) return NextResponse.next();
+  const sep = pair.indexOf("=");
 
-  const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
+  if (sep === -1) return null;
 
-  // Token valid → proceed
-  if (accessToken && !isTokenExpired(accessToken)) return NextResponse.next();
+  const name = pair.slice(0, sep).trim();
 
-  // Token expired/missing but no refresh token → redirect
-  if (!refreshToken) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (name !== "accessToken" && name !== "refreshToken") {
+    return null;
   }
 
-  // Try refresh synchronously so current request gets the new token
+  const value = pair.slice(sep + 1);
+
+  const maxAgeMatch = cookie.match(/;\s*Max-Age\s*=\s*(\d+)/i);
+
+  return {
+    name,
+    value,
+    maxAge: maxAgeMatch ? Number(maxAgeMatch[1]) : undefined,
+  };
+}
+
+function applyCookies(response: NextResponse, cookies: string[]) {
+  for (const cookie of cookies) {
+    const parsed = parseSetCookie(cookie);
+
+    if (!parsed) continue;
+
+    response.cookies.set(parsed.name, parsed.value, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+      ...(parsed.maxAge !== undefined && {
+        maxAge: parsed.maxAge,
+      }),
+    });
+  }
+}
+
+async function tryRefresh(request: NextRequest): Promise<{
+  accessToken: string;
+  setCookies: string[];
+} | null> {
+
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+
+  if (!refreshToken) {
+    return null;
+  }
+
   try {
-    const refreshUrl = new URL("auth/refresh", HTTP_SERVER_URL).toString();
+    const refreshUrl = new URL(
+      "auth/refresh",
+      HTTP_SERVER_URL
+    ).toString();
+
     const res = await fetch(refreshUrl, {
       method: "POST",
       headers: {
@@ -51,47 +97,120 @@ export default async function proxy(request: NextRequest) {
         "Content-Type": "application/json",
       },
     });
+  console.log("Refresh status:", res.status);
+    if (!res.ok) {
+      return null;
+    }
 
-    if (res.ok) {
-      const setCookies = res.headers.getSetCookie?.() ?? [];
-      let newAccessToken: string | undefined;
+    const setCookies = res.headers.getSetCookie?.() ?? [];
+    console.log("Set-Cookie:", res.headers.getSetCookie?.());
 
-      const response = NextResponse.next();
-      for (const cookie of setCookies) {
-        const [pair = ""] = cookie.split(";");
-        const sep = pair.indexOf("=");
-        if (sep === -1) continue;
-        const name = pair.slice(0, sep).trim();
-        const value = pair.slice(sep + 1);
-        if (name === "accessToken" || name === "refreshToken") {
-          response.cookies.set(name, value, {
-            httpOnly: true,
-            sameSite: "lax",
-            path: "/",
-            secure: false,
-          });
-          if (name === "accessToken") newAccessToken = value;
-        }
+    for (const cookie of setCookies) {
+      const parsed = parseSetCookie(cookie);
+
+      if (parsed?.name === "accessToken") {
+        return {
+          accessToken: parsed.value,
+          setCookies,
+        };
       }
+    }
 
-      // Forward new token to the current request handler
-      if (newAccessToken) {
-        const reqHeaders = new Headers(request.headers);
-        reqHeaders.set("x-refreshed-token", newAccessToken);
-        return NextResponse.next({ request: { headers: reqHeaders } });
-      }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export default async function proxy(request: NextRequest) {
+
+  console.log({
+    accessToken: !!request.cookies.get("accessToken")?.value,
+    refreshToken: !!request.cookies.get("refreshToken")?.value,
+  });
+
+
+
+  const { pathname } = request.nextUrl;
+
+  if (
+    pathname.startsWith("/_next") ||
+    pathname === "/favicon.ico"
+  ) {
+    return NextResponse.next();
+  }
+
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+
+  // LOGIN / REGISTER
+  if (
+    pathname === "/login" ||
+    pathname.startsWith("/login/") ||
+    pathname === "/register"
+  ) {
+    if (accessToken && !isTokenExpired(accessToken)) {
+      return NextResponse.redirect(
+        new URL("/workspaces", request.url)
+      );
+    }
+
+    const refreshed = await tryRefresh(request);
+
+    if (refreshed) {
+      const response = NextResponse.redirect(
+        new URL("/workspaces", request.url)
+      );
+
+      applyCookies(response, refreshed.setCookies);
 
       return response;
     }
-  } catch {
-    // Refresh network error → redirect to login
+
+    return NextResponse.next();
   }
 
+  // VALID ACCESS TOKEN
+  if (accessToken && !isTokenExpired(accessToken)) {
+    return NextResponse.next();
+  }
+
+  // NO REFRESH TOKEN
+  if (!refreshToken) {
+    const loginUrl = new URL("/login", request.url);
+
+    loginUrl.searchParams.set("redirect", pathname);
+
+    return NextResponse.redirect(loginUrl);
+  }
+
+  // REFRESH ACCESS TOKEN
+  const refreshed = await tryRefresh(request);
+
+  if (refreshed) {
+    const headers = new Headers(request.headers);
+
+    headers.set("x-refreshed-token", refreshed.accessToken);
+
+    const response = NextResponse.next({
+      request: {
+        headers,
+      },
+    });
+
+    applyCookies(response, refreshed.setCookies);
+
+    return response;
+  }
+
+  // REFRESH FAILED
   const loginUrl = new URL("/login", request.url);
+
   loginUrl.searchParams.set("redirect", pathname);
+
   return NextResponse.redirect(loginUrl);
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|login|register).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };

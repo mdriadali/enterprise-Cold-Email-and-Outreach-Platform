@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Link from "next/link";
 import { Edit, Plus, Sparkles, Rocket, Building2, Home, CheckCircle } from "lucide-react";
 
 export type ProfileWorkspace = {
@@ -148,12 +149,12 @@ export function ProfileWorkspaces({ name, email, role, workspaces }: Readonly<Pr
                       <span className="text-xs leading-4 font-medium px-4 py-1 bg-[#e7e7f3] rounded-full text-[#434655]">
                         {workspace.role === "OWNER" ? "Owner" : "Member"}
                       </span>
-                      <a 
+                      <Link 
                         href={`/workspace/${workspace.workspaceId}`}
                         className="px-6 py-2 bg-[#2563eb] text-[#eeefff] text-sm leading-5 font-semibold tracking-[0.05em] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95"
                       >
                         Manage
-                      </a>
+                      </Link>
                     </div>
                   </article>
                 );

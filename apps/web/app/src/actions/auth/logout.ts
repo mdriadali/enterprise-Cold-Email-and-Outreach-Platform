@@ -1,10 +1,7 @@
 "use server";
 
-import axios from "axios";
 import { cookies } from "next/headers";
-import { webEnv } from "@repo/env/web-env";
-
-import { extractMessage } from "./shared";
+import { callApi } from "./api-client";
 
 export type LogoutState = { status: "success" | "error"; message: string };
 
@@ -14,23 +11,20 @@ export async function signOutEnterpriseAccount(): Promise<LogoutState> {
 
   if (!refreshToken) return { status: "error", message: "Your session has already ended." };
 
-  try {
-    const response = await axios.post(new URL("auth/logout", webEnv.HTTP_SERVER_URL).toString(), {}, {
-      headers: { Cookie: `refreshToken=${encodeURIComponent(refreshToken)}` },
-    });
-    const payload = response.data;
-    if (typeof payload !== "object" || payload === null || !("sucess" in payload) || payload.sucess !== true) {
-      return { status: "error", message: extractMessage(payload) ?? "Sign out failed." };
-    }
+  const result = await callApi({ method: "POST", url: "auth/logout", data: {} });
+  if (result.status === "error" && result.message === "Your session has expired.") {
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
-    return { status: "success", message: "You have been signed out." };
-  } catch (error: unknown) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      cookieStore.delete("accessToken");
-      cookieStore.delete("refreshToken");
-      return { status: "success", message: "Your session has expired." };
-    }
-    return { status: "error", message: extractMessage(axios.isAxiosError(error) ? error.response?.data : error) ?? "Sign out failed." };
+    return { status: "success", message: "Your session has expired." };
   }
+  if (result.status === "error") return result;
+
+  const payload = result.data as Record<string, unknown>;
+  if (!payload || !("sucess" in payload) || payload.sucess !== true) {
+    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Sign out failed." };
+  }
+
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+  return { status: "success", message: "You have been signed out." };
 }
