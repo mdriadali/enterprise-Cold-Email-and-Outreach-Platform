@@ -75,6 +75,12 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        APP_NAME: "Cold Out Reach"
+        HTTP_SERVER_URL: "http://http-server:4000/api/v1/"
+
+    env_file:
+      - .env.docker
 
     depends_on:
       postgres:
