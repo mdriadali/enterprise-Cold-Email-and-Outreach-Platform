@@ -4,6 +4,7 @@ import type { IJwtTokenProvider } from "@repo/ports/src/auth/IJwtTokenProvider-p
 import type { IUserRepository } from "@repo/ports/src/repositories/UserRepository-ports";
 import { UserValidator } from "../../domain/user/UserValidator";
 import jwt from "jsonwebtoken";
+import { AppError } from "../../domain/AppError";
 
 export class AuthMiddleware {
     constructor(
@@ -22,10 +23,10 @@ export class AuthMiddleware {
             UserValidator.UserNotExist(findUser)
             console.log("[Auth Midlle] User valid");
             req.user = {
-                id: findUser?.id,
-                name: findUser?.name,
+                id: findUser!.id,
+                name: findUser!.name,
                 email: findUser!.email,
-                role: findUser?.role,
+                role: findUser!.role,
             };
 
             return next();
@@ -37,9 +38,20 @@ export class AuthMiddleware {
                 })
             }
 
-            return res.status(401).json({
-                code: "TOKEN_INVALID"
-            })
+            if (error instanceof AppError) {
+                            return res.status(400).json({
+                                message: error.message
+                            });
+                        }
+            
+                        console.error(
+                            "[Auth middleware] Internal Server Error",
+                            error
+                        );
+            
+                        return res.status(500).json({
+                            message: "Internal Server Error"
+                        });
         }
     }
 }
