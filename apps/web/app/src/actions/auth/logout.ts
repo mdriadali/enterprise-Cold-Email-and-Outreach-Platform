@@ -4,6 +4,8 @@ import axios from "axios";
 import { cookies } from "next/headers";
 import { webEnv } from "@repo/env/web-env";
 
+import { extractMessage } from "./shared";
+
 export type LogoutState = { status: "success" | "error"; message: string };
 
 export async function signOutEnterpriseAccount(): Promise<LogoutState> {
@@ -18,7 +20,7 @@ export async function signOutEnterpriseAccount(): Promise<LogoutState> {
     });
     const payload = response.data;
     if (typeof payload !== "object" || payload === null || !("sucess" in payload) || payload.sucess !== true) {
-      return { status: "error", message: "We couldn't sign you out. Please try again." };
+      return { status: "error", message: extractMessage(payload) ?? "Sign out failed." };
     }
     cookieStore.delete("accessToken");
     cookieStore.delete("refreshToken");
@@ -27,8 +29,8 @@ export async function signOutEnterpriseAccount(): Promise<LogoutState> {
     if (axios.isAxiosError(error) && error.response?.status === 401) {
       cookieStore.delete("accessToken");
       cookieStore.delete("refreshToken");
-      return { status: "success", message: "Your expired session has been cleared." };
+      return { status: "success", message: "Your session has expired." };
     }
-    return { status: "error", message: "We couldn't sign you out. Please try again." };
+    return { status: "error", message: extractMessage(axios.isAxiosError(error) ? error.response?.data : error) ?? "Sign out failed." };
   }
 }
