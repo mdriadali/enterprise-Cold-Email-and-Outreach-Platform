@@ -39,19 +39,17 @@ export class AuthMiddleware {
             }
 
             if (error instanceof AppError) {
-                            return res.status(400).json({
-                                message: error.message
-                            });
-                        }
-            
-                        console.error(
-                            "[Auth middleware] Internal Server Error",
-                            error
-                        );
-            
-                        return res.status(500).json({
-                            message: "Internal Server Error"
-                        });
+                return res.status(400).json({
+                    message: error.message
+                });
+            }
+            console.error(
+                "[Auth middleware] Internal Server Error",
+                error
+            );
+            return res.status(500).json({
+                message: "Internal Server Error"
+            });
         }
     }
 }
