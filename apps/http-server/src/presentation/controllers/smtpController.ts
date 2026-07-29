@@ -70,6 +70,7 @@ export class SmtpAccountController {
         const { id } = req.params
         const userid = req.user.id
         const { data } = req.body
+        data.port=Number(data.port)
         try {
             const update = await this.updateSmtpAccountUseCase.execute(workspaceId as string, id as string, userid, data)
             console.log("[Update Smtp Account ] Sucessfully")
