@@ -76,12 +76,13 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
         return updatejob
     }
 
-    async updateCounters(id: string, data: { successCount?: number; failedCount?: number; pendingCount?: number; }): Promise<void> {
+    async updateCounters(id: string, data: {totalLeads?:number,successCount?: number; failedCount?: number; pendingCount?: number; }): Promise<void> {
         const update=await prismaClient.generationJob.update({
             where:{
                 id
             },
             data:{
+                totalLeads:data.totalLeads,
                 successCount:data.successCount,
                 failedCount:data.successCount,
                 pendingCount:data.pendingCount

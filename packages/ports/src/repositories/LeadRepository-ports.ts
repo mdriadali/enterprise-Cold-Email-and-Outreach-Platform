@@ -11,7 +11,7 @@ export interface ILeadRepository {
     updateGeneratedEmailData(id: string,  data: Prisma.JsonObject): Promise<LeadData>
 
     updateStatusById(id: string, status: LeadStatus, errorMassage?: string): Promise<LeadData>
-    createMany(generationJobId: string, leads: leadInputdata[]): Promise<Number>
+    createMany(generationJobId: string, leads: leadInputdata[]): Promise<number>
     findByStatus(jobId: string, status: LeadStatus): Promise<LeadData[]>
 
 }

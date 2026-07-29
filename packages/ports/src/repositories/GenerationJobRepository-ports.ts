@@ -9,6 +9,7 @@ export interface IGenerationJobRepository {
     updateStatusById(id: string, status: GenerationJobStatus, errorMassage?: string): Promise<GenerationJobData>
     updateCounters(id: string,
         data: {
+            totalLeads?:number
             successCount?: number;
             failedCount?: number;
             pendingCount?: number;

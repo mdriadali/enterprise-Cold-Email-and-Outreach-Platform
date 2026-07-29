@@ -49,10 +49,16 @@ export class CreateBulkLeadUseCase {
             );
         }
 
+
+
         // Bulk insert
-        return this.leadRepository.createMany(
+        const createdLeads=await this.leadRepository.createMany(
             generationJobId,
             leads
         );
+
+        await this.generationJobRepository.updateCounters(generationJobId,{totalLeads:createdLeads})
+
+        return createdLeads
     }
 }
