@@ -2,6 +2,23 @@
 
 import { callApi } from "../auth/api-client";
 
+export type AiApiKeyInfo = {
+  id: string;
+  aiProvider: "GEMINI" | "GROQ" | "OPENROUTER" | "CEREBRAS";
+  status: "AVAILABLE" | "RATE_LIMITED" | "INVALID" | "DISABLED";
+};
+
+export type GenerationJobInfo = {
+  id: string;
+  name: string;
+  status: "PENDING" | "PAUSED" | "PROCESSING" | "COMPLETED" | "FAILED" | "WAITING_FOR_API_QUOTA";
+  totalLeads: number;
+  successCount: number;
+  failedCount: number;
+  pendingCount: number;
+  createdAt: string;
+};
+
 export type WorkspaceInfoData = {
   name: string;
   id: string;
@@ -12,6 +29,8 @@ export type WorkspaceInfoData = {
     role: string;
     user: { name: string; id: string; email: string };
   }[];
+  generationJob: GenerationJobInfo[];
+  AiApiKeys: AiApiKeyInfo[];
   _count: {
     members: number;
     generationJob: number;

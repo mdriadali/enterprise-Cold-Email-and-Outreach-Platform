@@ -1,5 +1,5 @@
 import axios, { type AxiosRequestConfig } from "axios";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { webEnv } from "@repo/env/web-env";
 import { persistSessionCookies } from "./session";
 
@@ -7,7 +7,9 @@ export type ApiResult = { status: "success"; data: unknown } | { status: "error"
 
 async function getCookieHeader() {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get("accessToken")?.value;
+  const hdrs = await headers();
+  const refreshedToken = hdrs.get("x-refreshed-token");
+  const accessToken = refreshedToken ?? cookieStore.get("accessToken")?.value;
   const refreshTokenValue = cookieStore.get("refreshToken")?.value;
   const parts: string[] = [];
   if (accessToken) parts.push(`accessToken=${encodeURIComponent(accessToken)}`);

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { NotificationProvider } from "@repo/ui/notification-provider";
+import { ReduxProvider } from "./redux-provider";
 
 export const metadata: Metadata = {
   title: "ColdReach AI",
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <NotificationProvider>{children}</NotificationProvider>
+        <ReduxProvider>
+          <NotificationProvider>{children}</NotificationProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

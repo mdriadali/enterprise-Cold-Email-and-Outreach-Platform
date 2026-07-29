@@ -143,6 +143,13 @@ export default async function proxy(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
   const refreshToken = request.cookies.get("refreshToken")?.value;
 
+  const selectedWorkspaceId = request.cookies.get("selectedWorkspaceId")?.value;
+  const savedWorkspaceUrl = selectedWorkspaceId ? `/workspace/${selectedWorkspaceId}` : null;
+
+  function resolveLanding(): string {
+    return savedWorkspaceUrl ?? "/workspaces";
+  }
+
   // LOGIN / REGISTER
   if (
     pathname === "/login" ||
@@ -151,7 +158,7 @@ export default async function proxy(request: NextRequest) {
   ) {
     if (accessToken && !isTokenExpired(accessToken)) {
       return NextResponse.redirect(
-        new URL("/workspaces", request.url)
+        new URL(resolveLanding(), request.url)
       );
     }
 
@@ -159,7 +166,7 @@ export default async function proxy(request: NextRequest) {
 
     if (refreshed) {
       const response = NextResponse.redirect(
-        new URL("/workspaces", request.url)
+        new URL(resolveLanding(), request.url)
       );
 
       applyCookies(response, refreshed.setCookies);
@@ -168,6 +175,23 @@ export default async function proxy(request: NextRequest) {
     }
 
     return NextResponse.next();
+  }
+
+  // ROOT - redirect to saved workspace or workspaces list
+  if (pathname === "/") {
+    if (accessToken && !isTokenExpired(accessToken)) {
+      return NextResponse.redirect(new URL(resolveLanding(), request.url));
+    }
+    // try refresh for root too
+    if (refreshToken) {
+      const refreshed = await tryRefresh(request);
+      if (refreshed) {
+        const response = NextResponse.redirect(new URL(resolveLanding(), request.url));
+        applyCookies(response, refreshed.setCookies);
+        return response;
+      }
+    }
+    // fall through to refresh/login logic below
   }
 
   // VALID ACCESS TOKEN

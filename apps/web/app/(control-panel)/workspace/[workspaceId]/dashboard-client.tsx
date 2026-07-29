@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Settings, Users, Sparkles, Megaphone, Key, AtSign, Send, Copy, Check, MoreHorizontal, ShieldCheck, HelpCircle, Bell, Phone, Mail, UserPlus, ChevronDown, Edit3, FilePenLine, LayoutDashboard, BarChart3, Rocket, MoreVertical } from "lucide-react";
 import type { WorkspaceInfoData } from "../../../src/actions/workspace/workspace-info";
+import { useAppDispatch } from "../../../src/states/hooks";
+import { selectWorkspace } from "../../../src/states/workspace-slice";
 
 type DashboardClientProps = {
   info: WorkspaceInfoData;
@@ -36,8 +38,14 @@ function formatDate(dateStr: string) {
 }
 
 export function DashboardClient({ info, limits, planDisplayName }: DashboardClientProps) {
+  const dispatch = useAppDispatch();
   const [copied, setCopied] = useState(false);
   const subColor = subscriptionColors[info.subscription] ?? subscriptionColors.STARTER!;
+
+  useEffect(() => {
+    dispatch(selectWorkspace({ id: info.id, name: info.name }));
+    document.cookie = `selectedWorkspaceId=${info.id};path=/;max-age=${60*60*24*365};SameSite=Lax`;
+  }, [dispatch, info.id, info.name]);
   const usageCards = Object.entries(cardMeta).map(([key, meta]) => {
     const count = meta.countKey ? (info._count as Record<string, number>)[meta.countKey] ?? 0 : 0;
     const limit = limits[meta.limitKey] ?? 1;

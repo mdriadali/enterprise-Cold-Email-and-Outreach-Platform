@@ -8,21 +8,24 @@ import {
   Edit3,
   FilePenLine,
   HelpCircle,
+  Key,
   LayoutDashboard,
   Mail,
   MoreVertical,
   Phone,
   Rocket,
   Send,
+  Server,
   Settings,
   Users,
   UserPlus,
+  Astroid
 } from "lucide-react";
 
 export type ControlPanelNavigationItem = {
   href: string;
   label: string;
-  icon: "dashboard" | "editor" | "campaigns" | "leads" | "analytics" | "settings";
+  icon: "dashboard" | "members" | "generation" | "campaigns" | "leads" | "analytics" | "settings" | "api-keys" | "smtp";
 };
 
 type ControlPanelShellProps = {
@@ -32,40 +35,63 @@ type ControlPanelShellProps = {
   user?: { name: string; email: string };
   sidebarFooter?: ReactNode;
   sidebarAccount?: ReactNode;
+  workspaceId?: string;
+  workspaceName?: string;
 };
 
 const icons: Record<ControlPanelNavigationItem["icon"], ComponentType<{ className?: string }>> = {
   dashboard: LayoutDashboard,
-  editor: FilePenLine,
+  members: Users,
+  generation: Astroid,
   campaigns: Send,
   leads: Users,
   analytics: BarChart3,
+  "api-keys": Key,
+  smtp: Server,
   settings: Settings,
 };
 
 const defaultNavigation: ControlPanelNavigationItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: "dashboard" },
-  { href: "/editor", label: "Editor", icon: "editor" },
+  { href: "/members", label: "Members", icon: "members" },
+  { href: "/generation-job", label: "Generation Job", icon: "generation" },
   { href: "/campaigns", label: "Campaigns", icon: "campaigns" },
   { href: "/leads", label: "Leads", icon: "leads" },
+  { href: "/api-keys", label: "API Keys", icon: "api-keys" },
+  { href: "/smtp", label: "SMTP Accounts", icon: "smtp" },
   { href: "/analytics", label: "Analytics", icon: "analytics" },
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
+function prefixedHref(href: string, workspaceId?: string) {
+  if (!workspaceId) return href;
+  if (href === "/dashboard") return `/workspace/${workspaceId}`;
+  return `/workspace/${workspaceId}${href}`;
+}
+
 /** Shared authenticated application shell. Keep route content in the app, not this component. */
-export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount }: Readonly<ControlPanelShellProps>) {
+export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount, workspaceId, workspaceName }: Readonly<ControlPanelShellProps>) {
   return (
     <div className="flex h-svh w-full overflow-hidden bg-[#4f46e5] font-[Inter,Arial,sans-serif] text-white">
       <aside className="hidden w-[260px] shrink-0 flex-col py-6 text-white/90 lg:flex">
-        <a className="mb-12 flex items-center gap-4 px-8" href="/dashboard" aria-label="ColdReach AI dashboard">
-          <span className="grid size-8 place-items-center rounded bg-white/20 backdrop-blur-md"><Rocket className="size-5 fill-current" /></span>
-          <span className="text-2xl font-semibold tracking-tight text-white">ColdReach AI</span>
-        </a>
+        <div className="mb-6 flex flex-col gap-2 px-8">
+          <a href={prefixedHref("/dashboard", workspaceId)} className="flex items-center gap-4" aria-label="ColdReach AI dashboard">
+            <span className="grid size-8 place-items-center rounded bg-white/20 backdrop-blur-md"><Rocket className="size-5 fill-current" /></span>
+            <span className="text-2xl font-semibold tracking-tight text-white">ColdReach AI</span>
+          </a>
+          {workspaceId ? (
+            <a href="/workspaces" className="flex items-center gap-2 text-white/60 text-xs tracking-wider hover:text-white transition-colors">
+              <LayoutDashboard className="size-3" />
+              All Workspaces
+            </a>
+          ) : null}
+        </div>
         <nav className="flex-1 space-y-1 px-4" aria-label="Main navigation">
           {navigation.map((item) => {
             const Icon = icons[item.icon];
-            const active = activePath === item.href;
-            return <a className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={item.href} key={item.href}><Icon className="size-5" />{item.label}</a>;
+            const href = prefixedHref(item.href, workspaceId);
+            const active = activePath === href;
+            return <a className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={href} key={item.href}><Icon className="size-5" />{item.label}</a>;
           })}
         </nav>
         <div className="mt-auto px-4">
