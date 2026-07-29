@@ -1,6 +1,8 @@
 import { generationQueue } from "@repo/queue";
 import { GenerationJobValidator } from "../../../domain/generationJob/generationJobvalidator";
 import type { IGenerationJobRepository } from "@repo/ports";
+import type { Request, Response } from "express";
+import { AppError } from "../../../domain/AppError";
 
 
 export class StartGenerationJobUseCase {
