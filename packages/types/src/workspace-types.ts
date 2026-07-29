@@ -1,4 +1,4 @@
-import { WorkspaceMemberRole, type AiApi, type aiApiStatus, type AiProvider, type GenerationJob, type GenerationJobStatus, type Subscription, type Workspace, type WorkspaceMember } from "@repo/db"
+import { CampaignStatus, WorkspaceMemberRole, type AiApi, type aiApiStatus, type AiProvider, type GenerationJob, type GenerationJobStatus, type Subscription, type Workspace, type WorkspaceMember } from "@repo/db"
 
 
 
@@ -53,4 +53,43 @@ export type WorkspaceInfo = {
     smtpAccounts: number;
     campaign: number;
   };
+  campaign: {
+    id: string
+
+    workspaceId: string
+
+    name: string
+    description?: string |null
+
+    status: CampaignStatus
+
+    // Scheduling
+    timezone: string
+    startAt?: Date | null
+    endAt?: Date | null
+    nextRunAt?: Date | null
+
+    // Sending Rules
+    dailyLimit: number
+    sendingFromHour: number | null
+    sendingToHour: number | null
+
+    randomDelayMin: number | null
+    randomDelayMax: number | null
+
+    // Options
+    followUpEnabled: boolean
+    stopOnReply: boolean
+    stopOnBounce: boolean
+
+    createdById: string
+
+    smtpAccountId: string
+
+    error?: string | null
+
+    createdAt: Date
+    updatedAt: Date
+
+  }[]
 } | null
