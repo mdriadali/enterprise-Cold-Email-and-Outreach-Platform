@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Eye, EyeOff, Zap, Save, BadgeCheck, Server, Send, Trash2, X } from "lucide-react";
 import { useNotification } from "@repo/ui/notification-provider";
+import { useAppDispatch } from "../../../../../src/states/hooks";
+import { cacheSmtpAccount } from "../../../../../src/states/smtp-cache-slice";
 import { updateSmtpAccount } from "../../../../../src/actions/workspace/update-smtp-account";
 import { deleteSmtpAccount } from "../../../../../src/actions/workspace/delete-smtp-account";
-import type { SmtpAccountInfo } from "../../../../../src/actions/workspace/get-smtp-accounts";
+import type { SmtpAccountInfo } from "../../../../../src/actions/workspace/get-smtp-account";
 
 type Props = {
   workspaceId: string;
@@ -17,11 +19,14 @@ type Props = {
 export function SmtpDetailClient({ workspaceId, account }: Props) {
   const router = useRouter();
   const { notify } = useNotification();
+  const dispatch = useAppDispatch();
   const [submitting, setSubmitting] = useState(false);
   const [testing, setTesting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => { dispatch(cacheSmtpAccount(account)); }, [account.id, dispatch]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

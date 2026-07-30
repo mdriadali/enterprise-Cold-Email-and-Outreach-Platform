@@ -16,6 +16,7 @@
     "@repo/config": "*",
     "@repo/db": "*",
     "@repo/env": "*",
+    "@repo/types": "*",
     "@repo/ui": "*",
     "axios": "^1.18.1",
     "lucide-react": "^1.27.0",

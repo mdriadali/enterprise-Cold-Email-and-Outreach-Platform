@@ -25,7 +25,7 @@ import {
 export type ControlPanelNavigationItem = {
   href: string;
   label: string;
-  icon: "dashboard" | "members" | "generation" | "campaigns" | "leads" | "analytics" | "settings" | "api-keys" | "smtp";
+  icon: "dashboard" | "members" | "generation" | "campaigns" | "campaign-emails" | "leads" | "analytics" | "settings" | "api-keys" | "smtp";
 };
 
 type ControlPanelShellProps = {
@@ -44,6 +44,7 @@ const icons: Record<ControlPanelNavigationItem["icon"], ComponentType<{ classNam
   members: Users,
   generation: Astroid,
   campaigns: Send,
+  "campaign-emails": Mail,
   leads: Users,
   analytics: BarChart3,
   "api-keys": Key,
@@ -56,6 +57,7 @@ const defaultNavigation: ControlPanelNavigationItem[] = [
   { href: "/members", label: "Members", icon: "members" },
   { href: "/generation-job", label: "Generation Job", icon: "generation" },
   { href: "/campaigns", label: "Campaigns", icon: "campaigns" },
+  { href: "/campaigns-emails", label: "Campaign Emails", icon: "campaign-emails" },
   { href: "/leads", label: "Leads", icon: "leads" },
   { href: "/api-keys", label: "API Keys", icon: "api-keys" },
   { href: "/smtp", label: "SMTP Accounts", icon: "smtp" },

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   ArrowLeft, Edit, PauseCircle, Trash2, Info, Calendar, History, User,
-  Globe, Send, Clock, TimerOff, CalendarPlus, ShieldCheck, Copy, ExternalLink,
-  TrendingUp, Zap, Play,
+  Globe, Send, Clock, TimerOff, CalendarPlus, ShieldCheck, Copy,
+  TrendingUp, Zap, Play, Mail,
 } from "lucide-react";
 import { useNotification } from "@repo/ui/notification-provider";
 import type { CampaignDetail } from "../../../../../src/actions/workspace/get-campaign";
@@ -198,6 +198,12 @@ export function CampaignDetailClient({ workspaceId, campaign: initialCampaign }:
             <button onClick={handleEditOpen} className="px-[20px] py-[10px] border border-[#c3c6d7] rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.05em] text-[#434655] hover:bg-[#f3f3fe] transition-colors flex items-center gap-[8px] bg-white" type="button">
               <Edit className="size-[18px]" /> Edit
             </button>
+            <Link
+              href={`/workspace/${workspaceId}/campaigns/${campaign.id}/emails`}
+              className="px-[20px] py-[10px] border border-[#c3c6d7] rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.05em] text-[#434655] hover:bg-[#f3f3fe] transition-colors flex items-center gap-[8px] bg-white"
+            >
+              <Mail className="size-[18px]" /> See All Emails
+            </Link>
             {campaign.status === "DRAFT" && (
               <button
                 className="px-[20px] py-[10px] bg-[#004ac6] text-white rounded-xl text-[14px] leading-[20px] font-semibold tracking-[0.05em] hover:opacity-90 transition-opacity flex items-center gap-[8px] disabled:opacity-50"
@@ -386,7 +392,7 @@ export function CampaignDetailClient({ workspaceId, campaign: initialCampaign }:
                 <div className="flex items-center justify-between">
                   <p className="font-mono text-[14px] leading-[20px] text-[#191b23] font-bold">{campaign.id.slice(0, 24)}...</p>
                   <button className="text-[#004ac6] hover:text-[#0053db] transition-colors" type="button" onClick={() => handleCopy(campaign.id, "Campaign ID")}>
-                    <ExternalLink className="size-[18px]" />
+                    <Copy className="size-[18px]" />
                   </button>
                 </div>
               </div>
