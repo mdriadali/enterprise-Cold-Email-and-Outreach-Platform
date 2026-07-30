@@ -10,6 +10,6 @@ constructor(
         CampaignValidator.validateUpdateData(data)
         const campaign=await this.campaignRepository.findByIdAndWorkspaceId(id,workspaceId)
         CampaignValidator.isStatusDraft(campaign)
-        await this.campaignRepository.updatebyIdAndWorkspaceId(id,workspaceId,data)
+        return await this.campaignRepository.updatebyIdAndWorkspaceId(id,workspaceId,data)
     }
 }
