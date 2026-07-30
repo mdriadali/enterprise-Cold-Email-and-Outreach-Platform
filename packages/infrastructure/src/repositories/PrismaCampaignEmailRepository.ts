@@ -24,6 +24,17 @@ export class PrismaCampaignEmailRepository implements ICampaignEmailRepository {
         })
 
     }
+    async find(campaignId: string, workspaceId: string): Promise<CampaingEmailData[]> {
+        return await prismaClient.campaignEmail.findMany({
+            where:{
+                campaignId,
+                campaign:{
+                    workspaceId
+                }
+            }
+        })
+
+    }
 
 
 

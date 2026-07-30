@@ -112,11 +112,11 @@ export interface CampaingEmailData {
 
     errorMessage?: string | null
 
-    openedAt?: Date | null
+    opened?: number
 
-    clickedAt?: Date | null
+    clicked?: number
 
-    repliedAt?: Date | null
+    replied?: number
 
     bouncedAt?: Date | null
 
