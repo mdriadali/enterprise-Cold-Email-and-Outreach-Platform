@@ -4,13 +4,15 @@ import { AppError } from "../../domain/AppError";
 import type { FindAllSmtpAccountUseCase } from "../../application/use-cases/smtp/findAllSmtpAccount-useCase";
 import type { UpdateSmtpAccountUseCase } from "../../application/use-cases/smtp/updateSmtpAccount-useCase";
 import type { DeleteSmtpAccountUseCase } from "../../application/use-cases/smtp/deleteSmtpAccount-usecase";
+import type { FindSmtpAccountUseCase } from "../../application/use-cases/smtp/findsmtpAccount-useCase";
 
 export class SmtpAccountController {
     constructor(
         private readonly createSmtpAccountuseCase: CreateSmtpAccountuseCase,
         private readonly findAllSmtpAccountUseCase: FindAllSmtpAccountUseCase,
         private readonly updateSmtpAccountUseCase: UpdateSmtpAccountUseCase,
-        private readonly deleteSmtpAccountUseCase: DeleteSmtpAccountUseCase
+        private readonly deleteSmtpAccountUseCase: DeleteSmtpAccountUseCase,
+        private readonly findSmtpAccountUseCase: FindSmtpAccountUseCase
     ) { }
     create = async (req: Request, res: Response) => {
         console.log("[Smtp Account create] Request Recived")
@@ -30,6 +32,31 @@ export class SmtpAccountController {
 
             console.error(
                 "[Smtp Account create] Internal Server Error",
+                error
+            );
+
+            return res.status(500).json({
+                message: "Internal Server Error"
+            });
+        }
+    }
+    find = async (req: Request, res: Response) => {
+        console.log("[Smtp Account Find] Request Recived")
+        const workspaceId = req.workspaceMember?.workspaceId
+        const { id } = req.params
+        try {
+            const smtp = await this.findSmtpAccountUseCase.execute(id as string, workspaceId)
+            console.log("[Smtp Account Find] Sucessfully")
+            return res.status(200).json(smtp)
+        } catch (error) {
+            if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                });
+            }
+
+            console.error(
+                "[Smtp Account find] Internal Server Error",
                 error
             );
 
@@ -70,7 +97,7 @@ export class SmtpAccountController {
         const { id } = req.params
         const userid = req.user.id
         const { data } = req.body
-        data.port=Number(data.port)
+        data.port = Number(data.port)
         try {
             const update = await this.updateSmtpAccountUseCase.execute(workspaceId as string, id as string, userid, data)
             console.log("[Update Smtp Account ] Sucessfully")
