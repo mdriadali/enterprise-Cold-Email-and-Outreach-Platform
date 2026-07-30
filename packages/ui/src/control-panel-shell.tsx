@@ -99,8 +99,8 @@ export function ControlPanelShell({ children, activePath, navigation = defaultNa
         </div>
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-16 shrink-0 items-center justify-between px-5 text-white sm:px-8">
-          <div className="flex items-center gap-2 rounded-full px-4 py-1 transition hover:bg-white/10"><Edit3 className="size-5" /><span className="text-sm font-semibold tracking-[.05em]">Editor</span><ChevronDown className="size-[18px]" /></div>
+        <header className="flex h-16 shrink-0 items-center justify-end px-5 text-white sm:px-8">
+          
           <div className="flex items-center gap-4 sm:gap-8">
             <div className="hidden items-center gap-6 text-white/70 sm:flex"><HelpCircle className="size-[22px]" /><Phone className="size-[22px]" /><Mail className="size-[22px]" /><span className="relative"><Bell className="size-[22px]" /><i className="absolute -right-1 -top-1 size-2 rounded-full border-2 border-[#4f46e5] bg-[#ba1a1a]" /></span></div>
             <button className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold tracking-[.05em] text-[#4f46e5] shadow-lg transition hover:bg-[#faf8ff] active:scale-95 sm:px-6" type="button"><UserPlus className="size-5" /><span className="hidden sm:inline">Invite users</span></button>

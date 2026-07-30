@@ -35,7 +35,7 @@ export function LeadsClient({ workspaceId, jobs }: Props) {
 
   return (
     <div className="min-h-0 flex-1 overflow-auto p-[32px]">
-      <div className="mx-auto flex max-w-[1000px] flex-col gap-[48px]">
+      <div className="flex flex-col gap-[48px]">
         <header className="space-y-[8px] text-center">
           <div className="mb-[16px] inline-flex items-center gap-[8px] rounded-full bg-[#ededf9] px-[16px] py-[4px] text-[14px] leading-[20px] font-semibold tracking-[0.05em] text-[#004ac6]">
             <ShieldCheck className="size-[18px]" />

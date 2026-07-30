@@ -19,6 +19,32 @@ export type GenerationJobInfo = {
   createdAt: string;
 };
 
+export type CampaignInfo = {
+  id: string;
+  workspaceId: string;
+  name: string;
+  description?: string | null;
+  status: string;
+  timezone: string;
+  startAt?: string | null;
+  endAt?: string | null;
+  nextRunAt?: string | null;
+  dailyLimit: number;
+  sendingFromHour: number | null;
+  sendingToHour: number | null;
+  randomDelayMin: number | null;
+  randomDelayMax: number | null;
+  followUpEnabled: boolean;
+  stopOnReply: boolean;
+  stopOnBounce: boolean;
+  createdById: string;
+  createdBy?: { id: string; name: string; email: string } | null;
+  smtpAccountId: string;
+  error?: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type WorkspaceInfoData = {
   name: string;
   id: string;
@@ -31,6 +57,7 @@ export type WorkspaceInfoData = {
   }[];
   generationJob: GenerationJobInfo[];
   AiApiKeys: AiApiKeyInfo[];
+  campaign: CampaignInfo[];
   _count: {
     members: number;
     generationJob: number;
