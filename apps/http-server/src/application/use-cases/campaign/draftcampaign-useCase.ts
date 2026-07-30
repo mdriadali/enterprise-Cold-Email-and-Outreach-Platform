@@ -9,6 +9,8 @@ export class DraftCampiagnUseCase {
     async execute(workspaceId: string, campaignId: string) {
         const campaign = await this.campaignRepository.findByIdAndWorkspaceId(campaignId, workspaceId)
 
+        CampaignValidator.alredyThisStatus(campaign, "COMPLETED", "campaign Already Completed")
+
         CampaignValidator.alredyThisStatus(campaign, "DRAFT")
 
         CampaignValidator.alredyThisStatus(campaign, "SCHEDULED", "Plese update status to Paused")

@@ -3,8 +3,8 @@ import { AppError } from "../../domain/AppError";
 import type { CreateCampignUseCase } from "../../application/use-cases/campaign/createCampaign-useCase";
 import type { UpdateCampaignStatusUseCase } from "../../application/use-cases/campaign/updateCampaignStatus-useCase";
 import type { UpdateCampaignUseCase } from "../../application/use-cases/campaign/updateCampaign-useCase";
-import type { DeleteCampaignUseCase } from "../../application/use-cases/campaign/deleteCampaign-useCase";
 import type { FindCampaignuseCase } from "../../application/use-cases/campaign/findCampaign-useCase";
+import type { DeleteCampaignUseCase } from "../../application/use-cases/campaign/deleteCampaign-useCase";
 
 export class CampaignController {
     constructor(
@@ -115,7 +115,7 @@ export class CampaignController {
         const { id } = req.params
         const userId = req.user.id
         try {
-            const deleteCampaign = await this.deleteCampaignUseCase.execute(id as string, workspaceId, userId)
+            const deleteCampaign = await this.deleteCampaignUseCase.execute(workspaceId, id as string, userId)
             return res.status(200).json(deleteCampaign)
         } catch (error) {
             if (error instanceof AppError) {

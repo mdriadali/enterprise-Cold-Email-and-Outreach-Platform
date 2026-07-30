@@ -8,10 +8,13 @@ export class PausedCampaignUseCase {
     ) { }
 
     async execute(workspaceId: string, campaignId: string) {
-
         const campaign = await this.campaignRepository.findByIdAndWorkspaceId(campaignId, workspaceId)
 
+        CampaignValidator.alredyThisStatus(campaign, "COMPLETED", "campaign Already Completed")
+        
         CampaignValidator.alredyThisStatus(campaign, "PAUSED")
+
+        CampaignValidator.alredyThisStatus(campaign, "DRAFT", "You can not paused this campaign")
 
         const updatedCampaign = await this.campaignRepository.updateStatus(
             campaignId,
