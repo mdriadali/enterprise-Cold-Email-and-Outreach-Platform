@@ -4,10 +4,12 @@ import type { CreateCampignUseCase } from "../../application/use-cases/campaign/
 import type { UpdateCampaignStatusUseCase } from "../../application/use-cases/campaign/updateCampaignStatus-useCase";
 import type { UpdateCampaignUseCase } from "../../application/use-cases/campaign/updateCampaign-useCase";
 import type { DeleteCampaignUseCase } from "../../application/use-cases/campaign/deleteCampaign-useCase";
+import type { FindCampaignuseCase } from "../../application/use-cases/campaign/findCampaign-useCase";
 
 export class CampaignController {
     constructor(
         private readonly createCampignUseCase: CreateCampignUseCase,
+        private readonly findCampaignuseCase:FindCampaignuseCase,
         private readonly updateCampaignStatusUseCase: UpdateCampaignStatusUseCase,
         private readonly updateCampaignUseCase: UpdateCampaignUseCase,
         private readonly deleteCampaignUseCase: DeleteCampaignUseCase
@@ -34,6 +36,26 @@ export class CampaignController {
             }
 
             console.log("[Create Campaign] Internal Server Error", error)
+            return res.status(500).json({
+                message: "Internal Server Error"
+            })
+        }
+    }
+    find=async (req: Request, res: Response) => {
+        console.log("[Create Campaign] Request Recived")
+        const workspaceId = req.workspaceMember?.workspaceId as string
+        const {id}=req.params
+        try {
+            const campaign=await this.findCampaignuseCase.execute(id as string,workspaceId)
+            return res.status(200).json(campaign)
+        } catch (error) {
+             if (error instanceof AppError) {
+                return res.status(400).json({
+                    message: error.message
+                })
+            }
+
+            console.log("[Find Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
