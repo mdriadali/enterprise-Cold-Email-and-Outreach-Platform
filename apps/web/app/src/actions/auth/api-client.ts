@@ -32,7 +32,7 @@ export async function callApi(config: AxiosRequestConfig): Promise<ApiResult> {
 
     const data = error.response?.data;
     const msg = data && typeof data === "object"
-      ? (("message" in data ? (data as Record<string, unknown>).message : "massage" in data ? (data as Record<string, unknown>).massage : null) as string | null)
+      ? (("message" in data ? (data as Record<string, unknown>).message : "massage" in data ? (data as Record<string, unknown>).massage : "massae" in data ? (data as Record<string, unknown>).massae : null) as string | null)
       : typeof data === "string" ? data : null;
     return { status: "error", message: msg ?? "Something went wrong." };
   }
