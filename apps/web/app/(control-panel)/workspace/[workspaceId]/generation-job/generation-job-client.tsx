@@ -1,11 +1,14 @@
 "use client";
 
-import { ArrowLeft, Plus, Search, CheckCircle, AlertCircle, Clock, RefreshCw, X } from "lucide-react";
+import { ArrowLeft, Plus, Search, CheckCircle, AlertCircle, Clock, RefreshCw, X, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createGenerationJob } from "../../../../src/actions/workspace/create-generation-job";
+import { updateGenerationJob } from "../../../../src/actions/workspace/update-generation-job";
+import { deleteGenerationJob } from "../../../../src/actions/workspace/delete-generation-job";
 import type { GenerationJobInfo } from "../../../../src/actions/workspace/workspace-info";
+import { useNotification } from "@repo/ui/notification-provider";
 
 type Props = {
   workspaceId: string;
@@ -34,9 +37,15 @@ function formatDate(dateStr: string) {
 
 export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
   const router = useRouter();
+  const { notify } = useNotification();
   const [showModal, setShowModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [editingJob, setEditingJob] = useState<GenerationJobInfo | null>(null);
+  const [renaming, setRenaming] = useState(false);
+  const [renameError, setRenameError] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<GenerationJobInfo | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const processing = jobs.filter((j) => j.status === "PROCESSING").length;
   const failed = jobs.filter((j) => j.status === "FAILED" || j.status === "WAITING_FOR_API_QUOTA").length;
@@ -54,6 +63,40 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
       setError(result.message);
     } else {
       setShowModal(false);
+      router.refresh();
+    }
+  }
+
+  async function handleRename(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingJob) return;
+    const form = e.currentTarget;
+    const name = new FormData(form).get("name");
+    if (typeof name !== "string") return;
+    setRenameError("");
+    setRenaming(true);
+    const result = await updateGenerationJob(workspaceId, editingJob.id, name);
+    setRenaming(false);
+    if (result.status === "error") {
+      setRenameError(result.message);
+    } else {
+      setEditingJob(null);
+      notify({ title: "Job renamed", message: `Renamed to "${result.job.name}"`, tone: "success" });
+      router.refresh();
+    }
+  }
+
+  async function handleDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    const result = await deleteGenerationJob(workspaceId, pendingDelete.id);
+    setDeleting(false);
+    if (result.status === "error") {
+      setPendingDelete(null);
+      notify({ title: "Couldn't delete job", message: result.message, tone: "error" });
+    } else {
+      setPendingDelete(null);
+      notify({ title: "Job deleted", tone: "success" });
       router.refresh();
     }
   }
@@ -83,6 +126,62 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {editingJob && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { if (!renaming) setEditingJob(null); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#c3c6d7]">
+              <div>
+                <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#191b23]">Rename Job</h2>
+                <p className="text-[13px] text-[#434655] mt-1">Update the name of this generation job.</p>
+              </div>
+              <button className="p-2 hover:bg-[#ededf9] rounded-lg transition-colors text-[#434655]" onClick={() => setEditingJob(null)} disabled={renaming}><X className="size-5" /></button>
+            </div>
+            <form onSubmit={handleRename} className="p-6 space-y-5">
+              <div>
+                <label className="text-[12px] leading-[16px] font-semibold tracking-[0.05em] text-[#434655] block mb-2" htmlFor="rename-name">Job Name</label>
+                <input id="rename-name" name="name" type="text" required minLength={2} defaultValue={editingJob.name} className="w-full px-4 py-3 bg-white border border-[#c3c6d7] rounded-lg text-[14px] leading-[20px] text-[#191b23] focus:ring-2 focus:ring-[#004ac6] focus:border-transparent outline-none transition-all" />
+              </div>
+              {renameError && <div className="bg-[#ffdad6] text-[#ba1a1a] text-[13px] leading-[18px] px-4 py-3 rounded-lg font-medium">{renameError}</div>}
+              <div className="flex justify-end gap-3 pt-2">
+                <button type="button" className="px-5 py-2.5 text-[13px] font-semibold tracking-[0.05em] text-[#434655] hover:bg-[#ededf9] rounded-lg transition-colors" onClick={() => setEditingJob(null)} disabled={renaming}>Cancel</button>
+                <button type="submit" disabled={renaming} className="bg-[#004ac6] text-white text-[13px] font-semibold tracking-[0.05em] px-6 py-2.5 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm disabled:opacity-50">
+                  {renaming ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {pendingDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => { if (!deleting) setPendingDelete(null); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-6 py-5 border-b border-[#c3c6d7]">
+              <div>
+                <h2 className="text-[18px] font-semibold tracking-[-0.01em] text-[#191b23]">Delete Generation Job</h2>
+                <p className="text-[13px] text-[#434655] mt-1">This action cannot be undone.</p>
+              </div>
+              <button className="p-2 hover:bg-[#ededf9] rounded-lg transition-colors text-[#434655]" onClick={() => setPendingDelete(null)} disabled={deleting}><X className="size-5" /></button>
+            </div>
+            <div className="px-6 py-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-[#ffdad6] flex items-center justify-center text-[#ba1a1a] shrink-0">
+                  <Trash2 className="size-6" />
+                </div>
+                <div>
+                  <p className="text-[14px] leading-[20px] text-[#191b23]">Delete <span className="font-semibold">{pendingDelete.name}</span> and all its leads?</p>
+                  <p className="text-[13px] leading-[18px] text-[#434655] mt-1">This permanently removes the job and its generated leads.</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[#c3c6d7]">
+              <button type="button" className="px-5 py-2.5 text-[13px] font-semibold tracking-[0.05em] text-[#434655] hover:bg-[#ededf9] rounded-lg transition-colors" onClick={() => setPendingDelete(null)} disabled={deleting}>Cancel</button>
+              <button type="button" disabled={deleting} onClick={handleDelete} className="bg-[#ba1a1a] text-white text-[13px] font-semibold tracking-[0.05em] px-6 py-2.5 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm disabled:opacity-50">
+                {deleting ? "Deleting..." : "Delete Job"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -161,7 +260,41 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
                 const st = statusStyles[job.status] ?? { label: job.status, container: "bg-[#e7e7f3] text-[#434655]", Icon: Clock };
                 const pct = job.totalLeads > 0 ? Math.round(((job.successCount + job.failedCount) / job.totalLeads) * 100) : 0;
                 const progressLabel = job.status === "PROCESSING" ? `${job.successCount} / ${job.failedCount} / ${job.pendingCount}` : job.status === "COMPLETED" ? `${job.successCount} / ${job.failedCount}` : job.status === "FAILED" ? `0 / ${job.failedCount}` : `${job.pendingCount}`;
-                return (
+async function handleRename(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!editingJob) return;
+    const form = e.currentTarget;
+    const name = new FormData(form).get("name");
+    if (typeof name !== "string") return;
+    setRenameError("");
+    setRenaming(true);
+    const result = await updateGenerationJob(workspaceId, editingJob.id, name);
+    setRenaming(false);
+    if (result.status === "error") {
+      setRenameError(result.message);
+    } else {
+      setEditingJob(null);
+      notify({ title: "Job renamed", message: `Renamed to "${result.job.name}"`, tone: "success" });
+      router.refresh();
+    }
+  }
+
+  async function handleDelete() {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    const result = await deleteGenerationJob(workspaceId, pendingDelete.id);
+    setDeleting(false);
+    if (result.status === "error") {
+      setPendingDelete(null);
+      notify({ title: "Couldn't delete job", message: result.message, tone: "error" });
+    } else {
+      setPendingDelete(null);
+      notify({ title: "Job deleted", tone: "success" });
+      router.refresh();
+    }
+  }
+
+  return (
                   <tr
                     key={job.id}
                     className="hover:bg-[#f3f3fe] transition-colors group cursor-pointer"
@@ -190,8 +323,15 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
                       </div>
                     </td>
                     <td className="px-[24px] py-[24px] text-[14px] leading-[20px] text-[#434655]">{formatDate(job.createdAt)}</td>
-                    <td className="px-[24px] py-[24px] text-right">
-                      <span className="text-[#004ac6] text-[13px] font-semibold tracking-[0.05em] opacity-0 group-hover:opacity-100 transition-opacity">View →</span>
+                    <td className="px-[24px] py-[24px] text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-[8px] opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button className="p-2 rounded-lg text-[#434655] hover:bg-[#e7e7f3] transition-colors" title="Rename" onClick={() => { setRenameError(""); setEditingJob(job); }}>
+                          <Pencil className="size-[18px]" />
+                        </button>
+                        <button className="p-2 rounded-lg text-[#434655] hover:bg-[#ffdad6] hover:text-[#ba1a1a] transition-colors" title="Delete" disabled={deleting} onClick={() => { setError(""); setPendingDelete(job); }}>
+                          <Trash2 className="size-[18px]" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
