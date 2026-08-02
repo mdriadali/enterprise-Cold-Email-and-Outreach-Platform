@@ -13,5 +13,6 @@ export interface ILeadRepository {
     updateStatusById(id: string, status: LeadStatus, errorMassage?: string): Promise<LeadData>
     createMany(generationJobId: string, leads: leadInputdata[]): Promise<number>
     findByStatus(jobId: string, status: LeadStatus): Promise<LeadData[]>
+    deleteByGenerationJobId(generationJobId: string): Promise<number>
 
 }

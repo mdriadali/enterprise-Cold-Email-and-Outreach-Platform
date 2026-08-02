@@ -26,6 +26,30 @@ export class PrismaGenerationJobRepository implements IGenerationJobRepository {
         return job
     }
 
+    async findByWorkspaceId(workspaceId: string, page: number): Promise<GenerationJobData[]> {
+        const LIMIT = 10;
+        const skip = (page - 1) * LIMIT;
+        return prismaClient.generationJob.findMany({
+            where: { workspaceId },
+            skip,
+            take: LIMIT,
+            orderBy: { createdAt: "desc" }
+        })
+    }
+
+    async update(id: string, data: { name?: string }): Promise<GenerationJobData> {
+        return prismaClient.generationJob.update({
+            where: { id },
+            data: { name: data.name }
+        })
+    }
+
+    async delete(id: string, workspaceId: string): Promise<GenerationJobData> {
+        return prismaClient.generationJob.delete({
+            where: { id }
+        })
+    }
+
     async  findByIdWorkspaceId(id: string,workspaceId: string): Promise<GenerationJobData | null> {
          const job = await prismaClient.generationJob.findUnique({
             where: {

@@ -123,4 +123,13 @@ export class PrismaLeadRepository implements ILeadRepository {
         });
         return leads
     }
+
+    async deleteByGenerationJobId(generationJobId: string): Promise<number> {
+        const deleted = await prismaClient.lead.deleteMany({
+            where: {
+                generationJobId
+            }
+        });
+        return deleted.count
+    }
 }

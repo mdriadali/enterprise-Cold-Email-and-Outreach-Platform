@@ -4,9 +4,16 @@ import leadRouter from "./lead.routes";
 
 const generationJobRouter = Router()
 
+
 generationJobRouter.post("/create", generationJobController.create)
-generationJobRouter.get("/:generationJobId",generationJobController.get)
+
+generationJobRouter.get("/all", generationJobController.find)
+generationJobRouter.get("/:generationJobId", generationJobController.get)
 generationJobRouter.post("/:jobid/start", generationJobController.start)
+
+generationJobRouter.put("/:generationJobId", generationJobController.update)
+
+generationJobRouter.delete("/:generationJobId", generationJobController.delete)
 generationJobRouter.use("/:generationJobId/lead", leadRouter)
 
 export default generationJobRouter
