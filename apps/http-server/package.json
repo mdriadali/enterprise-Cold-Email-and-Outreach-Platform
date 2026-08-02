@@ -15,22 +15,26 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@repo/common": "workspace:*",
+    "@repo/config": "workspace:*",
     "@repo/db": "*",
     "@repo/env": "*",
     "@repo/infrastructure": "workspace:*",
     "@repo/ports": "workspace:*",
     "@repo/queue": "workspace:*",
     "@repo/types": "*",
-    "@repo/common":"workspace:*",
-     "@repo/config":"workspace:*",
     "@types/bcrypt": "^6.0.0",
+    "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "bcrypt": "^6.0.0",
+    "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "luxon": "^3.7.2"
+    "luxon": "^3.7.2",
+    "socket.io": "^4.8.3"
   }
 }

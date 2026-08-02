@@ -89,4 +89,26 @@ export class PrismaAiApiRepository implements IAiApiRepository {
         })
         return find
     }
+
+    async updateByIdAndWorkspaceId(id: string, workspaceId: string, provider: AiProvider, key: string): Promise<aiApiData> {
+        return await prismaClient.aiApi.update({
+            where: {
+                id,
+                workspaceId
+            },
+            data: {
+                aiProvider: provider,
+                apiKey: key
+            }
+        })
+    }
+
+    async delete(id: string, workspaceId: string): Promise<aiApiData> {
+        return await prismaClient.aiApi.delete({
+            where: {
+                id,
+                workspaceId
+            }
+        })
+    }
 }

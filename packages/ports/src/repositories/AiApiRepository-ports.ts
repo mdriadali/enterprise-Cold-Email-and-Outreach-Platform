@@ -7,4 +7,6 @@ export interface IAiApiRepository{
     getApiSummary(workspaceId:string):Promise<ApiSummary>;
     updateStatus(id:string , status:aiApiStatus):Promise<aiApiData>
     findAvailableByWorkspaceId(workspaceId:string):Promise<aiApiData[]>
+    updateByIdAndWorkspaceId(id:string, workspaceId:string, provider:AiProvider, key:string):Promise<aiApiData>
+    delete(id:string, workspaceId:string):Promise<aiApiData>
 }
