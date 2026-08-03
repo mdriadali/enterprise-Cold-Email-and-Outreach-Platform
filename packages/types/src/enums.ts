@@ -1,0 +1,10 @@
+export type AiProvider = "GEMINI" | "GROQ" | "OPENROUTER" | "CEREBRAS";
+export type aiApiStatus = "AVAILABLE" | "RATE_LIMITED" | "INVALID" | "DISABLED";
+export type CampaignStatus = "DRAFT" | "SCHEDULED" | "RUNNING" | "PAUSED" | "QUEUED" | "COMPLETED" | "CANCELLED" | "FAILED";
+export type CampaignEmailStatus = "PENDING" | "PROCESSING" | "SENT" | "FAILED" | "BOUNCED" | "REPLIED";
+export type GenerationJobStatus = "PENDING" | "PAUSED" | "PROCESSING" | "COMPLETED" | "FAILED" | "WAITING_FOR_API_QUOTA";
+export type LeadStatus = "PENDING" | "PROCESSING" | "FAILED" | "RETRY_PENDING" | "GENERATED" | "REGENERATED";
+export type Role = "ADMIN" | "USER";
+export type SmtpEncryption = "NONE" | "SSL" | "TLS";
+export type Subscription = "STARTER" | "PROFESSIONAL" | "ULTRA";
+export type WorkspaceMemberRole = "OWNER" | "MEMBER";

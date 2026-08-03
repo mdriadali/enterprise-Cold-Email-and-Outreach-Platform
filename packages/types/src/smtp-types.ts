@@ -1,4 +1,4 @@
-import { SmtpEncryption } from "@repo/db"
+import type { SmtpEncryption } from "./enums"
 
 export interface SmtpCreateInputData {
     workspaceId: string,

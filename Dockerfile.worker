@@ -1,0 +1,40 @@
+# Base Stage
+FROM oven/bun:1 AS base
+
+WORKDIR /app
+
+# Pruner Stage
+FROM base AS pruner
+
+COPY . .
+
+RUN bunx turbo prune worker --docker
+
+# Installer Stage
+FROM base AS installer
+
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
+
+COPY --from=pruner /app/out/full/ .
+
+RUN bun run db:generate
+
+RUN bun run build:worker
+
+
+# Runner Stage
+FROM oven/bun:1 AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Copy the built application from the installer stage
+COPY --from=installer /app .
+
+
+CMD ["bun", "apps/worker/dist/index.js"]

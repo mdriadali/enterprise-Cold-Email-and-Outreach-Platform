@@ -12,9 +12,9 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -27,7 +27,7 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -35,7 +35,7 @@ services:
   http-server:
     build:
       context: .
-      dockerfile: apps/http-server/Dockerfile
+      dockerfile: Dockerfile.http
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
         HTTP_PORT: 4000
@@ -53,17 +53,22 @@ services:
     ports:
       - "4000:4000"
 
+    healthcheck:
+     test: [ "CMD", "wget", "-qO-", "http://localhost:4000/health" ]
+     interval: 30s
+     timeout: 5s
+     retries: 3
+
   worker:
     build:
       context: .
-      dockerfile: apps/worker/Dockerfile
+      dockerfile: Dockerfile.worker
       args:
         DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
         REDIS_URL: redis://redis:6379
 
     env_file:
       - .env.docker
-
 
     depends_on:
       postgres:
@@ -74,7 +79,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: Dockerfile.web
       args:
         APP_NAME: "Cold Out Reach"
         HTTP_SERVER_URL: "http://http-server:4000/api/v1/"

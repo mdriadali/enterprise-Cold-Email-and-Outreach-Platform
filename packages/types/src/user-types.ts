@@ -1,4 +1,4 @@
-import type { AiProvider, Role } from "@repo/db"
+import type { Role } from "./enums"
 
 export interface Userdata {
     id: string

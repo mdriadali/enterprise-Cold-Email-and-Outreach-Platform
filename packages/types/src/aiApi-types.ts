@@ -1,5 +1,3 @@
-import { string } from "zod"
-
 export interface aiApiData {
     id: string,
     ownerId: string,

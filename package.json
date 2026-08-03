@@ -10,9 +10,19 @@
     "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
     "db:generate": "cd packages/db && bunx prisma generate && cd ../..",
     "db:push": "cd packages/db && bunx prisma db push",
-    "start:web": "bun --env-file=.env.local -- turbo run build --filter=web && turbo run start --filter=web",
-    "start:http": "bun run db:push && bun --env-file=.env.local -- turbo run build --filter=http-server && turbo run start --filter=http-server",
-    "start:worker": "bun run db:push && bun --env-file=.env.local -- turbo run start --filter=worker"
+
+
+    "build:web": "bun --env-file=.env.local -- turbo run build --filter=web",
+    "start:web": "turbo run start --filter=web",
+
+    "build:http": "bun --env-file=.env.local -- turbo run build --filter=http-server",
+    "start:http": "turbo run start --filter=http-server",
+
+
+
+    "build:worker": "bun --env-file=.env.local -- turbo run build --filter=worker",
+    "start:worker": "turbo run start --filter=worker"
+
   },
   "devDependencies": {
     "@types/bun": "latest",

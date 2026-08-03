@@ -1,0 +1,46 @@
+# Base Stage
+FROM oven/bun:1 AS base
+
+WORKDIR /app
+
+# Pruner Stage
+FROM base AS pruner
+
+COPY . .
+
+RUN bunx turbo prune web --docker
+
+# Installer Stage
+FROM base AS installer
+
+ARG APP_NAME
+ENV APP_NAME=${APP_NAME}
+
+ARG HTTP_SERVER_URL
+ENV HTTP_SERVER_URL=${HTTP_SERVER_URL}
+
+COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
+
+COPY --from=pruner /app/out/full/ .
+
+
+RUN bun run build:web
+
+
+# Runner Stage
+FROM oven/bun:1 AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Copy the built application from the installer stage
+COPY --from=installer /app .
+
+EXPOSE 3000
+
+CMD ["bun", "run", "start:web"]

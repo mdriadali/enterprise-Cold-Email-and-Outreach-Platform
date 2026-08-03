@@ -1,6 +1,4 @@
-import { CampaignStatus, WorkspaceMemberRole, type AiApi, type aiApiStatus, type AiProvider, type GenerationJob, type GenerationJobStatus, type Subscription, type Workspace, type WorkspaceMember } from "@repo/db"
-
-
+import type { AiProvider, aiApiStatus, CampaignStatus, GenerationJobStatus, Subscription, WorkspaceMemberRole } from "./enums";
 
 export interface workspaceMemberCreateData {
   workspaceId: string,

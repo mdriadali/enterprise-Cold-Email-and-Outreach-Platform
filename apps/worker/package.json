@@ -3,10 +3,13 @@
   "module": "src/workers/generation.worker.ts",
   "type": "module",
   "private": true,
-  "scripts": {
-    "start": "bun --env-file=../../.env.local src/index.ts",
+   "scripts": {
     "dev": "bun --env-file=../../.env.local --watch src/index.ts",
-    "build": "bun build ./index.ts --outdir ./dist --target bun",
+
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+
+    "start": "bun dist/index.js",
+
     "check-types": "tsc --noEmit"
   },
   "devDependencies": {

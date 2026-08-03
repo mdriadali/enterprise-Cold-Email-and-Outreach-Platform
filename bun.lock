@@ -55,7 +55,6 @@
         "@hookform/resolvers": "^5.5.7",
         "@reduxjs/toolkit": "^2.12.0",
         "@repo/config": "*",
-        "@repo/db": "*",
         "@repo/env": "*",
         "@repo/types": "*",
         "@repo/ui": "*",
@@ -230,7 +229,6 @@
     "packages/types": {
       "name": "@repo/types",
       "dependencies": {
-        "@repo/db": "workspace:*",
         "@types/jsonwebtoken": "^9.0.10",
         "jsonwebtoken": "^9.0.3",
       },

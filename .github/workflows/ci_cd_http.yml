@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./apps/http-server/Dockerfile
+          file: ./Dockerfile.http
           build-args: |
            DATABASE_URL=${{ secrets.DATABASE_URL }}
            HTTP_PORT=${{ secrets.PORT }}

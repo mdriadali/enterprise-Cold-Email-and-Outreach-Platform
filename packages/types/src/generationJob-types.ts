@@ -1,4 +1,4 @@
-import type { GenerationJobStatus } from "@repo/db";
+import type { GenerationJobStatus } from "./enums";
 
 export interface GenerationJobData {
     id: string,

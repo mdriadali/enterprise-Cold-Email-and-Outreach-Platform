@@ -1,5 +1,37 @@
-import { CampaignEmailStatus, CampaignStatus, Role, Subscription, type Campaign, type Workspace } from "@repo/db"
+import type { CampaignEmailStatus, CampaignStatus, Subscription } from "./enums"
 import type { LeadEmailData } from "./lead-types"
+
+export interface Campaign {
+    id: string
+    workspaceId: string
+    name: string
+    description: string | null
+    status: CampaignStatus
+    timezone: string
+    startAt: Date | null
+    endAt: Date | null
+    nextRunAt: Date | null
+    dailyLimit: number
+    sendingFromHour: number | null
+    sendingToHour: number | null
+    randomDelayMin: number | null
+    randomDelayMax: number | null
+    followUpEnabled: boolean
+    stopOnReply: boolean
+    stopOnBounce: boolean
+    createdById: string
+    smtpAccountId: string
+    error: string | null
+    createdAt: Date
+    updatedAt: Date
+}
+
+export interface Workspace {
+    id: string
+    name: string
+    ownerId: string
+    subscription: Subscription
+}
 
 export interface CreateCampaignInput {
     workspaceId: string
@@ -123,8 +155,3 @@ export interface CampaingEmailData {
     createdAt: Date
     updatedAt: Date
 }
-
-
-
-
-

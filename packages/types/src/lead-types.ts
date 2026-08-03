@@ -1,8 +1,15 @@
-import type { LeadStatus, Prisma } from "@repo/db";
+import type { LeadStatus } from "./enums";
+
+export type JsonArray = JsonValue[];
+export type JsonObject = { [Key in string]?: JsonValue };
+export type JsonValue = string | number | boolean | JsonObject | JsonArray | null;
+export type InputJsonArray = readonly (InputJsonValue | null)[];
+export type InputJsonObject = { readonly [Key in string]?: InputJsonValue | null };
+export type InputJsonValue = string | number | boolean | InputJsonObject | InputJsonArray | { toJSON(): unknown };
 
 export interface leadInputdata {
     email: string,
-    metadata: Prisma.InputJsonValue
+    metadata: InputJsonValue
 }
 export interface LeadData {
     id: string
@@ -10,11 +17,11 @@ export interface LeadData {
 
     email: string
 
-    metadata: Prisma.JsonValue
+    metadata: JsonValue
 
     status: LeadStatus
 
-    generatedEmailData?: Prisma.JsonValue | null;
+    generatedEmailData?: JsonValue | null;
     createdAt: Date
     updatedAt: Date
 }
