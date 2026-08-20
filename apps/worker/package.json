@@ -21,6 +21,7 @@
   "dependencies": {
     "@repo/common": "workspace:*",
     "@repo/db": "workspace:*",
+    "@repo/env": "workspace:*",
     "@repo/infrastructure": "workspace:*",
     "@repo/ports": "workspace:*",
     "@repo/queue": "workspace:*",

@@ -1,11 +1,14 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import type { LoginUserInput, RegisterUserInput } from "@repo/types";
+import type { ForgotPasswordInput, LoginUserInput, RegisterUserInput, ResetPasswordInput, VerifyEmailInput } from "@repo/types";
 import type { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUser-UseCase";
 import type { LoginUserUseCase } from "../../application/use-cases/auth/LoginUser-UseCase";
 import type { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { AppError } from "../../domain/AppError";
 import type { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
+import type { VerifyEmailUseCase } from "../../application/use-cases/auth/VerifyEmail-UseCase";
+import type { ForgotPasswordUseCase } from "../../application/use-cases/auth/ForgotPassword-UseCase";
+import type { ResetPasswordUseCase } from "../../application/use-cases/auth/ResetPassword-UseCase";
 
 
 export class AuthController {
@@ -14,6 +17,9 @@ export class AuthController {
     private readonly loginUserUseCase: LoginUserUseCase,
     private readonly logoutUserUseCase: LogoutUserUseCase,
     private readonly refreshUseCase: RefreshUseCase,
+    private readonly verifyEmailUseCase: VerifyEmailUseCase,
+    private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
   ) { }
 
   register = async (req: Request, res: Response) => {
@@ -163,5 +169,47 @@ export class AuthController {
       })
     }
 
+  }
+
+  verifyEmail = async (req: Request, res: Response) => {
+    try {
+      const data: VerifyEmailInput = req.body
+      await this.verifyEmailUseCase.execute(data)
+      return res.status(200).json({ sucess: true })
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(400).json({ message: error.message })
+      }
+      console.error("[VerifyEmail] internal server error", error)
+      return res.status(500).json({ message: "Internal Server Error" })
+    }
+  }
+
+  forgotPassword = async (req: Request, res: Response) => {
+    try {
+      const data: ForgotPasswordInput = req.body
+      await this.forgotPasswordUseCase.execute(data)
+      return res.status(200).json({ sucess: true })
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(400).json({ message: error.message })
+      }
+      console.error("[ForgotPassword] internal server error", error)
+      return res.status(500).json({ message: "Internal Server Error" })
+    }
+  }
+
+  resetPassword = async (req: Request, res: Response) => {
+    try {
+      const data: ResetPasswordInput = req.body
+      await this.resetPasswordUseCase.execute(data)
+      return res.status(200).json({ sucess: true })
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(400).json({ message: error.message })
+      }
+      console.error("[ResetPassword] internal server error", error)
+      return res.status(500).json({ message: "Internal Server Error" })
+    }
   }
 }

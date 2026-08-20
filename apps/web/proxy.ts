@@ -154,7 +154,8 @@ export default async function proxy(request: NextRequest) {
   if (
     pathname === "/login" ||
     pathname.startsWith("/login/") ||
-    pathname === "/register"
+    pathname === "/register" ||
+    pathname === "/forgot-password"
   ) {
     if (accessToken && !isTokenExpired(accessToken)) {
       return NextResponse.redirect(
@@ -174,6 +175,14 @@ export default async function proxy(request: NextRequest) {
       return response;
     }
 
+    return NextResponse.next();
+  }
+
+  // VERIFY EMAIL / RESET PASSWORD (public — must process the link even when signed in)
+  if (
+    pathname.startsWith("/reset-password") ||
+    pathname.startsWith("/verify-email")
+  ) {
     return NextResponse.next();
   }
 

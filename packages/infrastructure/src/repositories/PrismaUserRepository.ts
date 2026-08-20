@@ -86,6 +86,13 @@ export class PrismaUserRepository implements IUserRepository {
     return decrement
   }
 
+  async markEmailVerified(email: string): Promise<void> {
+    await prismaClient.user.update({
+      where: { email },
+      data: { emailVerifiedAt: new Date() },
+    })
+  }
+
 
 
 

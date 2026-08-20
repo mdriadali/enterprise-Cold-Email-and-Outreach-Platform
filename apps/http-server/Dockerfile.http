@@ -8,7 +8,7 @@ FROM base AS pruner
 
 COPY . .
 
-RUN bunx turbo prune worker --docker
+RUN bunx turbo prune http-server --docker
 
 # Installer Stage
 FROM base AS installer
@@ -21,9 +21,11 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 COPY --from=pruner /app/out/full/ .
 
+
+
 RUN bun run db:generate
 
-RUN bun run build:worker
+RUN bun run build:http
 
 
 # Runner Stage
@@ -36,5 +38,6 @@ ENV NODE_ENV=production
 # Copy the built application from the installer stage
 COPY --from=installer /app .
 
+EXPOSE 4000
 
-CMD ["bun", "apps/worker/dist/index.js"]
+CMD ["bun", "run", "start:http"]

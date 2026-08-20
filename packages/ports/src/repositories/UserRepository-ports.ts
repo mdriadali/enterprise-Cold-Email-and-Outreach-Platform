@@ -7,4 +7,5 @@ export interface IUserRepository {
     findById(id:string):Promise<User|null>
     updateById(id:string,data:UpdateUserDto):Promise <User>
     decrementFreeWorkspaceQuota(id:string):Promise<User>
+    markEmailVerified(email: string): Promise<void>
 }

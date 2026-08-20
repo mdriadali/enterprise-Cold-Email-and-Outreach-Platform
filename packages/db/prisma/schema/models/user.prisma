@@ -3,6 +3,7 @@ model User {
   name                    String
   email                   String            @unique
   password                String
+  emailVerifiedAt         DateTime?
   remainingFreeWorkspaces Int               @default(1)
   refreshTokens           RefreshToken[]
   ownedWorkspaces         Workspace[]       @relation("WorkspaceOwner")

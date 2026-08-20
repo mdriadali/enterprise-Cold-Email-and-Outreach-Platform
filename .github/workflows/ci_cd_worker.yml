@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile.worker
+          file: ./apps/worker/Dockerfile.worker
           build-args: |
            DATABASE_URL=${{ secrets.DATABASE_URL }}
            REDIS_URL=${{secrets.REDIS_URL}}

@@ -50,3 +50,26 @@ export interface RefreshtokenData {
     createdAt: Date
     expiresAt: Date
 }
+
+export interface VerifyEmailInput {
+    email: string
+    token: string
+}
+
+export interface ForgotPasswordInput {
+    email: string
+}
+
+export interface ResetPasswordInput {
+    email: string
+    token: string
+    password: string
+}
+
+export interface AuthEmailJobData {
+    type: "verify-email" | "forgot-password"
+    email: string
+    name: string
+    link: string
+    expiresInMinutes: number
+}

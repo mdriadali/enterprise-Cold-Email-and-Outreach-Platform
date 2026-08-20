@@ -2,15 +2,21 @@ import { LoginUserUseCase } from "../../application/use-cases/auth/LoginUser-Use
 import { LogoutUserUseCase } from "../../application/use-cases/auth/Logoutuser-useCase";
 import { RefreshUseCase } from "../../application/use-cases/auth/Refresh-UseCase";
 import { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUser-UseCase";
+import { VerifyEmailUseCase } from "../../application/use-cases/auth/VerifyEmail-UseCase";
+import { ForgotPasswordUseCase } from "../../application/use-cases/auth/ForgotPassword-UseCase";
+import { ResetPasswordUseCase } from "../../application/use-cases/auth/ResetPassword-UseCase";
 import { AuthController } from "../controllers/AuthController";
-import { bcryptPasswordHasher, jwtTokenGenerator, prismaRefreshToken, prismaUserRepository } from "./share-dependencies";
+import { appUrl, authEmailQueue, bcryptPasswordHasher, jwtTokenGenerator, prismaRefreshToken, prismaUserRepository, verificationTokenStore } from "./share-dependencies";
 
 const registerUseCase =
     new RegisterUserUseCase(
         bcryptPasswordHasher,
         prismaUserRepository,
         jwtTokenGenerator,
-        prismaRefreshToken
+        prismaRefreshToken,
+        verificationTokenStore,
+        authEmailQueue,
+        appUrl
     );
 
 const loginUserUseCase = new LoginUserUseCase(
@@ -28,4 +34,22 @@ const refreshUseCase = new RefreshUseCase(
     jwtTokenGenerator
 )
 
-export const  authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase, refreshUseCase);
+const verifyEmailUseCase = new VerifyEmailUseCase(
+    prismaUserRepository,
+    verificationTokenStore
+)
+
+const forgotPasswordUseCase = new ForgotPasswordUseCase(
+    prismaUserRepository,
+    verificationTokenStore,
+    authEmailQueue,
+    appUrl
+)
+
+const resetPasswordUseCase = new ResetPasswordUseCase(
+    prismaUserRepository,
+    bcryptPasswordHasher,
+    verificationTokenStore
+)
+
+export const  authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase, refreshUseCase, verifyEmailUseCase, forgotPasswordUseCase, resetPasswordUseCase);

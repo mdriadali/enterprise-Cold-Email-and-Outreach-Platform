@@ -36,12 +36,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.http
-      args:
-        DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-        HTTP_PORT: 4000
-        JWT_ACCESS_SECRET: "eb3a8f02b887b7953a4d4526e439216f6c15127770a2b156f7c96d5e17745130"
-        JWT_REFRESH_SECRET: "09484913e34be8eedb7ee2b2b7cf8f1f78d248e3caa1203a68ab8ce3ff5cf82c"
-        REDIS_URL: redis://redis:6379
 
     env_file:
       - .env.docker
@@ -63,9 +57,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker
-      args:
-        DATABASE_URL: postgresql://postgres:mypassword@postgres:5432/coldMailAndOutrech
-        REDIS_URL: redis://redis:6379
 
     env_file:
       - .env.docker

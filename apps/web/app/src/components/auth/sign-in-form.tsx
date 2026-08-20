@@ -49,7 +49,7 @@ export function SignInForm() {
           <AuthField id="email" label="Work Email Address" type="email" icon="email" error={errors.email?.message} {...register("email")} />
           <div className="space-y-1">
             <AuthField id="password" label="Password" type="password" icon="password" error={errors.password?.message} {...register("password")} />
-            <div className="flex justify-end"><Link className="text-xs leading-4 font-medium text-[#004ac6] hover:underline" href="#forgot-password">Forgot Password?</Link></div>
+            <div className="flex justify-end"><Link className="text-xs leading-4 font-medium text-[#004ac6] hover:underline" href="/forgot-password">Forgot Password?</Link></div>
           </div>
           <div className="pt-4">
             <button className="group flex h-14 w-full items-center justify-center gap-4 rounded-lg bg-[#2563eb] text-sm leading-5 font-semibold tracking-[.05em] text-white shadow-sm transition-all hover:shadow-md active:scale-[.98] disabled:cursor-wait disabled:opacity-80" type="submit" disabled={isPending}>

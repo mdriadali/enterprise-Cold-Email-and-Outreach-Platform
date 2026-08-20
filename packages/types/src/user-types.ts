@@ -17,6 +17,8 @@ export interface CreatedUserData {
 export interface UpdateUserDto {
    name?: string;
     email?: string;
+    password?: string;
+    emailVerifiedAt?: Date | null;
     remainingFreeWorkspaces?: number;
     role?: Role;
 }

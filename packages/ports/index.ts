@@ -21,3 +21,7 @@ export type { IAiProvider } from "./src/ai/AiProvider-ports";
 
 export type {IWorkspaceLimitCounter} from "./src/cache/repositories/IworkspaceLimitCounter"
 export type { ICampaignqueue } from "./src/cache/repositories/IcampaignQueue";
+export type { IVerificationTokenStore } from "./src/cache/repositories/IVerificationTokenStore";
+
+// Queue ports
+export type { IAuthEmailQueue } from "./src/queue/IAuthEmailQueue";
