@@ -69,7 +69,7 @@ jobs:
           push: true
           build-args: |
             APP_NAME=Cold Out Reach
-            HTTP_SERVER_URL=http://http-server:4000/api/v1/
+            HTTP_SERVER_URL=http://16.170.11.164:4000/api/v1/
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ github.sha }}
 
