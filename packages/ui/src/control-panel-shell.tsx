@@ -4,9 +4,6 @@ import type { ComponentType, ReactNode } from "react";
 import {
   BarChart3,
   Bell,
-  ChevronDown,
-  Edit3,
-  FilePenLine,
   HelpCircle,
   Key,
   LayoutDashboard,
