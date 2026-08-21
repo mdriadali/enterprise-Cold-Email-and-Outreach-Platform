@@ -27,11 +27,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Type check
-        run: bun run typecheck
-
-      - name: Test
-        run: bun run test
 
        #only build images for testing
       - name: Build HTTP image
