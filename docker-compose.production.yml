@@ -20,7 +20,6 @@ services:
       retries: 3
       start_period: 10s
 
-
   worker:
     image: ${ECR_REGISTRY}/outreach-worker:${IMAGE_TAG}
 
@@ -35,7 +34,6 @@ services:
     depends_on:
       http-server:
         condition: service_healthy
-
 
   web:
     image: ${ECR_REGISTRY}/outreach-web:${IMAGE_TAG}
