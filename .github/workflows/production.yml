@@ -68,18 +68,27 @@ jobs:
           file: ./apps/web/Dockerfile.web
           push: true
           build-args: |
-           APP_NAME=Cold Out Reach
-           HTTP_SERVER_URL=http://http-server:4000/api/v1/
+            APP_NAME=Cold Out Reach
+            HTTP_SERVER_URL=http://http-server:4000/api/v1/
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ github.sha }}
 
 
-      # 7. Deploy to EC2 through AWS SSM
+      # 7. Prepare production compose file
+      - name: Encode Docker Compose file
+        id: compose
+        run: |
+          echo "content=$(base64 -w 0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
+
+
+      # 8. Deploy to EC2 through AWS SSM
       - name: Deploy to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
           SECRET_ID: outreach/production
+          COMPOSE_CONTENT: ${{ steps.compose.outputs.content }}
+
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
@@ -87,18 +96,22 @@ jobs:
             --comment "Deploy Outreach Production $IMAGE_TAG" \
             --parameters commands="[
               \"set -e\",
+
               \"mkdir -p /opt/outreach\",
+
+              \"echo '$COMPOSE_CONTENT' | base64 -d > /opt/outreach/docker-compose.production.yml\",
 
               \"aws secretsmanager get-secret-value --secret-id $SECRET_ID --query SecretString --output text --region $AWS_REGION > /opt/outreach/.env\",
 
               \"echo ECR_REGISTRY=$ECR_REGISTRY > /opt/outreach/.deploy.env\",
+
               \"echo IMAGE_TAG=$IMAGE_TAG >> /opt/outreach/.deploy.env\",
 
               \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",
 
-              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.yml pull\",
+              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull\",
 
-              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.yml up -d --remove-orphans\",
+              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans\",
 
               \"docker image prune -f\"
             ]" \
