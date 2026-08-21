@@ -49,3 +49,6 @@ jobs:
           context: .
           file: ./apps/web/Dockerfile.web
           push: false
+          build-args: |
+           APP_NAME=Cold Out Reach
+           HTTP_SERVER_URL=http://http-server:4000/api/v1/
