@@ -69,7 +69,7 @@ function prefixedHref(href: string, workspaceId?: string) {
 }
 
 /** Shared authenticated application shell. Keep route content in the app, not this component. */
-export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount, workspaceId, workspaceName }: Readonly<ControlPanelShellProps>) {
+export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount, workspaceId}: Readonly<ControlPanelShellProps>) {
   return (
     <div className="flex h-svh w-full overflow-hidden bg-[#4f46e5] font-[Inter,Arial,sans-serif] text-white">
       <aside className="hidden w-[260px] shrink-0 flex-col py-6 text-white/90 lg:flex">
