@@ -95,7 +95,7 @@ jobs:
 
               \"echo '$COMPOSE_CONTENT' | base64 -d > /opt/outreach/docker-compose.production.yml\",
 
-              \"aws secretsmanager get-secret-value --secret-id '$SECRET_ID' --query SecretString --output text --region '$AWS_REGION' > /opt/outreach/.env\",
+              \"aws secretsmanager get-secret-value --secret-id '$SECRET_ID' --query SecretString --output text --region '$AWS_REGION' | jq -r 'to_entries | .[] | \"\(.key)=\(.value)\"' > /opt/outreach/.env\",
 
               \"echo 'ECR_REGISTRY=$ECR_REGISTRY' > /opt/outreach/.deploy.env\",
 
