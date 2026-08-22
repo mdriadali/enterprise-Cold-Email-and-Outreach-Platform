@@ -23,7 +23,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-
       # 2. GitHub OIDC → AWS IAM Role
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -31,12 +30,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-
       # 3. Login to Amazon ECR
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
 
       # 4. Build and push HTTP Server
       - name: Build and push HTTP Server
@@ -48,7 +45,6 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/outreach-http:${{ github.sha }}
 
-
       # 5. Build and push Worker
       - name: Build and push Worker
         uses: docker/build-push-action@v6
@@ -58,7 +54,6 @@ jobs:
           push: true
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/outreach-worker:${{ github.sha }}
-
 
       # 6. Build and push Web
       - name: Build and push Web
@@ -73,15 +68,14 @@ jobs:
           tags: |
             ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ github.sha }}
 
-
-      # 7. Prepare production compose file
+      # 7. Encode production compose file
       - name: Encode Docker Compose file
         id: compose
         run: |
-          echo "content=$(base64 -w 0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
+          COMPOSE_CONTENT=$(base64 -w 0 docker-compose.production.yml)
+          echo "content=$COMPOSE_CONTENT" >> "$GITHUB_OUTPUT"
 
-
-      # 8. Deploy to EC2 through AWS SSM
+      # 8. Deploy automatically to EC2 through SSM
       - name: Deploy to EC2
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -101,19 +95,23 @@ jobs:
 
               \"echo '$COMPOSE_CONTENT' | base64 -d > /opt/outreach/docker-compose.production.yml\",
 
-              \"aws secretsmanager get-secret-value --secret-id $SECRET_ID --query SecretString --output text --region $AWS_REGION > /opt/outreach/.env\",
+              \"aws secretsmanager get-secret-value --secret-id '$SECRET_ID' --query SecretString --output text --region '$AWS_REGION' > /opt/outreach/.env\",
 
-              \"echo ECR_REGISTRY=$ECR_REGISTRY > /opt/outreach/.deploy.env\",
+              \"echo 'ECR_REGISTRY=$ECR_REGISTRY' > /opt/outreach/.deploy.env\",
 
-              \"echo IMAGE_TAG=$IMAGE_TAG >> /opt/outreach/.deploy.env\",
+              \"echo 'IMAGE_TAG=$IMAGE_TAG' >> /opt/outreach/.deploy.env\",
 
-              \"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",
+              \"aws ecr get-login-password --region '$AWS_REGION' | docker login --username AWS --password-stdin '$ECR_REGISTRY'\",
 
               \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull\",
 
               \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans\",
 
-              \"docker image prune -f\"
+              \"docker image prune -f\",
+
+              \"docker ps\",
+
+              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml ps\"
             ]" \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
@@ -124,10 +122,22 @@ jobs:
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
             --instance-id "$EC2_INSTANCE_ID" \
-            --region "$AWS_REGION" || true
+            --region "$AWS_REGION"
+
+          echo "========== DEPLOYMENT OUTPUT =========="
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "$EC2_INSTANCE_ID" \
             --region "$AWS_REGION" \
-            --output json
+            --query "StandardOutputContent" \
+            --output text
+
+          echo "========== DEPLOYMENT ERRORS =========="
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$EC2_INSTANCE_ID" \
+            --region "$AWS_REGION" \
+            --query "StandardErrorContent" \
+            --output text
