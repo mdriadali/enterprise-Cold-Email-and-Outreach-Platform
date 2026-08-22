@@ -96,28 +96,39 @@ jobs:
 
                 "mkdir -p /opt/outreach",
 
-                ("echo '\''" + $compose + "'\'' | base64 -d > /opt/outreach/docker-compose.production.yml"),
+                (
+                  "echo " +
+                  $compose +
+                  " | base64 -d > /opt/outreach/docker-compose.production.yml"
+                ),
 
                 (
                   "aws secretsmanager get-secret-value " +
-                  "--secret-id '\''" + $secretId + "'\'' " +
+                  "--secret-id " + $secretId + " " +
                   "--query SecretString " +
                   "--output text " +
-                  "--region '\''" + $region + "'\'' " +
-                  "| jq -r '\''to_entries | .[] | \"\\(.key)=\\(.value)\"'\'' " +
+                  "--region " + $region +
+                  " | jq -r '\''to_entries | .[] | \"\\(.key)=\\(.value)\"'\'' " +
                   "> /opt/outreach/.env"
                 ),
 
-                ("echo ECR_REGISTRY=" + $registry + " > /opt/outreach/.deploy.env"),
-
-                ("echo IMAGE_TAG=" + $imageTag + " >> /opt/outreach/.deploy.env"),
+                (
+                  "echo ECR_REGISTRY=" +
+                  $registry +
+                  " > /opt/outreach/.deploy.env"
+                ),
 
                 (
-                  "aws ecr get-login-password --region '\''" +
+                  "echo IMAGE_TAG=" +
+                  $imageTag +
+                  " >> /opt/outreach/.deploy.env"
+                ),
+
+                (
+                  "aws ecr get-login-password --region " +
                   $region +
-                  "'\'' | docker login --username AWS --password-stdin '\''" +
-                  $registry +
-                  "'\''"
+                  " | docker login --username AWS --password-stdin " +
+                  $registry
                 ),
 
                 "echo ========== DISK SPACE BEFORE DEPLOY ==========",
@@ -134,7 +145,7 @@ jobs:
 
                 "echo ========== STARTING CONTAINERS ==========",
 
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans || { echo '========== CONTAINER LOGS ON FAILURE =========='; docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=100; exit 1; }",
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans || { echo \"========== CONTAINER LOGS ON FAILURE ==========\"; docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=100; exit 1; }",
 
                 "echo ========== CONTAINER STATUS ==========",
 
@@ -165,6 +176,9 @@ jobs:
                 "df -h"
               ]
             }')
+
+          echo "========== GENERATED SSM COMMANDS =========="
+          echo "$COMMANDS" | jq .
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
