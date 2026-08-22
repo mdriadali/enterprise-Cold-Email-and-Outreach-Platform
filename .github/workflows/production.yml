@@ -92,12 +92,11 @@ jobs:
             --arg imageTag "$IMAGE_TAG" \
             '{
               commands: [
-
                 "set -e",
 
                 "mkdir -p /opt/outreach",
 
-                "echo '\''" + $compose + "'\'' | base64 -d > /opt/outreach/docker-compose.production.yml",
+                ("echo '\''" + $compose + "'\'' | base64 -d > /opt/outreach/docker-compose.production.yml"),
 
                 (
                   "aws secretsmanager get-secret-value " +
@@ -109,9 +108,9 @@ jobs:
                   "> /opt/outreach/.env"
                 ),
 
-                "echo ECR_REGISTRY=" + $registry + " > /opt/outreach/.deploy.env",
+                ("echo ECR_REGISTRY=" + $registry + " > /opt/outreach/.deploy.env"),
 
-                "echo IMAGE_TAG=" + $imageTag + " >> /opt/outreach/.deploy.env",
+                ("echo IMAGE_TAG=" + $imageTag + " >> /opt/outreach/.deploy.env"),
 
                 (
                   "aws ecr get-login-password --region '\''" +
@@ -121,47 +120,47 @@ jobs:
                   "'\''"
                 ),
 
-                "echo '========== DISK SPACE BEFORE DEPLOY =========='",
+                "echo ========== DISK SPACE BEFORE DEPLOY ==========",
 
                 "df -h",
 
-                "echo '========== DOCKER DISK USAGE =========='",
+                "echo ========== DOCKER DISK USAGE ==========",
 
                 "docker system df",
 
-                "echo '========== PULLING IMAGES =========='",
+                "echo ========== PULLING IMAGES ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull --quiet",
 
-                "echo '========== STARTING CONTAINERS =========='",
+                "echo ========== STARTING CONTAINERS ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans",
 
-                "echo '========== CONTAINER STATUS =========='",
+                "echo ========== CONTAINER STATUS ==========",
 
                 "docker ps",
 
-                "echo '========== COMPOSE STATUS =========='",
+                "echo ========== COMPOSE STATUS ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml ps",
 
-                "echo '========== HTTP SERVER LOGS =========='",
+                "echo ========== HTTP SERVER LOGS ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 http-server || true",
 
-                "echo '========== WORKER LOGS =========='",
+                "echo ========== WORKER LOGS ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 worker || true",
 
-                "echo '========== WEB LOGS =========='",
+                "echo ========== WEB LOGS ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 web || true",
 
-                "echo '========== CLEANING UNUSED IMAGES =========='",
+                "echo ========== CLEANING UNUSED IMAGES ==========",
 
                 "docker image prune -f",
 
-                "echo '========== DISK SPACE AFTER DEPLOY =========='",
+                "echo ========== DISK SPACE AFTER DEPLOY ==========",
 
                 "df -h"
               ]
