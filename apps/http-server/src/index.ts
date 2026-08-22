@@ -21,6 +21,11 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Health check endpoint for Docker container & load balancer
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
 // Register all routes
 app.use("/api/v1", routes);
 
