@@ -15,7 +15,7 @@ export const authSchema = {
 };
 
 export const httpSchema = {
-  HTTP_PORT: z.string(),
+  HTTP_PORT: z.string().optional().default("4000"),
 };
 
 export const redisSchema = {
@@ -23,12 +23,12 @@ export const redisSchema = {
 };
 
 export const smtpSchema = {
-  SMTP_HOST: z.string(),
-  SMTP_PORT: z.string(),
-  SMTP_USER: z.string(),
-  SMTP_PASS: z.string(),
-  MAIL_FROM: z.string(),
-  APP_URL: z.string(),
+  SMTP_HOST: z.string().optional().default(""),
+  SMTP_PORT: z.string().optional().default("587"),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASS: z.string().optional().default(""),
+  MAIL_FROM: z.string().optional().default(""),
+  APP_URL: z.string().optional().default("http://localhost:3000"),
   // ssl = implicit TLS/SSL (port 465), tls = STARTTLS upgrade (port 587), none = plaintext
   SMTP_ENCRYPTION: z.enum(["ssl", "tls", "none"]).optional().default("none"),
 };
