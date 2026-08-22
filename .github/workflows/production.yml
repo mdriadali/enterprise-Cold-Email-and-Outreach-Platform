@@ -84,35 +84,59 @@ jobs:
           COMPOSE_CONTENT: ${{ steps.compose.outputs.content }}
 
         run: |
+          COMMANDS=$(jq -n \
+            --arg compose "$COMPOSE_CONTENT" \
+            --arg secretId "$SECRET_ID" \
+            --arg region "$AWS_REGION" \
+            --arg registry "$ECR_REGISTRY" \
+            --arg imageTag "$IMAGE_TAG" \
+            '{
+              commands: [
+                "set -e",
+
+                "mkdir -p /opt/outreach",
+
+                ("echo '\''" + $compose + "'\'' | base64 -d > /opt/outreach/docker-compose.production.yml"),
+
+                (
+                  "aws secretsmanager get-secret-value " +
+                  "--secret-id '\''" + $secretId + "'\'' " +
+                  "--query SecretString " +
+                  "--output text " +
+                  "--region '\''" + $region + "'\'' " +
+                  "| jq -r '\''to_entries | .[] | \"\\(.key)=\\(.value)\"'\'' " +
+                  "> /opt/outreach/.env"
+                ),
+
+                ("echo ECR_REGISTRY=" + $registry + " > /opt/outreach/.deploy.env"),
+
+                ("echo IMAGE_TAG=" + $imageTag + " >> /opt/outreach/.deploy.env"),
+
+                (
+                  "aws ecr get-login-password --region '\''" +
+                  $region +
+                  "'\'' | docker login --username AWS --password-stdin '\''" +
+                  $registry +
+                  "'\''"
+                ),
+
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull",
+
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans",
+
+                "docker image prune -f",
+
+                "docker ps",
+
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml ps"
+              ]
+            }')
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$EC2_INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploy Outreach Production $IMAGE_TAG" \
-            --parameters commands="[
-              \"set -e\",
-
-              \"mkdir -p /opt/outreach\",
-
-              \"echo '$COMPOSE_CONTENT' | base64 -d > /opt/outreach/docker-compose.production.yml\",
-
-              \"aws secretsmanager get-secret-value --secret-id '$SECRET_ID' --query SecretString --output text --region '$AWS_REGION' | jq -r 'to_entries | .[] | \"\(.key)=\(.value)\"' > /opt/outreach/.env\",
-
-              \"echo 'ECR_REGISTRY=$ECR_REGISTRY' > /opt/outreach/.deploy.env\",
-
-              \"echo 'IMAGE_TAG=$IMAGE_TAG' >> /opt/outreach/.deploy.env\",
-
-              \"aws ecr get-login-password --region '$AWS_REGION' | docker login --username AWS --password-stdin '$ECR_REGISTRY'\",
-
-              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull\",
-
-              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans\",
-
-              \"docker image prune -f\",
-
-              \"docker ps\",
-
-              \"docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml ps\"
-            ]" \
+            --parameters "$COMMANDS" \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
