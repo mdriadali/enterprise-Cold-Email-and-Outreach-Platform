@@ -134,7 +134,7 @@ jobs:
 
                 "echo ========== STARTING CONTAINERS ==========",
 
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans",
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans || { echo '========== CONTAINER LOGS ON FAILURE =========='; docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=100; exit 1; }",
 
                 "echo ========== CONTAINER STATUS ==========",
 
