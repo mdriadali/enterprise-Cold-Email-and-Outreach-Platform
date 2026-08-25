@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
+import Link from "next/link";
 import {
   BarChart3,
   Bell,
@@ -74,15 +75,15 @@ export function ControlPanelShell({ children, activePath, navigation = defaultNa
     <div className="flex h-svh w-full overflow-hidden bg-[#4f46e5] font-[Inter,Arial,sans-serif] text-white">
       <aside className="hidden w-[260px] shrink-0 flex-col py-6 text-white/90 lg:flex">
         <div className="mb-6 flex flex-col gap-2 px-8">
-          <a href={prefixedHref("/dashboard", workspaceId)} className="flex items-center gap-4" aria-label="ColdReach AI dashboard">
+          <Link href={prefixedHref("/dashboard", workspaceId)} className="flex items-center gap-4" aria-label="ColdReach AI dashboard">
             <span className="grid size-8 place-items-center rounded bg-white/20 backdrop-blur-md"><Rocket className="size-5 fill-current" /></span>
             <span className="text-2xl font-semibold tracking-tight text-white">ColdReach AI</span>
-          </a>
+          </Link>
           {workspaceId ? (
-            <a href="/workspaces" className="flex items-center gap-2 text-white/60 text-xs tracking-wider hover:text-white transition-colors">
+            <Link href="/workspaces" className="flex items-center gap-2 text-white/60 text-xs tracking-wider hover:text-white transition-colors">
               <LayoutDashboard className="size-3" />
               All Workspaces
-            </a>
+            </Link>
           ) : null}
         </div>
         <nav className="flex-1 space-y-1 px-4" aria-label="Main navigation">
@@ -90,7 +91,7 @@ export function ControlPanelShell({ children, activePath, navigation = defaultNa
             const Icon = icons[item.icon];
             const href = prefixedHref(item.href, workspaceId);
             const active = activePath === href;
-            return <a className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={href} key={item.href}><Icon className="size-5" />{item.label}</a>;
+            return <Link className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={href} key={item.href}><Icon className="size-5" />{item.label}</Link>;
           })}
         </nav>
         <div className="mt-auto px-4">

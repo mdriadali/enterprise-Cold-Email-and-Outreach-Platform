@@ -414,7 +414,7 @@ export function SmtpClient({ workspaceId, accounts: initialAccounts }: Props) {
               <span className="text-[14px] leading-[20px] font-semibold text-white">SMTP Security</span>
             </div>
             <p className="text-[12px] leading-[16px] text-white/60">SSL & TLS protocols for secure enterprise communications.</p>
-            <a className="inline-block mt-[12px] text-[#99efe5] text-[12px] leading-[16px] font-semibold tracking-[0.05em] hover:underline" href="#">View Docs →</a>
+            <Link className="inline-block mt-[12px] text-[#99efe5] text-[12px] leading-[16px] font-semibold tracking-[0.05em] hover:underline" href="#">View Docs →</Link>
           </div>
         </div>
       </div>

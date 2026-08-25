@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { type JSX } from "react";
 
 export function Card({
@@ -12,7 +13,7 @@ export function Card({
   href: string;
 }): JSX.Element {
   return (
-    <a
+    <Link
       className={className}
       href={`${href}?utm_source=create-turbo&utm_medium=basic&utm_campaign=create-turbo"`}
       rel="noopener noreferrer"
@@ -22,6 +23,6 @@ export function Card({
         {title} <span>-&gt;</span>
       </h2>
       <p>{children}</p>
-    </a>
+    </Link>
   );
 }
