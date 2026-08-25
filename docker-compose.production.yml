@@ -1,4 +1,15 @@
 services:
+  migration:
+    image: ${ECR_REGISTRY}/outreach-http:${IMAGE_TAG}
+
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+
+    command: bunx prisma migrate deploy
+
+    profiles:
+      - migration
+
   http-server:
     image: ${ECR_REGISTRY}/outreach-http:${IMAGE_TAG}
 

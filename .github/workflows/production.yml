@@ -139,6 +139,10 @@ jobs:
 
                 "docker system df",
 
+                "echo ========== RUNNING DATABASE MIGRATIONS ==========",
+
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml run --rm migration",
+
                 "echo ========== PULLING IMAGES ==========",
 
                 "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull --quiet",
