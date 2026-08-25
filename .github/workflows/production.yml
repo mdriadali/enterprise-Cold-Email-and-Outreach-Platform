@@ -114,6 +114,7 @@ jobs:
             --arg registry "$ECR_REGISTRY" \
             --arg imageTag "$IMAGE_TAG" \
             '{
+              executionTimeout: ["900"],
               commands: [
 
                 "set -e",
@@ -181,9 +182,14 @@ jobs:
                 "docker system df",
 
 
+                "echo ========== PRUNING OLD DOCKER IMAGES ==========",
+
+                "docker image prune -af --filter \"until=24h\" || true",
+
+
                 "echo ========== PULLING NEW IMAGES ==========",
 
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull --quiet",
+                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull",
 
 
                 "echo ========== RUNNING DATABASE MIGRATIONS ==========",
