@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getWorkspaceInfo } from "../../../../../src/actions/workspace/workspace-info";
 import { getSmtpAccounts } from "../../../../../src/actions/workspace/get-smtp-accounts";
 import { CreateCampaignClient } from "./create-campaign-client";
@@ -14,6 +14,7 @@ export default async function CreateCampaignPage({ params }: { params: Promise<{
   ]);
 
   if (infoResult.status === "error") {
+    if (infoResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
     notFound();
   }
 

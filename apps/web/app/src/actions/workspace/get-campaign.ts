@@ -30,7 +30,7 @@ export type CampaignDetail = {
 
 export type GetCampaignResult =
   | { status: "success"; data: CampaignDetail }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; code?: string };
 
 export async function getCampaign(
   workspaceId: string,

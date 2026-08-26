@@ -19,7 +19,7 @@ export type SmtpAccountInfo = {
   createdAt: string;
 };
 
-export async function getSmtpAccounts(workspaceId: string): Promise<{ status: "success"; accounts: SmtpAccountInfo[] } | { status: "error"; message: string }> {
+export async function getSmtpAccounts(workspaceId: string): Promise<{ status: "success"; accounts: SmtpAccountInfo[] } | { status: "error"; message: string; code?: string }> {
   const result = await callApi({ method: "GET", url: `workspace/${workspaceId}/smtpaccount/all` });
   if (result.status === "error") return result;
   const accounts = Array.isArray(result.data) ? result.data as SmtpAccountInfo[] : [];
