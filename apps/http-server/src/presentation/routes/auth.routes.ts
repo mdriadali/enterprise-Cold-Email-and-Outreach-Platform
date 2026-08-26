@@ -10,6 +10,7 @@ authRouter.post("/login", authController.login)
 authRouter.post("/logout", Auth, authController.logout)
 authRouter.post("/refresh", authController.refresh)
 authRouter.post("/verify-email", authController.verifyEmail)
+authRouter.post("/resend-verification", Auth, authController.resendVerification)
 authRouter.post("/forgot-password", authController.forgotPassword)
 authRouter.post("/reset-password", authController.resetPassword)
 

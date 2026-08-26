@@ -1,4 +1,4 @@
-import { requireSession } from "../src/auth/require-session";
+import { requireSession, requireEmailVerification } from "../src/auth/require-session";
 import { getCurrentUserProfile, updateProfile } from "../src/actions/auth/profile";
 import { ProfilePage } from "./profile-page-client";
 
@@ -6,6 +6,7 @@ export const metadata = { title: "Profile | ColdReach AI", description: "Manage 
 
 export default async function Profile() {
   await requireSession();
+  await requireEmailVerification();
   const profile = await getCurrentUserProfile();
 
   if (profile.status === "error") {

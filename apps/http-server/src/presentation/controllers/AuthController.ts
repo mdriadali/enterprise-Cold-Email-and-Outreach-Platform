@@ -9,6 +9,7 @@ import type { RefreshUseCase } from "../../application/use-cases/auth/Refresh-Us
 import type { VerifyEmailUseCase } from "../../application/use-cases/auth/VerifyEmail-UseCase";
 import type { ForgotPasswordUseCase } from "../../application/use-cases/auth/ForgotPassword-UseCase";
 import type { ResetPasswordUseCase } from "../../application/use-cases/auth/ResetPassword-UseCase";
+import type { ResendVerificationEmailUseCase } from "../../application/use-cases/auth/ResendVerificationEmail-UseCase";
 
 
 export class AuthController {
@@ -20,6 +21,7 @@ export class AuthController {
     private readonly verifyEmailUseCase: VerifyEmailUseCase,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly resendVerificationEmailUseCase: ResendVerificationEmailUseCase,
   ) { }
 
   register = async (req: Request, res: Response) => {
@@ -163,6 +165,19 @@ export class AuthController {
     try {
       const data: VerifyEmailInput = req.body
       await this.verifyEmailUseCase.execute(data)
+      return res.status(200).json({ sucess: true })
+    } catch (error) {
+      if (error instanceof AppError) {
+        return res.status(400).json({ message: error.message })
+      }
+      return res.status(500).json({ message: "Internal Server Error" })
+    }
+  }
+
+  resendVerification = async (req: Request, res: Response) => {
+    try {
+      const userId = req.user.id
+      await this.resendVerificationEmailUseCase.execute(userId)
       return res.status(200).json({ sucess: true })
     } catch (error) {
       if (error instanceof AppError) {
