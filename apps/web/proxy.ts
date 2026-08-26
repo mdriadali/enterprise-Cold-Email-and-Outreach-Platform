@@ -25,6 +25,40 @@ function isTokenExpired(token: string): boolean {
   return decoded.exp * 1000 <= Date.now();
 }
 
+function extractAccessTokenFromCookies(setCookies: string[]): string | null {
+  for (const cookie of setCookies) {
+    const parsed = parseSetCookie(cookie);
+    if (parsed?.name === "accessToken") {
+      return parsed.value;
+    }
+  }
+  return null;
+}
+
+async function isUserMemberOfWorkspace(
+  accessToken: string,
+  workspaceId: string
+): Promise<boolean> {
+  try {
+    const url = new URL("user/profile", HTTP_SERVER_URL).toString();
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Cookie: `accessToken=${encodeURIComponent(accessToken)}`,
+      },
+    });
+
+    if (!res.ok) return false;
+
+    const json = await res.json();
+    const memberships: { workspaceId: string }[] = json?.data?.workspaceMember ?? [];
+    return memberships.some((m) => m.workspaceId === workspaceId);
+  } catch {
+    return false;
+  }
+}
+
 function parseSetCookie(
   cookie: string
 ): {
@@ -158,20 +192,25 @@ export default async function proxy(request: NextRequest) {
     pathname === "/forgot-password"
   ) {
     if (accessToken && !isTokenExpired(accessToken)) {
-      return NextResponse.redirect(
-        new URL(resolveLanding(), request.url)
-      );
+      let landing = "/workspaces";
+      if (selectedWorkspaceId) {
+        const hasAccess = await isUserMemberOfWorkspace(accessToken, selectedWorkspaceId);
+        landing = hasAccess ? savedWorkspaceUrl! : "/workspaces";
+      }
+      return NextResponse.redirect(new URL(landing, request.url));
     }
 
     const refreshed = await tryRefresh(request);
 
     if (refreshed) {
-      const response = NextResponse.redirect(
-        new URL(resolveLanding(), request.url)
-      );
-
+      const refreshedAccessToken = extractAccessTokenFromCookies(refreshed.setCookies);
+      let landing = "/workspaces";
+      if (selectedWorkspaceId && refreshedAccessToken) {
+        const hasAccess = await isUserMemberOfWorkspace(refreshedAccessToken, selectedWorkspaceId);
+        landing = hasAccess ? savedWorkspaceUrl! : "/workspaces";
+      }
+      const response = NextResponse.redirect(new URL(landing, request.url));
       applyCookies(response, refreshed.setCookies);
-
       return response;
     }
 
@@ -189,13 +228,24 @@ export default async function proxy(request: NextRequest) {
   // ROOT - redirect to saved workspace or workspaces list
   if (pathname === "/") {
     if (accessToken && !isTokenExpired(accessToken)) {
-      return NextResponse.redirect(new URL(resolveLanding(), request.url));
+      let landing = "/workspaces";
+      if (selectedWorkspaceId) {
+        const hasAccess = await isUserMemberOfWorkspace(accessToken, selectedWorkspaceId);
+        landing = hasAccess ? savedWorkspaceUrl! : "/workspaces";
+      }
+      return NextResponse.redirect(new URL(landing, request.url));
     }
     // try refresh for root too
     if (refreshToken) {
       const refreshed = await tryRefresh(request);
       if (refreshed) {
-        const response = NextResponse.redirect(new URL(resolveLanding(), request.url));
+        const refreshedAccessToken = extractAccessTokenFromCookies(refreshed.setCookies);
+        let landing = "/workspaces";
+        if (selectedWorkspaceId && refreshedAccessToken) {
+          const hasAccess = await isUserMemberOfWorkspace(refreshedAccessToken, selectedWorkspaceId);
+          landing = hasAccess ? savedWorkspaceUrl! : "/workspaces";
+        }
+        const response = NextResponse.redirect(new URL(landing, request.url));
         applyCookies(response, refreshed.setCookies);
         return response;
       }

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getGenerationJob } from "../../../../../src/actions/workspace/get-generation-job";
 import { getLeads } from "../../../../../src/actions/workspace/get-leads";
 import { JobDetailClient } from "./job-detail-client";
@@ -19,7 +19,10 @@ export default async function JobDetailPage({
   ]);
   console.log("start job")
   console.log(jobResult)
-  if (jobResult.status === "error") notFound();
+  if (jobResult.status === "error") {
+    if (jobResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
+    notFound();
+  }
 
   return (
     <JobDetailClient

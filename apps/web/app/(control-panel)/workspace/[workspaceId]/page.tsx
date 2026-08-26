@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getWorkspaceInfo } from "../../../src/actions/workspace/workspace-info";
 import { DashboardClient } from "./dashboard-client";
 
@@ -15,6 +15,7 @@ export default async function WorkspaceDashboardPage({ params }: { params: Promi
   const result = await getWorkspaceInfo(workspaceId);
 
   if (result.status === "error") {
+    if (result.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
     notFound();
   }
 

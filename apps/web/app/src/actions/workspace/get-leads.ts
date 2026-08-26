@@ -12,7 +12,7 @@ export type LeadInfo = {
 
 export type GetLeadsResult =
   | { status: "success"; data: LeadInfo[] }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; code?: string };
 
 export async function getLeads(
   workspaceId: string,

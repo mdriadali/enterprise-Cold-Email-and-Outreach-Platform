@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { getWorkspaceInfo } from "../../../../../src/actions/workspace/workspace-info";
 import { CreateLeadClient } from "./create-lead-client";
@@ -18,7 +18,10 @@ export default async function CreateLeadPage({
   const mode = sp.mode ?? sp.import; // import=csv → bulk mode
   const result = await getWorkspaceInfo(workspaceId);
 
-  if (result.status === "error") notFound();
+  if (result.status === "error") {
+    if (result.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
+    notFound();
+  }
 
   const { info } = result.data;
   const jobs = info.generationJob.filter((j) => j.status === "PENDING");

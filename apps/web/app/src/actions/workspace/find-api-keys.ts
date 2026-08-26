@@ -18,7 +18,7 @@ export type ApiKeySummary = {
 
 export type FindApiKeysResult =
   | { status: "success"; data: { apis: FoundApiKey[]; summary: ApiKeySummary } }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; code?: string };
 
 export async function findApiKeys(workspaceId: string): Promise<FindApiKeysResult> {
   const result = await callApi({ method: "GET", url: `workspace/${workspaceId}/aiapi/find` });

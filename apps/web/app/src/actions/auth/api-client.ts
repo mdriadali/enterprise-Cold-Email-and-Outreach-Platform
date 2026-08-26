@@ -3,7 +3,9 @@ import { cookies, headers } from "next/headers";
 import { webEnv } from "@repo/env/web-env";
 import { persistSessionCookies } from "./session";
 
-export type ApiResult = { status: "success"; data: unknown } | { status: "error"; message: string };
+export type ApiResult =
+  | { status: "success"; data: unknown }
+  | { status: "error"; message: string; code?: string };
 
 async function getCookieHeader() {
   const cookieStore = await cookies();
@@ -34,6 +36,12 @@ export async function callApi(config: AxiosRequestConfig): Promise<ApiResult> {
     const msg = data && typeof data === "object"
       ? (("message" in data ? (data as Record<string, unknown>).message : "massage" in data ? (data as Record<string, unknown>).massage : "massae" in data ? (data as Record<string, unknown>).massae : null) as string | null)
       : typeof data === "string" ? data : null;
-    return { status: "error", message: msg ?? "Something went wrong." };
+
+    const message = msg ?? "Something went wrong.";
+    const code = error.response?.status === 400 && message === "This user is not a member of this workspace."
+      ? "NOT_WORKSPACE_MEMBER"
+      : undefined;
+
+    return { status: "error", message, code };
   }
 }

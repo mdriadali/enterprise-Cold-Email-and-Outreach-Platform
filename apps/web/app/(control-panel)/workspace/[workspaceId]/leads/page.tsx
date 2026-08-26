@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getWorkspaceInfo } from "../../../../src/actions/workspace/workspace-info";
 import { LeadsClient } from "./leads-client";
 
@@ -8,7 +8,10 @@ export default async function LeadsPage({ params }: { params: Promise<{ workspac
   const { workspaceId } = await params;
   const result = await getWorkspaceInfo(workspaceId);
 
-  if (result.status === "error") notFound();
+  if (result.status === "error") {
+    if (result.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
+    notFound();
+  }
 
   const { info } = result.data;
 

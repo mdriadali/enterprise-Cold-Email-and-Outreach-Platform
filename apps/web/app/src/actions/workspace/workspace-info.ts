@@ -67,7 +67,7 @@ export type WorkspaceInfoData = {
   };
 };
 
-export type WorkspaceInfoResult = { status: "success"; data: { limits: Record<string, number>; info: WorkspaceInfoData } } | { status: "error"; message: string };
+export type WorkspaceInfoResult = { status: "success"; data: { limits: Record<string, number>; info: WorkspaceInfoData } } | { status: "error"; message: string; code?: string };
 
 export async function getWorkspaceInfo(workspaceId: string): Promise<WorkspaceInfoResult> {
   const result = await callApi({ method: "GET", url: `workspace/${workspaceId}/info` });

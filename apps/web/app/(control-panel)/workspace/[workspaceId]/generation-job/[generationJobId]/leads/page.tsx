@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getGenerationJob } from "../../../../../../src/actions/workspace/get-generation-job";
 import { getLeads } from "../../../../../../src/actions/workspace/get-leads";
 import { LeadsClient } from "./leads-client";
@@ -21,7 +21,10 @@ export default async function LeadsPage({
     getLeads(workspaceId, generationJobId, page),
   ]);
 
-  if (jobResult.status === "error") notFound();
+  if (jobResult.status === "error") {
+    if (jobResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
+    notFound();
+  }
 
   const leads = leadsResult.status === "success" ? leadsResult.data : [];
 

@@ -18,7 +18,7 @@ export type GenerationJobDetail = {
 
 export type GetGenerationJobResult =
   | { status: "success"; data: GenerationJobDetail }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; code?: string };
 
 export async function getGenerationJob(
   workspaceId: string,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { getCampaign } from "../../../../../../src/actions/workspace/get-campaign";
 import { getCampaignEmails } from "../../../../../../src/actions/workspace/get-campaign-emails";
@@ -14,7 +15,10 @@ export default async function CampaignEmailsPage({ params }: { params: Promise<{
     getCampaignEmails(workspaceId, campaignId),
   ]);
 
-  if (campaignResult.status === "error") return <div className="p-[32px] text-[#ba1a1a]">Campaign not found.</div>;
+  if (campaignResult.status === "error") {
+    if (campaignResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
+    return <div className="p-[32px] text-[#ba1a1a]">Campaign not found.</div>;
+  }
 
   return (
     <div className="min-h-0 flex-1 overflow-auto">
