@@ -16,6 +16,7 @@ export class ProfileUseCase {
             name: userData?.name,
             email: userData?.email,
             role: userData?.role,
+            emailVerifiedAt: userData?.emailVerifiedAt,
             workspaceMember:workspaceMember
         }
     }

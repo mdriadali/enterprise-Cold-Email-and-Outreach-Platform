@@ -18,6 +18,7 @@ export type Profile = {
   name: string;
   email: string;
   role: string;
+  emailVerifiedAt: string | null;
   workspaceMember: WorkspaceMember[];
 };
 
@@ -33,7 +34,7 @@ export async function getCurrentUserProfile(): Promise<ProfileResult> {
 }
 
 function isProfile(value: unknown): value is Profile {
-  return typeof value === "object" && value !== null && "id" in value && "name" in value && "email" in value && "role" in value
+  return typeof value === "object" && value !== null && "id" in value && "name" in value && "email" in value && "role" in value && "emailVerifiedAt" in value
     && typeof value.id === "string" && typeof value.name === "string" && typeof value.email === "string" && typeof value.role === "string";
 }
 

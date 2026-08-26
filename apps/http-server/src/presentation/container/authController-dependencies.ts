@@ -5,6 +5,7 @@ import { RegisterUserUseCase } from "../../application/use-cases/auth/RegisterUs
 import { VerifyEmailUseCase } from "../../application/use-cases/auth/VerifyEmail-UseCase";
 import { ForgotPasswordUseCase } from "../../application/use-cases/auth/ForgotPassword-UseCase";
 import { ResetPasswordUseCase } from "../../application/use-cases/auth/ResetPassword-UseCase";
+import { ResendVerificationEmailUseCase } from "../../application/use-cases/auth/ResendVerificationEmail-UseCase";
 import { AuthController } from "../controllers/AuthController";
 import { appUrl, authEmailQueue, bcryptPasswordHasher, jwtTokenGenerator, prismaRefreshToken, prismaUserRepository, verificationTokenStore } from "./share-dependencies";
 
@@ -52,4 +53,11 @@ const resetPasswordUseCase = new ResetPasswordUseCase(
     verificationTokenStore
 )
 
-export const  authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase, refreshUseCase, verifyEmailUseCase, forgotPasswordUseCase, resetPasswordUseCase);
+const resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(
+    prismaUserRepository,
+    verificationTokenStore,
+    authEmailQueue,
+    appUrl
+)
+
+export const  authController = new AuthController(registerUseCase, loginUserUseCase, logoutUserUseCase, refreshUseCase, verifyEmailUseCase, forgotPasswordUseCase, resetPasswordUseCase, resendVerificationEmailUseCase);

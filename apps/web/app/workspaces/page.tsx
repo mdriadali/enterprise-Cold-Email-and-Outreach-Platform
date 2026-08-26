@@ -2,7 +2,7 @@ import Link from "next/link";
 import { WorkspaceList } from "@repo/ui/workspace-list";
 import { PlusCircle } from "lucide-react";
 
-import { requireSession } from "../src/auth/require-session";
+import { requireSession, requireEmailVerification } from "../src/auth/require-session";
 import { getCurrentUserProfile } from "../src/actions/auth/profile";
 import { ClearWorkspaceSelection } from "./clear-workspace";
 
@@ -10,6 +10,7 @@ export const metadata = { title: "Workspaces | ColdReach AI", description: "Mana
 
 export default async function WorkspacesPage() {
   await requireSession();
+  await requireEmailVerification();
   const profile = await getCurrentUserProfile();
 
   if (profile.status === "error") {
