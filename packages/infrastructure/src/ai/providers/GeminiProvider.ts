@@ -97,10 +97,6 @@ export class GeminiProvider implements IAiProvider {
 
                     if (attempt < maxRetries) {
 
-                        console.warn(
-                            `Gemini busy. Retry ${attempt}/${maxRetries}`
-                        );
-
                         await delay(delayMs);
 
                         delayMs *= 2;
@@ -115,7 +111,6 @@ export class GeminiProvider implements IAiProvider {
                         },
                     };
                 }
-                console.error(error);
                 throw error;
             }
         }

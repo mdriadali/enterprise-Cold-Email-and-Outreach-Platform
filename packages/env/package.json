@@ -11,7 +11,8 @@
     "./web-env": "./src/web-env.ts",
     "./schema": "./src/schema.ts",
     "./db-env": "./src/db-env.ts",
-    "./queue-env": "./src/queue-env.ts"
+    "./queue-env": "./src/queue-env.ts",
+    "./logger-env": "./src/logger-env.ts"
 
   },
   "devDependencies": {

@@ -31,6 +31,11 @@ services:
 
       MAIL_FROM: ${MAIL_FROM:-}
       APP_URL: ${APP_URL:-http://localhost:3000}
+      
+      NODE_ENV: ${NODE_ENV:-}
+      BETTER_STACK_SOURCE_TOKEN: ${BETTER_STACK_SOURCE_TOKEN:-}
+      BETTER_STACK_INGESTING_HOST: ${BETTER_STACK_INGESTING_HOST:-}
+
 
     ports:
       - "4000:4000"

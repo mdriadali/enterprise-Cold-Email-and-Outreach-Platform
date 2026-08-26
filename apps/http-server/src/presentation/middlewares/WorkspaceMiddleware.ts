@@ -12,7 +12,6 @@ export class WorkspaceMiddleware {
         private readonly workspaceMemberRepository: IWorkspaceMemberRepository
     ) { }
     async execute(req: Request, res: Response, next: NextFunction) {
-        console.log("[Workspace Middleware] Request Recived")
         const userId = req.user.id
         const { workspaceId } = req.params as unknown as WorkspaceParams
         try {
@@ -26,7 +25,6 @@ export class WorkspaceMiddleware {
                 role: findWorkspaceMember!.role,
                 createdAt: findWorkspaceMember!.createdAt
             }
-            console.log("[Workspace Middleware] user Validate sucessfully")
             return next()
         } catch (error) {
             if (error instanceof AppError) {
@@ -34,7 +32,6 @@ export class WorkspaceMiddleware {
                     messae: error.message
                 })
             }
-            console.log("[Workspace Middleware] Internal Server Error ", error)
             return res.status(500).json({
                 messae: " Internal Server Error"
             })

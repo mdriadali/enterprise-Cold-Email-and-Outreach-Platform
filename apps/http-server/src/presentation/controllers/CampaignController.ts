@@ -15,7 +15,6 @@ export class CampaignController {
         private readonly deleteCampaignUseCase: DeleteCampaignUseCase
     ) { }
     create = async (req: Request, res: Response) => {
-        console.log("[Create Campaign] Request Recived")
 
         const workspaceId = req.workspaceMember?.workspaceId as string
         const createdById = req.workspaceMember?.userId as string
@@ -26,7 +25,6 @@ export class CampaignController {
 
             const campaign = await this.createCampignUseCase.execute({ workspaceId, name, description, timezone, startAt, endAt, dailyLimit, sendingFromHour, sendingToHour, randomDelayMin, followUpEnabled, stopOnReply, stopOnBounce, createdById, smtpAccountId, generationJobId, emails, })
 
-            console.log("[Create Campaign]  Sucessfully")
             return res.status(200).json(campaign)
         } catch (error) {
             if (error instanceof AppError) {
@@ -35,14 +33,12 @@ export class CampaignController {
                 })
             }
 
-            console.log("[Create Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
         }
     }
     find=async (req: Request, res: Response) => {
-        console.log("[Create Campaign] Request Recived")
         const workspaceId = req.workspaceMember?.workspaceId as string
         const {id}=req.params
         try {
@@ -55,14 +51,12 @@ export class CampaignController {
                 })
             }
 
-            console.log("[Find Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
         }
     }
     updateStatus = async (req: Request, res: Response) => {
-        console.log("[Update Campaign status] Request Recived")
         const workspaceId = req.workspaceMember?.workspaceId as string
         const { id } = req.params
         const { status } = req.body
@@ -76,14 +70,12 @@ export class CampaignController {
                 })
             }
 
-            console.log("[Update Campaign status] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
         }
     }
     update = async (req: Request, res: Response) => {
-        console.log("[Update Campaign] Request Recived")
         const workspaceId = req.workspaceMember?.workspaceId as string
         const { id } = req.params
         const { data } = req.body
@@ -92,7 +84,6 @@ export class CampaignController {
 
             const upadte = await this.updateCampaignUseCase.execute(workspaceId, id as string, data)
 
-            console.log("[Update Campaign] sucessfully")
             return res.status(200).json(upadte)
 
         } catch (error) {
@@ -102,7 +93,6 @@ export class CampaignController {
                 })
             }
 
-            console.log("[Update Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
@@ -110,7 +100,6 @@ export class CampaignController {
     }
 
     delete = async (req: Request, res: Response) => {
-        console.log("[Delete Campaign] Request Recived")
         const workspaceId = req.workspaceMember?.workspaceId as string
         const { id } = req.params
         const userId = req.user.id
@@ -124,7 +113,6 @@ export class CampaignController {
                 })
             }
 
-            console.log("[Delete Campaign] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })

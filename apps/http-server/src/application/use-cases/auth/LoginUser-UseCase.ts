@@ -15,23 +15,18 @@ export class LoginUserUseCase {
 
 
     async execute(LoginData: LoginUserInput) {
-        console.log("[LOGIN] user attmting login:", LoginData.email);
         new LoginUserEntity(
             LoginData.email,
             LoginData.password
         )
         const userExist = await this.userRepository.findByEmail(LoginData.email)
         UserValidator.UserNotExist(userExist)
-        console.log("[Login] user found")
 
         const isHashMatch = await this.passwordHasher.hashcompare(LoginData.password, userExist!.password)
         AuthValidator.isHashValidate(isHashMatch)
 
-        console.log("[Login] password verified")
-
         const accessToken = await this.jwtTokenProvider.generateAccessToken(userExist!.id)
         const refreshToken = await this.jwtTokenProvider.generateRefreshToken(userExist!.id)
-        console.log("[Login]jwt token generated")
 
         const deviceInfo = LoginData.deviceInfo
 

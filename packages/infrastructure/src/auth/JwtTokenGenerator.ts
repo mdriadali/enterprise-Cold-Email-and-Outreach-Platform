@@ -28,7 +28,6 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
     }
 
     async validateAccessToken(token: string): Promise<TokenPayload> {
-        console.log("trying to validate access token")
         const payload = jwt.verify(
             token,
             authEnv.JWT_ACCESS_SECRET!
@@ -36,12 +35,10 @@ export class JwtTokenGenerator implements IJwtTokenProvider {
         return payload
     }
     async validateRefreshToken(token: string): Promise<TokenPayload> {
-        console.log("trying to validate refresh token")
         const payload = jwt.verify(
             token,
             authEnv.JWT_REFRESH_SECRET!
         ) as TokenPayload
-        console.log(payload)
         return payload
     }
 }

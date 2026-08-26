@@ -22,7 +22,6 @@ export class GenerationJobValidator {
 
   static jobCanStart(status:GenerationJobStatus |null){
     if(status==="PROCESSING"){
-      console.log("This Email Genaration Job Already Processing")
       throw new GenerationError("This Email Genaration Job Already Processing")
     }
     if(status==="COMPLETED"){
