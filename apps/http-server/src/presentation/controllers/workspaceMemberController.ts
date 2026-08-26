@@ -9,14 +9,12 @@ export class WorkspaceMemberController {
         private readonly deleteMemberUseCase: DeleteMemberUseCase
     ) { }
     add = async (req: Request, res: Response,) => {
-        console.log("[Add workspace member] Request Recived")
         const workspaceId = req.workspaceMember!.workspaceId
         const { email, role } = req.body
         const userId = req.user.id
 
         try {
             const add = await this.addMemberUseCase.execute(workspaceId, userId, email, role)
-            console.log("[Add workspace member] Sucessfully")
             return res.status(200).json(add)
         } catch (error) {
             if (error instanceof AppError) {
@@ -25,21 +23,18 @@ export class WorkspaceMemberController {
                 })
             }
 
-            console.log("[Add workspace member] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
         }
     }
     delete = async (req: Request, res: Response,) => {
-        console.log("[Delete workspace member] Request Recived")
         const workspaceId = req.workspaceMember!.workspaceId
         const { memberId } = req.params
         const userId = req.user.id
 
         try {
             const remove = await this.deleteMemberUseCase.execute(workspaceId, memberId as string, userId)
-            console.log("[Delete workspace member] Sucessfully")
             return res.status(200).json(remove)
 
         } catch (error) {
@@ -50,7 +45,6 @@ export class WorkspaceMemberController {
                 })
             }
 
-            console.log("[Delete workspace member] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })

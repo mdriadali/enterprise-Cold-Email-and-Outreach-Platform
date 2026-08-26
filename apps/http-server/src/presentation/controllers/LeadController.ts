@@ -12,13 +12,10 @@ export class LeadController {
     ) { }
     create = async (req: Request, res: Response) => {
         try {
-            console.log("[Lead create] Request Recived")
             const userid = req.user.id
             const { leadData } = req.body
             const { generationJobId } = req.params
-            console.log("genId", generationJobId)
             const lead = await this.createLeadUseCase.execute(userid, generationJobId as string, leadData)
-            console.log("[Lead create] Sucessfully")
             return res.status(200).json({
                 lead
             })
@@ -30,7 +27,6 @@ export class LeadController {
                 })
             }
 
-            console.log("[Lead create] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
@@ -39,8 +35,6 @@ export class LeadController {
 
     bulkCreate = async (req: Request, res: Response) => {
         try {
-            console.log("[Lead Bulk Create] Request Received");
-
             const userId = req.user.id;
 
             const { leads } = req.body;
@@ -49,10 +43,6 @@ export class LeadController {
                 userId,
                 generationJobId as string,
                 leads
-            );
-
-            console.log(
-                "[Lead Bulk Create] Successfully"
             );
 
             return res.status(200).json({
@@ -67,11 +57,6 @@ export class LeadController {
                 });
             }
 
-            console.error(
-                "[Lead Bulk Create] Internal Server Error",
-                error
-            );
-
             return res.status(500).json({
                 message: "Internal Server Error"
             });
@@ -79,7 +64,6 @@ export class LeadController {
     };
     allLeadFind = async (req: Request, res: Response) => {
         try {
-            console.log("[All Leads Find] Request Recived")
             const workspaceId = req.workspaceMember?.workspaceId
             const { generationJobId } = req.params
             const page = Number(req.query.page ?? 1)
@@ -89,7 +73,6 @@ export class LeadController {
                     generationJobId: generationJobId as string,
                     page: page
                 })
-            console.log("[All Leads Find] Data Send Sucessfully")
             return res.status(200).json(leads)
 
         } catch (error) {
@@ -98,11 +81,6 @@ export class LeadController {
                     message: error.message
                 });
             }
-
-            console.error(
-                "[All Leads Find] Internal Server Error",
-                error
-            );
 
             return res.status(500).json({
                 message: "Internal Server Error"

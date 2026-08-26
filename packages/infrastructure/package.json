@@ -3,29 +3,40 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+
   "devDependencies": {
     "@types/bun": "latest"
   },
+
   "peerDependencies": {
     "typescript": "^5"
   },
+
   "exports": {
     "./auth": "./src/auth/index.ts",
     "./repositories": "./src/repositories/index.ts",
     "./ai": "./src/ai/index.ts",
-    "./cache":"./src/cache/repositories/index.ts"
+    "./cache": "./src/cache/repositories/index.ts",
+    "./logger": "./src/logger/index.ts"
   },
+
   "dependencies": {
     "@google/genai": "^2.9.0",
+    "@logtail/node": "^0.5.8",
+    "@logtail/pino": "^0.5.8",
     "@repo/db": "*",
     "@repo/env": "*",
     "@repo/ports": "workspace:*",
+    "@repo/queue": "*",
     "@repo/types": "*",
-    "@repo/queue":"*",
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "bcrypt": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
-    "openai": "^6.44.0"
+    "openai": "^6.44.0",
+    "pino": "^10.3.1",
+    "pino-abstract-transport": "^2.0.0",
+    "pino-http": "^11.0.0",
+    "pino-pretty": "^13.1.3"
   }
 }

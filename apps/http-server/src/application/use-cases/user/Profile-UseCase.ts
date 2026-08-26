@@ -8,7 +8,6 @@ export class ProfileUseCase {
         private readonly workspaceMemberRepository:IWorkspaceMemberRepository
     ) { }
     async execute(userId: string) {
-        console.log("[profile] trying to get data User: ", userId)
         const userData = await this.userRepository.findById(userId)
         UserValidator.UserNotExist(userData)
         const workspaceMember=await this.workspaceMemberRepository.findbyUserId(userId)

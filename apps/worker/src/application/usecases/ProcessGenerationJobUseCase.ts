@@ -9,6 +9,7 @@ import type { AiProviderFactory } from "@repo/infrastructure/ai";
 import { coldEmailPrompt } from "../../infrastructure/prompts/cold-email.prompt";
 import { isErrorResponse } from "../../utils/isErrorResponse";
 import { resetApiStatusQueue } from "@repo/queue";
+import { logger } from "../../logger";
 
 export class ProcessGenerationUseCase {
     constructor(
@@ -24,7 +25,8 @@ export class ProcessGenerationUseCase {
         const job = await this.generationJobRepository.findById(jobId);
 
         if (!job) {
-            return console.log(`Job not found with ID: ${jobId}`)
+            logger.warn({ jobId }, "Job not found");
+            return;
         }
 
         const leads = await this.leadRepository.findPendingByJobId(jobId);
@@ -32,38 +34,36 @@ export class ProcessGenerationUseCase {
 
         if (!workspace) {
             await this.generationJobRepository.updateStatusById(jobId, "FAILED", "Workspace not found");
-            console.log("Workspace not found Job Id :", jobId)
+            logger.warn({ jobId }, "Workspace not found");
             return
         }
 
         if (leads.length === 0) {
-            console.log(`Job ${jobId} Already finished.`);
             await this.generationJobRepository.updateStatusById(jobId, "COMPLETED");
+            logger.info({ jobId }, "Job already finished, no pending leads");
             return;
         }
 
         const apiSummary = await this.aiApiRepository.getApiSummary(workspace.id)
 
-
-        console.log(`Running process for Job: ${jobId}. Total pending leads: ${leads.length}`);
-
         if (apiSummary.total === 0) {
             await this.generationJobRepository.updateStatusById(jobId, "FAILED", "No API key found");
-            return console.log("No API key found")
+            logger.warn({ jobId }, "No API key found");
+            return;
         }
 
         if (apiSummary.invalid === apiSummary.total) {
             await this.generationJobRepository.updateStatusById(jobId, "FAILED", "All Api Key Invalid");
-            return console.log("All Api Key Invalid")
+            logger.warn({ jobId }, "All API keys invalid");
+            return;
         }
 
         if (apiSummary.available === 0 && apiSummary.rateLimited > 0) {
             await this.generationJobRepository.updateStatusById(jobId, "WAITING_FOR_API_QUOTA", "Watting For Api Quota");
-            return console.log("Watting For Api Quota")
+            logger.warn({ jobId }, "Waiting for API quota");
+            return;
         }
         let apis = await this.aiApiRepository.findAvailableByWorkspaceId(workspace.id);
-
-
 
         await this.generationJobRepository.updateStatusById(jobId, "PROCESSING");
 
@@ -74,7 +74,6 @@ export class ProcessGenerationUseCase {
 
         const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
         for (const lead of leads) {
-
 
             while (apis.length > 0) {
 
@@ -135,8 +134,6 @@ export class ProcessGenerationUseCase {
                                 continue;
                         }
                     }
-                    console.log("lead generated jobid :", jobId)
-                    // console.log(response)
 
                     let emailData
 
@@ -174,7 +171,7 @@ export class ProcessGenerationUseCase {
 
                 } catch (error) {
 
-                    console.error(error);
+                    logger.error({ jobId, leadId: lead.id, error }, "Failed to generate email for lead");
 
                     failedCount++;
 
@@ -196,10 +193,8 @@ export class ProcessGenerationUseCase {
             finalStatus = "FAILED";
         }
 
-        console.log("successCount:", successCount)
-        console.log("failedCount:", failedCount)
         await this.generationJobRepository.updateStatusById(jobId, finalStatus);
 
-        console.log(`Job ${jobId} finished. Success: ${successCount},  Failed: ${failedCount}`);
+        logger.info({ jobId, successCount, failedCount }, "Job finished");
     }
 }

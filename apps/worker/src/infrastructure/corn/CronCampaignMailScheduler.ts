@@ -1,20 +1,42 @@
 import cron from "node-cron";
+
 import type { ScheduleTodayCampaignUseCase } from "../../application/usecases/scheduleTodayCampaignUseCase";
+import { logger } from "../../logger";
+
 
 export class CronCampaignMailScheduler {
-    constructor(
-        private readonly scheduleTodayCampaignUseCase: ScheduleTodayCampaignUseCase
-    ) { }
-    start() {
-        console.log("campaign mail Scheduler Corn Started")
-        cron.schedule("*/5 * * * * ", async () => {
-            try {
-                this.scheduleTodayCampaignUseCase.execute();
-            } catch (error) {
-                console.log(error)
-            }
+  private readonly cronLogger = logger.child({
+    scheduler: "campaign-mail",
+  });
 
-        });
-        this.scheduleTodayCampaignUseCase.execute();
-    }
+  constructor(
+    private readonly scheduleTodayCampaignUseCase: ScheduleTodayCampaignUseCase,
+  ) {}
+
+  start() {
+    this.cronLogger.info("Campaign mail scheduler started");
+
+    cron.schedule("*/5 * * * *", async () => {
+      try {
+        this.cronLogger.info("Campaign scheduler job started");
+
+        await this.scheduleTodayCampaignUseCase.execute();
+
+        this.cronLogger.info("Campaign scheduler job completed");
+      } catch (error) {
+        this.cronLogger.error(
+          { err: error },
+          "Campaign scheduler job failed",
+        );
+      }
+    });
+
+    // Run immediately when the worker starts
+    this.scheduleTodayCampaignUseCase.execute().catch((error) => {
+      this.cronLogger.error(
+        { err: error },
+        "Initial campaign scheduler execution failed",
+      );
+    });
+  }
 }

@@ -19,7 +19,6 @@ export class RegisterUserUseCase {
         private readonly appUrl: string
     ) { }
     async execute(registerdata: RegisterUserInput) {
-        console.log("[User register] user creating attmting", registerdata.email)
         new RegisterUserEntity(
             registerdata.name,
             registerdata.email,
@@ -37,7 +36,6 @@ export class RegisterUserUseCase {
             email: registerdata.email,
             password: hashpassword
         })
-        console.log("[user register] user create sucessfully")
 
         const verificationToken = generateRandomToken()
         const verificationLink = `${this.appUrl}/verify-email?email=${encodeURIComponent(createdUser.email)}&token=${verificationToken}`
@@ -68,7 +66,6 @@ export class RegisterUserUseCase {
             expiresAt: refreshToken.expiresAt
         })
 
-        console.log("[user register] user refreshToken save sucessfully")
         return {
             accessToken,
             refreshToken

@@ -11,10 +11,8 @@ export class UserController {
     ) { }
     profile = async (req: Request, res: Response) => {
         try {
-            console.log("[profile] Request Recived")
             const userId = req.user.id
             const userData = await this.profileUseCase.execute(userId)
-            console.log("[profile] data send sucessfully")
             return res.status(200).json({ data: userData })
         } catch (error) {
             if (error instanceof AppError) {
@@ -22,7 +20,6 @@ export class UserController {
                     message: error.message
                 })
             }
-            console.error("[profile] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })
@@ -31,7 +28,6 @@ export class UserController {
 
     profileUpdate = async (req: Request, res: Response) => {
         try {
-            console.log("[profile Upadte] Request recived")
             const userId = req.user.id
 
             const updateData: UpdateUserDto = {};
@@ -40,7 +36,6 @@ export class UserController {
                 updateData.name = req.body.name;
             }
             const updateUser = await this.profileUpdateUseCase.execute(userId, updateData)
-            console.log("[profile Update] data send sucessfully")
             return res.status(200).json({
                 updateData: updateUser
             })
@@ -51,7 +46,6 @@ export class UserController {
                     message: error.message
                 })
             }
-            console.error("[profile update] Internal Server Error", error)
             return res.status(500).json({
                 message: "Internal Server Error"
             })

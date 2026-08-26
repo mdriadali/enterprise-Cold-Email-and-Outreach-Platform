@@ -55,8 +55,6 @@ export class AuthController {
         })
       }
 
-      console.error("[Register] internal server error", error)
-
       return res.status(500).json({
         message: "Internal Server Error"
       })
@@ -65,7 +63,6 @@ export class AuthController {
 
   login = async (req: Request, res: Response) => {
     try {
-      console.log("[LOGIN] Request received");
       const loginData: LoginUserInput = req.body
       const deviceInfo = {
         devicename: req.headers["x-device-name"],
@@ -87,7 +84,6 @@ export class AuthController {
         sameSite: "lax",
         secure: false
       });
-      console.log("[Login] cookie send sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error: unknown) {
 
@@ -96,7 +92,6 @@ export class AuthController {
           message: error.message
         })
       }
-      console.error("[Login] internal server error", error)
       return res.status(500).json({
         message: "Internal Server Error"
       });
@@ -105,7 +100,6 @@ export class AuthController {
 
   logout = async (req: Request, res: Response) => {
     try {
-      console.log("[Logout]Request recived")
       const userId = req.user.id
       const token = req.cookies.refreshToken
       await this.logoutUserUseCase.execute(userId, token)
@@ -117,7 +111,6 @@ export class AuthController {
         "refreshToken",
         ""
       )
-      console.log("[Logout] user sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error) {
       if (error instanceof AppError) {
@@ -125,7 +118,6 @@ export class AuthController {
           message: error.message
         })
       }
-      console.error("[Logout] internal server error",error)
       return res.status(500).json({
         message: "Internal server error"
       });
@@ -134,7 +126,6 @@ export class AuthController {
 
   refresh = async (req: Request, res: Response) => {
     try {
-      console.log("[Refresh] request Recived")
       const refreshToken = req.cookies.refreshToken
       const result = await this.refreshUseCase.execute(refreshToken)
       res.cookie(
@@ -147,7 +138,6 @@ export class AuthController {
         secure: false
       }
       )
-      console.log("[Refresh] access Token Send sucessfully")
       return res.status(200).json({ sucess: true })
     } catch (error) {
 
@@ -161,8 +151,6 @@ export class AuthController {
           message: error.message
         })
       }
-
-      console.error("[Refresh] Internal server error", error)
 
       return res.status(500).json({
         massage: "Internal Server Error"
@@ -180,7 +168,6 @@ export class AuthController {
       if (error instanceof AppError) {
         return res.status(400).json({ message: error.message })
       }
-      console.error("[VerifyEmail] internal server error", error)
       return res.status(500).json({ message: "Internal Server Error" })
     }
   }
@@ -194,7 +181,6 @@ export class AuthController {
       if (error instanceof AppError) {
         return res.status(400).json({ message: error.message })
       }
-      console.error("[ForgotPassword] internal server error", error)
       return res.status(500).json({ message: "Internal Server Error" })
     }
   }
@@ -208,7 +194,6 @@ export class AuthController {
       if (error instanceof AppError) {
         return res.status(400).json({ message: error.message })
       }
-      console.error("[ResetPassword] internal server error", error)
       return res.status(500).json({ message: "Internal Server Error" })
     }
   }

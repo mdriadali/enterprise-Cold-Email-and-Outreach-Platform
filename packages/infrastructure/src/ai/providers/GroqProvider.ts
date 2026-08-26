@@ -83,9 +83,6 @@ export class GroqProvider implements IAiProvider {
                 // ===============================
                 if (error?.status === 503) {
                     if (attempt < maxRetries) {
-                        console.warn(
-                            `Groq busy. Retry ${attempt}/${maxRetries}`
-                        );
 
                         await delay(delayMs);
                         delayMs *= 2;
@@ -101,7 +98,6 @@ export class GroqProvider implements IAiProvider {
                     };
                 }
 
-                console.error("Groq API Error:", error);
                 throw error;
             }
         }

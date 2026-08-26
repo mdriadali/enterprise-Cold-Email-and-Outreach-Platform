@@ -15,13 +15,11 @@ export class AuthMiddleware {
 
     async execute(req: Request, res: Response, next: NextFunction) {
         try {
-            console.log("[Auth Midlle] Request Recived")
             const token = req.cookies.accessToken
             AuthValidator.tokenValidator(token)
             const payload = await this.jwtTokenProvider.validateAccessToken(token)
             const findUser = await this.userRepository.findById(payload.UserId)
             UserValidator.UserNotExist(findUser)
-            console.log("[Auth Midlle] User valid");
             req.user = {
                 id: findUser!.id,
                 name: findUser!.name,
@@ -32,7 +30,6 @@ export class AuthMiddleware {
             return next();
         } catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
-                console.log("[Auth middleware] user access token expire")
                 return res.status(401).json({
                     code: "TOKEN_EXPIRED"
                 })
@@ -43,10 +40,6 @@ export class AuthMiddleware {
                     message: error.message
                 });
             }
-            console.error(
-                "[Auth middleware] Internal Server Error",
-                error
-            );
             return res.status(500).json({
                 message: "Internal Server Error"
             });

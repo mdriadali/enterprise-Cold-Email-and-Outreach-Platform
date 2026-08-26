@@ -9,7 +9,6 @@ export class LogoutUserUseCase {
 
     ) { }
     async execute(userId: string, refreshToken: string) {
-        console.log("[Logout] user trying", userId)
         const tokenData = await this.refreshTokenRepository.findByToken(refreshToken)
         AuthValidator.tokenDataValidator(tokenData)
 
