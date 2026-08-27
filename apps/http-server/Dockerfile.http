@@ -3,6 +3,7 @@ FROM oven/bun:1 AS base
 
 WORKDIR /app
 
+
 # Pruner Stage
 FROM base AS pruner
 
@@ -10,7 +11,8 @@ COPY . .
 
 RUN bunx turbo prune http-server --docker
 
-# Installer Stage
+
+# Installer / Builder Stage
 FROM base AS installer
 
 COPY --from=pruner /app/out/json/ .
@@ -20,8 +22,6 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
     bun install --frozen-lockfile
 
 COPY --from=pruner /app/out/full/ .
-
-
 
 RUN bun run db:generate
 
@@ -35,7 +35,6 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Copy the built application from the installer stage
 COPY --from=installer /app .
 
 EXPOSE 4000

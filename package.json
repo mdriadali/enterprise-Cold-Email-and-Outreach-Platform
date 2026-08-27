@@ -2,24 +2,24 @@
   "name": "enterprise-Cold-Email-and-Outreach-Platform",
   "private": true,
   "scripts": {
-    "build": "bun --env-file=.env.local turbo run build",
+    "build": "turbo run build",
     "dev": "bun --env-file=.env turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
 
-    "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
+    "db:migrate": "cd packages/db && bun --env-file=../../.env.local prisma migrate dev && cd ../..",
     "db:migrate:deploy": "cd packages/db && bunx prisma migrate deploy && cd ../..",
     "db:generate": "cd packages/db && bunx prisma generate && cd ../..",
     "db:push": "cd packages/db && bunx prisma db push",
 
-    "build:web": "bun --env-file=.env.local -- turbo run build --filter=web",
+    "build:web": "turbo run build --filter=web",
     "start:web": "turbo run start --filter=web",
 
-    "build:http": "bun --env-file=.env.local -- turbo run build --filter=http-server",
+    "build:http": "turbo run build --filter=http-server",
     "start:http": "turbo run start --filter=http-server",
-    
-    "build:worker": "bun --env-file=.env.local -- turbo run build --filter=worker",
+
+    "build:worker": "turbo run build --filter=worker",
     "start:worker": "turbo run start --filter=worker"
   },
   "devDependencies": {
