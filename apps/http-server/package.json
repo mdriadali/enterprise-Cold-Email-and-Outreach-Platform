@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "nodemon --exec \"bun --env-file=../../.env.local\" src/index.ts",
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
-    "start": "bun ./dist/index.js"
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --env=disable",
+    "start": "bun --no-env-file ./dist/index.js"
   },
   "devDependencies": {
     "@types/bun": "latest",
