@@ -47,6 +47,8 @@ function createBetterStackStream(sourceToken: string, ingestingHost: string) {
 }
 
 export function createLogger(service: string) {
+  console.log("RAW NODE_ENV:", process.env.NODE_ENV);
+  console.log("LOGGER NODE_ENV:", loggerEnv.NODE_ENV);
   const isProduction = loggerEnv.NODE_ENV === "production";
 
   const streams: (pino.DestinationStream | pino.StreamEntry)[] = [];
