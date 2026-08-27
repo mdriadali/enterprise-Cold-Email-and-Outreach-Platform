@@ -5,8 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "nodemon --exec \"bun --env-file=../../.env.local\" src/index.ts",
-    "start": "bun --env-file=../../.env.local ./dist/index.js",
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun"
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun",
+    "start": "bun ./dist/index.js"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -18,12 +18,12 @@
   "dependencies": {
     "@repo/common": "workspace:*",
     "@repo/config": "workspace:*",
-    "@repo/db": "*",
-    "@repo/env": "*",
+    "@repo/db": "workspace:*",
+    "@repo/env": "workspace:*",
     "@repo/infrastructure": "workspace:*",
     "@repo/ports": "workspace:*",
     "@repo/queue": "workspace:*",
-    "@repo/types": "*",
+    "@repo/types": "workspace:*",
     "@types/bcrypt": "^6.0.0",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",
