@@ -12,8 +12,13 @@ COPY . .
 RUN bunx turbo prune worker --docker
 
 
-# Installer / Builder Stage
+# Installer Stage
 FROM base AS installer
+
+WORKDIR /app
+
+# IMPORTANT: build environment
+ENV NODE_ENV=production
 
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/bun.lock ./bun.lock
@@ -37,4 +42,4 @@ ENV NODE_ENV=production
 
 COPY --from=installer /app .
 
-CMD ["bun", "run", "start:worker"]
+CMD ["bun", "apps/worker/dist/index.js"]

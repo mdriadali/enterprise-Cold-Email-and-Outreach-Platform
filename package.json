@@ -4,11 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "bun --env-file=.env turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types",
 
-    "db:migrate": "cd packages/db && bun --env-file=../../.env.local prisma migrate dev && cd ../..",
+    "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
     "db:migrate:deploy": "cd packages/db && bunx prisma migrate deploy && cd ../..",
     "db:generate": "cd packages/db && bunx prisma generate && cd ../..",
     "db:push": "cd packages/db && bunx prisma db push",
