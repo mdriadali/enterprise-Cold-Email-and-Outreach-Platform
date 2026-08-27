@@ -42,4 +42,4 @@ ENV NODE_ENV=production
 
 COPY --from=installer /app .
 
-CMD ["bun", "apps/worker/dist/index.js"]
+CMD ["bun", "--no-env-file", "./apps/worker/dist/index.js"]

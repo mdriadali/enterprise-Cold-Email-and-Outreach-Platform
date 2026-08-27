@@ -44,4 +44,4 @@ COPY --from=installer /app .
 
 EXPOSE 4000
 
-CMD ["bun", "run", "start:http"]
+CMD ["bun", "--no-env-file", "./apps/http-server/dist/index.js"]

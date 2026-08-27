@@ -5,14 +5,8 @@ node_modules
 dist
 out
 
+# Environment files can contain credentials. Docker Compose reads .env.docker
+# from the host at container startup; it must never enter a build context.
 .env
 .env.*
 !.env.example
-
-node_modules
-.turbo
-dist
-.git
-.gitignore
-
-.env.local

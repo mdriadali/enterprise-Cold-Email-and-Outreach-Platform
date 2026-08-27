@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "bun --env-file=.env turbo run dev",
+    "dev": "turbo run dev",
 
     "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
     "db:migrate:deploy": "cd packages/db && bunx prisma migrate deploy && cd ../..",
