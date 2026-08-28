@@ -29,14 +29,14 @@ FROM oven/bun:1-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
-# Copy standalone output (includes workspace dependencies)
+# Copy standalone output root into container root
 COPY --from=installer /app/apps/web/.next/standalone ./
 
-# Copy static assets into the standalone web app directory
+# Copy static assets into the nested web app directory
 COPY --from=installer /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=installer /app/apps/web/public ./apps/web/public
 
 EXPOSE 3000
 
-# Run the standalone Node/Bun server entrypoint
+# Entrypoint for Next.js standalone server
 CMD ["bun", "run", "apps/web/server.js"]
