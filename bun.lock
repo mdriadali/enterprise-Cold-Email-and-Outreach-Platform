@@ -6,6 +6,7 @@
       "name": "enterprise-Cold-Email-and-Outreach-Platform",
       "dependencies": {
         "@t3-oss/env-nextjs": "^0.13.11",
+        "dotenv": "^17.4.2",
         "prisma": "^7.8.0",
         "zod": "^4.4.3",
       },
