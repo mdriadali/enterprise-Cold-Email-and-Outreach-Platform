@@ -5,7 +5,7 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
 
-    command: bun run db:migrate:deploy
+    command: bun run --cwd=packages/db prisma:migrate:deploy
 
     profiles:
       - migration
