@@ -22,7 +22,8 @@ RUN bun run build:http
 
 # Production Prune (removes unnecessary dev dependencies/cache)
 RUN rm -rf node_modules && \
-    bun install --production --frozen-lockfile
+    bun install --production --frozen-lockfile && \
+    bunx --no-install prisma --version
 
 FROM oven/bun:1-slim AS runner
 WORKDIR /app

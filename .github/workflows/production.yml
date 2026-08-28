@@ -85,13 +85,17 @@ jobs:
         id: compose
         run: echo "content=$(base64 --wrap=0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
 
+      - name: Encode Production Deployment Script
+        id: deploy-script
+        run: echo "content=$(base64 --wrap=0 scripts/deploy-production.sh)" >> "$GITHUB_OUTPUT"
+
       - name: Send Deployment Command to EC2
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying version ${{ env.IMAGE_TAG }}" \
-            --parameters 'commands=["printf %s '\''${{ steps.compose.outputs.content }}'\'' | base64 --decode > /opt/outreach/docker-compose.production.yml.tmp && mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml", "bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
+            --parameters 'commands=["printf %s '\''${{ steps.compose.outputs.content }}'\'' | base64 --decode > /opt/outreach/docker-compose.production.yml.tmp && mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml", "printf %s '\''${{ steps.deploy-script.outputs.content }}'\'' | base64 --decode > /opt/outreach/deploy.sh.tmp && chmod 700 /opt/outreach/deploy.sh.tmp && mv /opt/outreach/deploy.sh.tmp /opt/outreach/deploy.sh", "bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
             --region "${{ env.AWS_REGION }}" \
             --query "Command.CommandId" \
             --output text)
