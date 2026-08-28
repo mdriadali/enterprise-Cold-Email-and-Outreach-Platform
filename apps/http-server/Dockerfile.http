@@ -1,23 +1,12 @@
-# Base Stage
 FROM oven/bun:1 AS base
-
 WORKDIR /app
 
-
-# Pruner Stage
 FROM base AS pruner
-
 COPY . .
-
 RUN bunx turbo prune http-server --docker
 
-
-# Installer Stage
 FROM base AS installer
-
 WORKDIR /app
-
-# IMPORTANT: build environment
 ENV NODE_ENV=production
 
 COPY --from=pruner /app/out/json/ .
@@ -29,19 +18,20 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 COPY --from=pruner /app/out/full/ .
 
 RUN bun run db:generate
-
 RUN bun run build:http
 
+# Production Prune (removes unnecessary dev dependencies/cache)
+RUN rm -rf node_modules && \
+    bun install --production --frozen-lockfile
 
-# Runner Stage
-FROM oven/bun:1 AS runner
-
+FROM oven/bun:1-slim AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-COPY --from=installer /app .
+# Copy only runtime dependencies and built dist output
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/http-server/dist ./apps/http-server/dist
+COPY --from=installer /app/apps/http-server/package.json ./apps/http-server/package.json
 
 EXPOSE 4000
-
 CMD ["bun", "--no-env-file", "./apps/http-server/dist/index.js"]
