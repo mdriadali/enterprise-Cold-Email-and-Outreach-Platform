@@ -14,13 +14,12 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  # Job 1: Build & Push Images using Matrix on Self-Hosted Runner
+  # Job 1: Build & Push Images IN PARALLEL on GitHub Cloud Runners
   build-and-push:
     name: Build ${{ matrix.app.name }} Image
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 3
       matrix:
         app:
           - name: http-server
@@ -63,16 +62,10 @@ jobs:
           push: true
           build-args: ${{ matrix.app.build_args }}
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.image_name }}:${{ env.IMAGE_TAG }}
-          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.app.name }}
-          cache-to: type=local,dest=/tmp/.buildx-cache-${{ matrix.app.name }}-new,mode=max
+          cache-from: type=gha,scope=${{ matrix.app.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
 
-      # Move cache to prevent continuous growth on PC storage
-      - name: Move Docker Cache
-        run: |
-          rm -rf /tmp/.buildx-cache-${{ matrix.app.name }}
-          mv /tmp/.buildx-cache-${{ matrix.app.name }}-new /tmp/.buildx-cache-${{ matrix.app.name }} || true
-
-  # Job 2: Trigger Deployment Script on EC2 via SSM
+  # Job 2: Trigger Remote EC2 Deployment via SSM
   deploy-to-ec2:
     name: Execute Remote Deployment via SSM
     needs: build-and-push
