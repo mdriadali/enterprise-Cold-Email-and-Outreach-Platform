@@ -5,10 +5,10 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
 
-    "db:migrate": "cd packages/db && bun --env-file=../../.env.local -- prisma migrate dev && cd ../..",
-    "db:migrate:deploy": "cd packages/db && bunx prisma migrate deploy && cd ../..",
-    "db:generate": "cd packages/db && bunx prisma generate && cd ../..",
-    "db:push": "cd packages/db && bunx prisma db push",
+    "db:migrate": "bun --env-file=.env.local -- prisma migrate dev --schema=packages/db/prisma/schema.prisma",
+    "db:migrate:deploy": "bunx prisma migrate deploy --schema=packages/db/prisma/schema.prisma",
+    "db:generate": "bunx prisma generate --schema=packages/db/prisma/schema.prisma",
+    "db:push": "bunx prisma db push --schema=packages/db/prisma/schema.prisma",
 
     "build:web": "turbo run build --filter=web",
     "start:web": "turbo run start --filter=web",
