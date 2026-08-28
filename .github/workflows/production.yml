@@ -72,11 +72,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Deployment Configuration
+        uses: actions/checkout@v4
+
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Encode Production Compose Configuration
+        id: compose
+        run: echo "content=$(base64 --wrap=0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
 
       - name: Send Deployment Command to EC2
         run: |
@@ -84,7 +91,7 @@ jobs:
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying version ${{ env.IMAGE_TAG }}" \
-            --parameters 'commands=["bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
+            --parameters 'commands=["printf %s '\''${{ steps.compose.outputs.content }}'\'' | base64 --decode > /opt/outreach/docker-compose.production.yml.tmp && mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml", "bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
             --region "${{ env.AWS_REGION }}" \
             --query "Command.CommandId" \
             --output text)
@@ -105,7 +112,7 @@ jobs:
             --query "Status" \
             --output text)
           echo "Deployment status: $STATUS"
-          
+
           echo "========== EC2 OUTPUT =========="
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
