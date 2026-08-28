@@ -15,7 +15,6 @@
 
     "build:http": "turbo run build --filter=http-server",
     "start:http": "turbo run start --filter=http-server",
-
     "build:worker": "turbo run build --filter=worker",
     "start:worker": "turbo run start --filter=worker"
   },
@@ -38,6 +37,7 @@
   "type": "module",
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.13.11",
+    "prisma": "^7.8.0",
     "zod": "^4.4.3"
   }
 }
