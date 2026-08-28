@@ -13,9 +13,9 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Test and Build
-    runs-on: [self-hosted, Linux, X64]
+  test-and-build:
+    name: Test and Build Verification
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -25,35 +25,32 @@ jobs:
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        env:
-          BUN_INSTALL_CACHE_DIR: ${{ runner.temp }}/bun-cache
         run: |
-          rm -rf "$BUN_INSTALL_CACHE_DIR"
-          mkdir -p "$BUN_INSTALL_CACHE_DIR"
-          bun install --frozen-lockfile
+          bun install --frozen-lockfile --network-concurrency 10
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-       #only build images for testing
-      - name: Build HTTP image
+      - name: Build HTTP Image Test
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/http-server/Dockerfile.http
           push: false
 
-      - name: Build Worker image
+      - name: Build Worker Image Test
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/worker/Dockerfile.worker
           push: false
 
-      - name: Build Web image
+      - name: Build Web Image Test
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/web/Dockerfile.web
           push: false
           build-args: |
-           APP_NAME=Cold Out Reach
-           HTTP_SERVER_URL=http://http-server:4000/api/v1/
+            APP_NAME=Cold Out Reach
+            HTTP_SERVER_URL=http://http-server:4000/api/v1/
