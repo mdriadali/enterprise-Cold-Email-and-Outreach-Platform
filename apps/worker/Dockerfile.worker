@@ -1,23 +1,12 @@
-# Base Stage
 FROM oven/bun:1 AS base
-
 WORKDIR /app
 
-
-# Pruner Stage
 FROM base AS pruner
-
 COPY . .
-
 RUN bunx turbo prune worker --docker
 
-
-# Installer Stage
 FROM base AS installer
-
 WORKDIR /app
-
-# IMPORTANT: build environment
 ENV NODE_ENV=production
 
 COPY --from=pruner /app/out/json/ .
@@ -29,17 +18,17 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 COPY --from=pruner /app/out/full/ .
 
 RUN bun run db:generate
-
 RUN bun run build:worker
 
+RUN rm -rf node_modules && \
+    bun install --production --frozen-lockfile
 
-# Runner Stage
-FROM oven/bun:1 AS runner
-
+FROM oven/bun:1-slim AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-COPY --from=installer /app .
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/worker/dist ./apps/worker/dist
+COPY --from=installer /app/apps/worker/package.json ./apps/worker/package.json
 
 CMD ["bun", "--no-env-file", "./apps/worker/dist/index.js"]

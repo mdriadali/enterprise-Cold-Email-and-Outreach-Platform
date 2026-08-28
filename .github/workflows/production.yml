@@ -14,14 +14,36 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  # Job 1: Build & Push Images on your Local PC Runner using OIDC
+  # Job 1: Build & Push Images using Matrix on Self-Hosted Runner
   build-and-push:
-    name: Build Images on Local Machine
+    name: Build ${{ matrix.app.name }} Image
     runs-on: [self-hosted, Linux, X64]
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        app:
+          - name: http-server
+            dockerfile: ./apps/http-server/Dockerfile.http
+            image_name: outreach-http
+            build_args: ""
+          - name: worker
+            dockerfile: ./apps/worker/Dockerfile.worker
+            image_name: outreach-worker
+            build_args: ""
+          - name: web
+            dockerfile: ./apps/web/Dockerfile.web
+            image_name: outreach-web
+            build_args: |
+              APP_NAME=Cold Out Reach
+              HTTP_SERVER_URL=http://16.170.11.164:4000/api/v1/
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -33,32 +55,22 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and Push HTTP Server
+      - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./apps/http-server/Dockerfile.http
+          file: ${{ matrix.app.dockerfile }}
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-http:${{ env.IMAGE_TAG }}
+          build-args: ${{ matrix.app.build_args }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.image_name }}:${{ env.IMAGE_TAG }}
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.app.name }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-${{ matrix.app.name }}-new,mode=max
 
-      - name: Build and Push Worker
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/worker/Dockerfile.worker
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-worker:${{ env.IMAGE_TAG }}
-
-      - name: Build and Push Web
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./apps/web/Dockerfile.web
-          push: true
-          build-args: |
-            APP_NAME=Cold Out Reach
-            HTTP_SERVER_URL=http://16.170.11.164:4000/api/v1/
-          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ env.IMAGE_TAG }}
+      # Move cache to prevent continuous growth on PC storage
+      - name: Move Docker Cache
+        run: |
+          rm -rf /tmp/.buildx-cache-${{ matrix.app.name }}
+          mv /tmp/.buildx-cache-${{ matrix.app.name }}-new /tmp/.buildx-cache-${{ matrix.app.name }} || true
 
   # Job 2: Trigger Deployment Script on EC2 via SSM
   deploy-to-ec2:
@@ -87,7 +99,6 @@ jobs:
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
-
           echo "Waiting for EC2 deployment..."
 
           aws ssm wait command-executed \
@@ -105,12 +116,19 @@ jobs:
           echo "Deployment status: $STATUS"
 
           echo "========== EC2 OUTPUT =========="
-
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --region "${{ env.AWS_REGION }}" \
             --query "StandardOutputContent" \
+            --output text
+
+          echo "========== EC2 ERRORS =========="
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query "StandardErrorContent" \
             --output text
 
           if [ "$STATUS" != "Success" ]; then

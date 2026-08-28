@@ -1,17 +1,12 @@
-# Base Stage
 FROM oven/bun:1 AS base
-
 WORKDIR /app
 
-# Pruner Stage
 FROM base AS pruner
-
 COPY . .
-
 RUN bunx turbo prune web --docker
 
-# Installer Stage
 FROM base AS installer
+WORKDIR /app
 
 ARG APP_NAME
 ENV APP_NAME=${APP_NAME}
@@ -27,20 +22,21 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 COPY --from=pruner /app/out/full/ .
 
-
 RUN bun run build:web
 
-
 # Runner Stage
-FROM oven/bun:1 AS runner
-
+FROM oven/bun:1-slim AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
 
-# Copy the built application from the installer stage
-COPY --from=installer /app .
+# Copy standalone output root into container root
+COPY --from=installer /app/apps/web/.next/standalone ./
+
+# Copy static assets into the nested web app directory
+COPY --from=installer /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=installer /app/apps/web/public ./apps/web/public
 
 EXPOSE 3000
 
-CMD ["bun", "run", "start:web"]
+# Entrypoint for Next.js standalone server
+CMD ["bun", "run", "apps/web/server.js"]
