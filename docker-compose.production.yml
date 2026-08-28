@@ -45,6 +45,8 @@ services:
     ports:
       - "4000:4000"
 
+
+
     healthcheck:
       test:
         [
@@ -52,7 +54,7 @@ services:
           "bun -e \"fetch('http://localhost:4000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))\""
         ]
 
-      interval: 15s
+      interval: 5m
       timeout: 5s
       retries: 3
       start_period: 15s
