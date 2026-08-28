@@ -17,19 +17,17 @@ import {
   Send,
   X,
   RefreshCw,
-  Trash2,
 } from "lucide-react";
+import { useNotification } from "@repo/ui/notification-provider";
 import type { GenerationJobDetail } from "../../../../../../src/actions/workspace/get-generation-job";
 import type { LeadInfo } from "../../../../../../src/actions/workspace/get-leads";
-import { deleteLead } from "../../../../../../src/actions/workspace/delete-lead";
-import { useNotification } from "@repo/ui/notification-provider";
 
 type Props = {
   workspaceId: string;
   generationJobId: string;
+  currentPage: number;
   job: GenerationJobDetail;
   leads: LeadInfo[];
-  currentPage: number;
 };
 
 const PER_PAGE = 10;
@@ -134,7 +132,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export function LeadsClient({ workspaceId, generationJobId, job, leads, currentPage: serverPage }: Props) {
+export function LeadsClient({ workspaceId, generationJobId, currentPage: serverPage, job, leads }: Props) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [previewLeadId, setPreviewLeadId] = useState<string | null>(null);
@@ -144,6 +142,7 @@ export function LeadsClient({ workspaceId, generationJobId, job, leads, currentP
   const end = leads.length > 0 ? (serverPage - 1) * PER_PAGE + leads.length : 0;
 
   const filteredLeads = useMemo(() => {
+    if (!leads) return [];
     if (!searchQuery.trim()) return leads;
     const q = searchQuery.toLowerCase();
     return leads.filter(

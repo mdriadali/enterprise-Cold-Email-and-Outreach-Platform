@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { PageError } from "@repo/ui/page-error";
 import { getWorkspaceInfo } from "../../../../../src/actions/workspace/workspace-info";
 import { getSmtpAccounts } from "../../../../../src/actions/workspace/get-smtp-accounts";
 import { CreateCampaignClient } from "./create-campaign-client";
@@ -14,8 +14,7 @@ export default async function CreateCampaignPage({ params }: { params: Promise<{
   ]);
 
   if (infoResult.status === "error") {
-    if (infoResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
-    notFound();
+    return <PageError title="Workspace unavailable" message={infoResult.message} />;
   }
 
   const generationJobs = infoResult.data.info.generationJob ?? [];

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, ArrowRight, Upload, UserPlus, ChevronRight, ShieldCheck, Server, Verified } from "lucide-react";
-import type { GenerationJobInfo } from "../../../../src/actions/workspace/workspace-info";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getWorkspaceInfo, type GenerationJobInfo } from "../../../../src/actions/workspace/workspace-info";
 
 type Props = {
   workspaceId: string;
-  jobs: GenerationJobInfo[];
 };
 
 function formatDate(dateStr: string) {
@@ -25,9 +26,28 @@ function formatDate(dateStr: string) {
   }
 }
 
-export function LeadsClient({ workspaceId, jobs }: Props) {
+export function LeadsClient({ workspaceId }: Props) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [jobs, setJobs] = useState<GenerationJobInfo[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const result = await getWorkspaceInfo(workspaceId);
+      if (!active) return;
+      if (result.status === "error") {
+        setError(result.message);
+        return;
+      }
+      setJobs(result.data.info.generationJob);
+    })();
+    return () => { active = false; };
+  }, [workspaceId]);
+
+  if (error) return <PageError title="Workspace unavailable" message={error} />;
+  if (!jobs) return <PageSpinner label="Loading leads..." />;
 
   const filteredJobs = jobs.filter((job) =>
     job.name.toLowerCase().includes(searchQuery.toLowerCase()),

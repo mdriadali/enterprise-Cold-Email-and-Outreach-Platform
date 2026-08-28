@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { PageError } from "@repo/ui/page-error";
 import Link from "next/link";
 import { getWorkspaceInfo } from "../../../../../src/actions/workspace/workspace-info";
 import { CreateLeadClient } from "./create-lead-client";
@@ -19,8 +19,7 @@ export default async function CreateLeadPage({
   const result = await getWorkspaceInfo(workspaceId);
 
   if (result.status === "error") {
-    if (result.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
-    notFound();
+    return <PageError title="Workspace unavailable" message={result.message} />;
   }
 
   const { info } = result.data;

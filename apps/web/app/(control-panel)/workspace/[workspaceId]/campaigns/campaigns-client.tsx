@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Send, RefreshCw, Mail, Star, Filter, PlusCircle, Edit, Trash2,
   ChevronLeft, ChevronRight, Clock, Info, Lightbulb
 } from "lucide-react";
-import type { WorkspaceInfoData, CampaignInfo } from "../../../../src/actions/workspace/workspace-info";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getWorkspaceInfo, type WorkspaceInfoData, type CampaignInfo } from "../../../../src/actions/workspace/workspace-info";
 
 type CampaignsClientProps = {
-  info: WorkspaceInfoData;
-  limits: Record<string, number>;
+  workspaceId: string;
 };
 
 const statusStyles: Record<string, string> = {
@@ -86,8 +88,29 @@ function getTimezoneShort(tz: string) {
   return tz;
 }
 
-export function CampaignsClient({ info, limits }: CampaignsClientProps) {
+export function CampaignsClient({ workspaceId }: CampaignsClientProps) {
   const router = useRouter();
+  const [data, setData] = useState<{ info: WorkspaceInfoData; limits: Record<string, number> } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const result = await getWorkspaceInfo(workspaceId);
+      if (!active) return;
+      if (result.status === "error") {
+        setError(result.message);
+        return;
+      }
+      setData({ info: result.data.info, limits: result.data.limits });
+    })();
+    return () => { active = false; };
+  }, [workspaceId]);
+
+  if (error) return <PageError title="Workspace unavailable" message={error} />;
+  if (!data) return <PageSpinner label="Loading campaigns..." />;
+
+  const { info, limits } = data;
   const totalCampaigns = info._count.campaign;
   const activeSequences = info.campaign.filter(
     (c) => c.status === "SCHEDULED" || c.status === "RUNNING" || c.status === "QUEUED" || c.status === "PROCESSING"

@@ -20,15 +20,14 @@ import {
   Eye,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useNotification } from "@repo/ui/notification-provider";
 import type { GenerationJobDetail } from "../../../../../src/actions/workspace/get-generation-job";
-import type { LeadInfo } from "../../../../../src/actions/workspace/get-leads";
 import { startGenerationJob } from "../../../../../src/actions/workspace/start-generation-job";
 
 type Props = {
   workspaceId: string;
   job: GenerationJobDetail;
-  leads: LeadInfo[];
 };
 
 const statusConfig = {
@@ -102,12 +101,10 @@ const sampleLeads = [
   },
 ];
 
-export function JobDetailClient({ workspaceId, job, leads }: Props) {
+export function JobDetailClient({ workspaceId, job }: Props) {
   const { notify } = useNotification();
+  const router = useRouter();
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-
-  const pct = job.totalLeads > 0 ? Math.round(((job.successCount + job.failedCount) / job.totalLeads) * 100) : 0;
-  const sc = statusConfig[job.status] ?? statusConfig.PENDING;
 
   const timeline = useMemo(() => {
     const items = [
@@ -130,23 +127,11 @@ export function JobDetailClient({ workspaceId, job, leads }: Props) {
     return items;
   }, [job]);
 
-  function formatTime(d: string) {
-    try {
-      const date = new Date(d);
-      return date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return d;
-    }
-  }
+  const pct = job.totalLeads > 0 ? Math.round(((job.successCount + job.failedCount) / job.totalLeads) * 100) : 0;
+  const sc = statusConfig[job.status] ?? statusConfig.PENDING;
 
-  const displayCreated = formatTime(job.createdAt);
-  const displayUpdated = formatTime(job.updatedAt);
+  const displayCreated = formatDate(job.createdAt);
+  const displayUpdated = formatDate(job.updatedAt);
 
   async function handleResume() {
     setActionLoading("resume");
@@ -154,6 +139,7 @@ export function JobDetailClient({ workspaceId, job, leads }: Props) {
       const result = await startGenerationJob(workspaceId, job.id);
       if (result.status === "success") {
         notify({ title: "Job started", message: `Generation job ${result.jobid.slice(0, 8)}... has been queued.`, tone: "success" });
+        router.refresh();
       } else {
         notify({ title: "Failed to start", message: result.message, tone: "error" });
       }
