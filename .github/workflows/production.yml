@@ -245,8 +245,9 @@ jobs:
             }')
 
 
-          echo "========== GENERATED SSM COMMANDS =========="
-          echo "$COMMANDS" | jq .
+          # Validate the generated SSM payload without printing the full Compose
+          # content into the CI log.
+          jq -e . >/dev/null <<<"$COMMANDS"
 
 
           COMMAND_ID=$(aws ssm send-command \
@@ -254,6 +255,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploy Outreach Production $IMAGE_TAG" \
             --parameters "$COMMANDS" \
+            --timeout-seconds 900 \
             --region "$AWS_REGION" \
             --query "Command.CommandId" \
             --output text)
@@ -284,6 +286,15 @@ jobs:
           echo "$STATUS"
 
 
+          echo "========== SSM INVOCATION DETAILS =========="
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "$EC2_INSTANCE_ID" \
+            --region "$AWS_REGION" \
+            --query '{Status: Status, StatusDetails: StatusDetails, ResponseCode: ResponseCode, ExecutionStartDateTime: ExecutionStartDateTime, ExecutionElapsedTime: ExecutionElapsedTime, ExecutionEndDateTime: ExecutionEndDateTime}' \
+            --output json
+
+
           echo "========== STANDARD OUTPUT =========="
 
           aws ssm get-command-invocation \
@@ -305,6 +316,6 @@ jobs:
 
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed on EC2"
+            echo "Deployment failed on EC2. If StatusDetails mentions an SSM document worker or IPC timeout, inspect and restart the amazon-ssm-agent on the instance; Docker and application commands did not run."
             exit 1
           fi
