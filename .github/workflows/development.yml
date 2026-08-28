@@ -15,7 +15,7 @@ permissions:
 jobs:
   test:
     name: Test and Build
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
       - name: Checkout code
