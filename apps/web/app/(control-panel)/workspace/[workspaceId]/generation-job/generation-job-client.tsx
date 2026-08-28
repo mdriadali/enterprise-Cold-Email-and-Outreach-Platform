@@ -3,17 +3,17 @@
 import { ArrowLeft, Plus, Search, CheckCircle, AlertCircle, Clock, RefreshCw, X, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getWorkspaceInfo, type GenerationJobInfo } from "../../../../src/actions/workspace/workspace-info";
 import { createGenerationJob } from "../../../../src/actions/workspace/create-generation-job";
 import { updateGenerationJob } from "../../../../src/actions/workspace/update-generation-job";
 import { deleteGenerationJob } from "../../../../src/actions/workspace/delete-generation-job";
-import type { GenerationJobInfo } from "../../../../src/actions/workspace/workspace-info";
 import { useNotification } from "@repo/ui/notification-provider";
 
 type Props = {
   workspaceId: string;
-  jobs: GenerationJobInfo[];
-  jobCount: number;
 };
 
 const statusStyles: Record<string, { label: string; container: string; Icon: typeof CheckCircle }> = {
@@ -35,7 +35,7 @@ function formatDate(dateStr: string) {
   }
 }
 
-export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
+export function GenerationJobClient({ workspaceId }: Props) {
   const router = useRouter();
   const { notify } = useNotification();
   const [showModal, setShowModal] = useState(false);
@@ -46,7 +46,28 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
   const [renameError, setRenameError] = useState("");
   const [pendingDelete, setPendingDelete] = useState<GenerationJobInfo | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [jobs, setJobs] = useState<GenerationJobInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
+  const loadJobs = useCallback(async () => {
+    const result = await getWorkspaceInfo(workspaceId);
+    if (result.status === "error") {
+      setLoadError(result.message);
+    } else {
+      setJobs(result.data.info.generationJob);
+    }
+    setLoading(false);
+  }, [workspaceId]);
+
+  useEffect(() => {
+    loadJobs();
+  }, [loadJobs]);
+
+  if (loadError) return <PageError title="Workspace unavailable" message={loadError} />;
+  if (loading) return <PageSpinner label="Loading generation jobs..." />;
+
+  const jobCount = jobs.length;
   const processing = jobs.filter((j) => j.status === "PROCESSING").length;
   const failed = jobs.filter((j) => j.status === "FAILED" || j.status === "WAITING_FOR_API_QUOTA").length;
   const totalSuccess = jobs.reduce((s, j) => s + j.successCount, 0);
@@ -63,7 +84,7 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
       setError(result.message);
     } else {
       setShowModal(false);
-      router.refresh();
+      loadJobs();
     }
   }
 
@@ -82,7 +103,7 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
     } else {
       setEditingJob(null);
       notify({ title: "Job renamed", message: `Renamed to "${result.job.name}"`, tone: "success" });
-      router.refresh();
+      loadJobs();
     }
   }
 
@@ -97,7 +118,7 @@ export function GenerationJobClient({ workspaceId, jobs, jobCount }: Props) {
     } else {
       setPendingDelete(null);
       notify({ title: "Job deleted", tone: "success" });
-      router.refresh();
+      loadJobs();
     }
   }
 
@@ -275,7 +296,7 @@ async function handleRename(e: React.FormEvent<HTMLFormElement>) {
     } else {
       setEditingJob(null);
       notify({ title: "Job renamed", message: `Renamed to "${result.job.name}"`, tone: "success" });
-      router.refresh();
+      loadJobs();
     }
   }
 
@@ -290,7 +311,7 @@ async function handleRename(e: React.FormEvent<HTMLFormElement>) {
     } else {
       setPendingDelete(null);
       notify({ title: "Job deleted", tone: "success" });
-      router.refresh();
+      loadJobs();
     }
   }
 

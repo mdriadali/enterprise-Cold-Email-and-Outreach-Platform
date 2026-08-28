@@ -8,16 +8,16 @@ import { useRouter } from "next/navigation";
 import { addMember } from "../../../../src/actions/workspace/add-member";
 import { deleteMember } from "../../../../src/actions/workspace/delete-member";
 import { useNotification } from "@repo/ui/notification-provider";
-import type { WorkspaceInfoData } from "../../../../src/actions/workspace/workspace-info";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getWorkspaceInfo, type WorkspaceInfoData } from "../../../../src/actions/workspace/workspace-info";
 import { useAppDispatch } from "../../../../src/states/hooks";
 import { selectWorkspace } from "../../../../src/states/workspace-slice";
 
 type OwnerInfo = { id: string; role: string; user: { id: string; name: string; email: string } };
 
 type Props = {
-  info: WorkspaceInfoData;
-  limits: Record<string, number>;
-  owner: OwnerInfo | null;
+  workspaceId: string;
 };
 
 const subscriptionBadge: Record<string, { label: string; bg: string; text: string }> = {
@@ -52,7 +52,7 @@ function AvatarStack({ members, total, max = 3 }: { members: { user: { name: str
   );
 }
 
-export function MembersClient({ info, limits, owner }: Props) {
+export function MembersClient({ workspaceId }: Props) {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { notify } = useNotification();
@@ -60,11 +60,36 @@ export function MembersClient({ info, limits, owner }: Props) {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
   const [removingMember, setRemovingMember] = useState<{ id: string; name: string } | null>(null);
+  const [data, setData] = useState<{ info: WorkspaceInfoData; limits: Record<string, number>; owner: OwnerInfo | null } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(selectWorkspace({ id: info.id, name: info.name }));
-    document.cookie = `selectedWorkspaceId=${info.id};path=/;max-age=${60*60*24*365};SameSite=Lax`;
-  }, [dispatch, info.id, info.name]);
+    let active = true;
+    (async () => {
+      const result = await getWorkspaceInfo(workspaceId);
+      if (!active) return;
+      if (result.status === "error") {
+        setError(result.message);
+        return;
+      }
+      const info = result.data.info;
+      const owner = info.members.find((m) => m.user.id === info.ownerId) ?? null;
+      setData({ info, limits: result.data.limits, owner });
+    })();
+    return () => { active = false; };
+  }, [workspaceId]);
+
+  useEffect(() => {
+    if (data) {
+      dispatch(selectWorkspace({ id: data.info.id, name: data.info.name }));
+      document.cookie = `selectedWorkspaceId=${data.info.id};path=/;max-age=${60*60*24*365};SameSite=Lax`;
+    }
+  }, [dispatch, data]);
+
+  if (error) return <PageError title="Workspace unavailable" message={error} />;
+  if (!data) return <PageSpinner label="Loading members..." />;
+
+  const { info, limits, owner } = data;
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();

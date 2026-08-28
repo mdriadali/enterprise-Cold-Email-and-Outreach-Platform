@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { PageError } from "@repo/ui/page-error";
 import { getWorkspaceInfo } from "../../../../src/actions/workspace/workspace-info";
 import { CampaignEmailsHomeClient } from "./campaign-emails-client";
 
@@ -9,8 +9,7 @@ export default async function CampaignEmailsPage({ params }: { params: Promise<{
   const result = await getWorkspaceInfo(workspaceId);
 
   if (result.status === "error") {
-    if (result.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
-    notFound();
+    return <PageError title="Workspace unavailable" message={result.message} />;
   }
 
   const { info } = result.data;

@@ -1,15 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Settings, Users, Sparkles, Megaphone, Key, AtSign, Send, Copy, Check, MoreHorizontal, ShieldCheck, HelpCircle, Bell, Phone, Mail, UserPlus, ChevronDown, Edit3, FilePenLine, LayoutDashboard, BarChart3, Rocket, MoreVertical } from "lucide-react";
-import type { WorkspaceInfoData } from "../../../src/actions/workspace/workspace-info";
+import { Settings, Users, Sparkles, Megaphone, Key, AtSign, Send, Copy, Check, MoreHorizontal, ShieldCheck, HelpCircle, MoreVertical } from "lucide-react";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getWorkspaceInfo, type WorkspaceInfoData } from "../../../src/actions/workspace/workspace-info";
 import { useAppDispatch } from "../../../src/states/hooks";
 import { selectWorkspace } from "../../../src/states/workspace-slice";
 
 type DashboardClientProps = {
-  info: WorkspaceInfoData;
-  limits: Record<string, number>;
-  planDisplayName: string;
+  workspaceId: string;
+};
+
+const planNames: Record<string, string> = {
+  STARTER: "Starter",
+  PROFESSIONAL: "Professional",
+  ULTRA: "Ultra",
 };
 
 const subscriptionColors: Record<string, string> = {
@@ -37,15 +43,41 @@ function formatDate(dateStr: string) {
   }
 }
 
-export function DashboardClient({ info, limits, planDisplayName }: DashboardClientProps) {
+export function DashboardClient({ workspaceId }: DashboardClientProps) {
   const dispatch = useAppDispatch();
   const [copied, setCopied] = useState(false);
-  const subColor = subscriptionColors[info.subscription] ?? subscriptionColors.STARTER!;
+  const [info, setInfo] = useState<WorkspaceInfoData | null>(null);
+  const [limits, setLimits] = useState<Record<string, number>>({});
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(selectWorkspace({ id: info.id, name: info.name }));
-    document.cookie = `selectedWorkspaceId=${info.id};path=/;max-age=${60*60*24*365};SameSite=Lax`;
-  }, [dispatch, info.id, info.name]);
+    let active = true;
+    (async () => {
+      const result = await getWorkspaceInfo(workspaceId);
+      if (!active) return;
+      if (result.status === "error") {
+        setError(result.message);
+        return;
+      }
+      setInfo(result.data.info);
+      setLimits(result.data.limits);
+    })();
+    return () => { active = false; };
+  }, [workspaceId]);
+
+  useEffect(() => {
+    if (info) {
+      dispatch(selectWorkspace({ id: info.id, name: info.name }));
+      document.cookie = `selectedWorkspaceId=${info.id};path=/;max-age=${60*60*24*365};SameSite=Lax`;
+    }
+  }, [dispatch, info]);
+
+  if (error) return <PageError title="Workspace unavailable" message={error} />;
+  if (!info) return <PageSpinner label="Loading workspace..." />;
+
+  const planDisplayName = planNames[info.subscription] ?? info.subscription;
+  const subColor = subscriptionColors[info.subscription] ?? subscriptionColors.STARTER!;
+
   const usageCards = Object.entries(cardMeta).map(([key, meta]) => {
     const count = meta.countKey ? (info._count as Record<string, number>)[meta.countKey] ?? 0 : 0;
     const limit = limits[meta.limitKey] ?? 1;

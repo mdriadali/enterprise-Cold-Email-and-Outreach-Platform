@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { PageError } from "@repo/ui/page-error";
 import { ArrowLeft } from "lucide-react";
 import { getCampaign } from "../../../../../../src/actions/workspace/get-campaign";
 import { getCampaignEmails } from "../../../../../../src/actions/workspace/get-campaign-emails";
@@ -16,9 +16,10 @@ export default async function CampaignEmailsPage({ params }: { params: Promise<{
   ]);
 
   if (campaignResult.status === "error") {
-    if (campaignResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
-    return <div className="p-[32px] text-[#ba1a1a]">Campaign not found.</div>;
+    return <PageError title="Campaign unavailable" message={campaignResult.message} />;
   }
+
+  const initialEmails = emailsResult.status === "success" ? emailsResult.data : [];
 
   return (
     <div className="min-h-0 flex-1 overflow-auto">
@@ -35,7 +36,7 @@ export default async function CampaignEmailsPage({ params }: { params: Promise<{
           workspaceId={workspaceId}
           campaignId={campaignId}
           campaignName={campaignResult.data.name}
-          initialEmails={emailsResult.status === "success" ? emailsResult.data : []}
+          initialEmails={initialEmails}
         />
         </div>
       </div>

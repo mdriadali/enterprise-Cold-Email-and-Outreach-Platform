@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Plus, Server, CheckCircle, Gauge, Search, ArrowLeft, Edit3, Trash2, X, Eye, EyeOff, ChevronRight, ShieldCheck, BookOpen, ArrowRight,
 } from "lucide-react";
 import { useNotification } from "@repo/ui/notification-provider";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { getSmtpAccounts } from "../../../../src/actions/workspace/get-smtp-accounts";
 import { createSmtpAccount } from "../../../../src/actions/workspace/create-smtp-account";
 import { deleteSmtpAccount } from "../../../../src/actions/workspace/delete-smtp-account";
 import { updateSmtpAccount } from "../../../../src/actions/workspace/update-smtp-account";
@@ -14,7 +17,6 @@ import type { SmtpAccountInfo } from "../../../../src/actions/workspace/get-smtp
 
 type Props = {
   workspaceId: string;
-  accounts: SmtpAccountInfo[];
 };
 
 const encryptionBadge: Record<string, { label: string; cls: string }> = {
@@ -53,7 +55,7 @@ function iconBg(host: string): string {
 
 type FormMode = "create" | "edit";
 
-export function SmtpClient({ workspaceId, accounts: initialAccounts }: Props) {
+export function SmtpClient({ workspaceId }: Props) {
   const router = useRouter();
   const { notify } = useNotification();
   const formRef = useRef<HTMLFormElement>(null);
@@ -67,9 +69,29 @@ export function SmtpClient({ workspaceId, accounts: initialAccounts }: Props) {
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testSuccess, setTestSuccess] = useState<string | null>(null);
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
-  const [accounts, setAccounts] = useState(initialAccounts);
+  const [accounts, setAccounts] = useState<SmtpAccountInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [deletingAccount, setDeletingAccount] = useState<SmtpAccountInfo | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      const result = await getSmtpAccounts(workspaceId);
+      if (!active) return;
+      if (result.status === "error") {
+        setLoadError(result.message);
+      } else {
+        setAccounts(result.accounts);
+      }
+      setLoading(false);
+    })();
+    return () => { active = false; };
+  }, [workspaceId]);
+
+  if (loadError) return <PageError title="Workspace unavailable" message={loadError} />;
+  if (loading) return <PageSpinner label="Loading SMTP accounts..." />;
 
   const filtered = accounts.filter((a) =>
     a.name.toLowerCase().includes(search.toLowerCase()) ||

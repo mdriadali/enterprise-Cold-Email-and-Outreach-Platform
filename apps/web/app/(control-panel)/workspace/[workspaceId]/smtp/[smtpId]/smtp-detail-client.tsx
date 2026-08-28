@@ -26,7 +26,9 @@ export function SmtpDetailClient({ workspaceId, account }: Props) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => { dispatch(cacheSmtpAccount(account)); }, [account.id, dispatch]);
+  useEffect(() => {
+    dispatch(cacheSmtpAccount(account));
+  }, [account, dispatch]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

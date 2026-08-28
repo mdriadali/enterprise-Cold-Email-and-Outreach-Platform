@@ -1,7 +1,7 @@
-import { notFound, redirect } from "next/navigation";
+import { LeadsClient } from "./leads-client";
 import { getGenerationJob } from "../../../../../../src/actions/workspace/get-generation-job";
 import { getLeads } from "../../../../../../src/actions/workspace/get-leads";
-import { LeadsClient } from "./leads-client";
+import { PageError } from "@repo/ui/page-error";
 
 export const metadata = { title: "Leads Management | ColdReach AI" };
 
@@ -22,19 +22,19 @@ export default async function LeadsPage({
   ]);
 
   if (jobResult.status === "error") {
-    if (jobResult.code === "NOT_WORKSPACE_MEMBER") redirect("/workspaces");
-    notFound();
+    return <PageError title="Job unavailable" message={jobResult.message} />;
   }
-
-  const leads = leadsResult.status === "success" ? leadsResult.data : [];
+  if (leadsResult.status === "error") {
+    return <PageError title="Leads unavailable" message={leadsResult.message} />;
+  }
 
   return (
     <LeadsClient
       workspaceId={workspaceId}
       generationJobId={generationJobId}
-      job={jobResult.data}
-      leads={leads}
       currentPage={page}
+      job={jobResult.data}
+      leads={leadsResult.data}
     />
   );
 }

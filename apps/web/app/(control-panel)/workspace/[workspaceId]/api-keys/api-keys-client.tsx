@@ -3,17 +3,17 @@
 import { Key, ArrowLeft, Search, Plus, Edit3, Trash2, ToggleLeft, ToggleRight, BookOpen, ShieldCheck, TrendingUp, Gauge, AlertTriangle, Network, X, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { PageSpinner } from "@repo/ui/page-spinner";
+import { PageError } from "@repo/ui/page-error";
+import { findApiKeys, type FoundApiKey, type ApiKeySummary } from "../../../../src/actions/workspace/find-api-keys";
 import { createApiKey } from "../../../../src/actions/workspace/create-api-key";
 import { updateApiKey } from "../../../../src/actions/workspace/update-api-key";
 import { deleteApiKey } from "../../../../src/actions/workspace/delete-api-key";
-import type { FoundApiKey, ApiKeySummary } from "../../../../src/actions/workspace/find-api-keys";
 import { useNotification } from "@repo/ui/notification-provider";
 
 type Props = {
   workspaceId: string;
-  keys: FoundApiKey[];
-  summary: ApiKeySummary;
 };
 
 const providerMeta: Record<string, { label: string; desc: string; bg: string; iconBg: string }> = {
@@ -37,7 +37,7 @@ const providerInitials: Record<string, string> = {
   CEREBRAS: "CB",
 };
 
-export function ApiKeysClient({ workspaceId, keys, summary }: Props) {
+export function ApiKeysClient({ workspaceId }: Props) {
   const router = useRouter();
   const { notify } = useNotification();
   const [search, setSearch] = useState("");
@@ -48,7 +48,30 @@ export function ApiKeysClient({ workspaceId, keys, summary }: Props) {
   const [showKey, setShowKey] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<FoundApiKey | null>(null);
+  const [keys, setKeys] = useState<FoundApiKey[]>([]);
+  const [summary, setSummary] = useState<ApiKeySummary>({ total: 0, available: 0, rateLimited: 0, invalid: 0 });
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const loadKeys = useCallback(async () => {
+    const result = await findApiKeys(workspaceId);
+    if (result.status === "error") {
+      setLoadError(result.message);
+    } else {
+      setKeys(result.data.apis);
+      setSummary(result.data.summary);
+    }
+    setLoading(false);
+  }, [workspaceId]);
+
+  useEffect(() => {
+    loadKeys();
+  }, [loadKeys]);
+
+  if (loadError) return <PageError title="Workspace unavailable" message={loadError} />;
+  if (loading) return <PageSpinner label="Loading API keys..." />;
+
   const filtered = keys.filter((k) => {
     const meta = providerMeta[k.aiProvider];
     if (!meta) return true;
@@ -69,7 +92,7 @@ export function ApiKeysClient({ workspaceId, keys, summary }: Props) {
     } else {
       setShowModal(false);
       form.reset();
-      router.refresh();
+      loadKeys();
     }
   }
 
@@ -86,7 +109,7 @@ export function ApiKeysClient({ workspaceId, keys, summary }: Props) {
     } else {
       setEditingKey(null);
       form.reset();
-      router.refresh();
+      loadKeys();
     }
   }
 
@@ -103,7 +126,7 @@ export function ApiKeysClient({ workspaceId, keys, summary }: Props) {
     } else {
       setPendingDelete(null);
       notify({ title: "API key deleted", tone: "success" });
-      router.refresh();
+      loadKeys();
     }
   }
 
