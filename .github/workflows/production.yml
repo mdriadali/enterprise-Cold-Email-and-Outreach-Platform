@@ -14,308 +14,108 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  deploy:
-    name: Build and Deploy
-    runs-on: ubuntu-latest
+  # Job 1: Build & Push Images on your Local PC Runner using OIDC
+  build-and-push:
+    name: Build Images on Local Machine
+    runs-on: [self-hosted, Linux, X64]
 
     steps:
-
-      # 1. Checkout source code
-
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-
-      # 2. Configure AWS credentials using GitHub OIDC
-
-      - name: Configure AWS credentials
+      - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-
-
-      # 3. Login to Amazon ECR
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-
-      # 4. Build and push HTTP Server
-
-      - name: Build and push HTTP Server
+      - name: Build and Push HTTP Server
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/http-server/Dockerfile.http
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/outreach-http:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-http:${{ env.IMAGE_TAG }}
 
-
-
-      # 5. Build and push Worker
-
-      - name: Build and push Worker
+      - name: Build and Push Worker
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/worker/Dockerfile.worker
           push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/outreach-worker:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-worker:${{ env.IMAGE_TAG }}
 
-
-
-      # 6. Build and push Web
-
-      - name: Build and push Web
+      - name: Build and Push Web
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./apps/web/Dockerfile.web
           push: true
-
           build-args: |
             APP_NAME=Cold Out Reach
             HTTP_SERVER_URL=http://16.170.11.164:4000/api/v1/
+          tags: ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ env.IMAGE_TAG }}
 
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/outreach-web:${{ github.sha }}
+  # Job 2: Trigger Deployment Script on EC2 via SSM
+  deploy-to-ec2:
+    name: Execute Remote Deployment via SSM
+    needs: build-and-push
+    runs-on: ubuntu-latest
 
+    steps:
+      - name: Configure AWS Credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
-
-      # 7. Encode production Docker Compose file
-
-      - name: Encode Docker Compose file
-        id: compose
+      - name: Send Deployment Command to EC2
         run: |
-          COMPOSE_CONTENT=$(base64 -w 0 docker-compose.production.yml)
-          echo "content=$COMPOSE_CONTENT" >> "$GITHUB_OUTPUT"
-
-
-
-      # 8. Deploy automatically to EC2 through SSM
-
-      - name: Deploy to EC2
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          EC2_INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
-          SECRET_ID: outreach/production
-          COMPOSE_CONTENT: ${{ steps.compose.outputs.content }}
-
-        run: |
-          COMMANDS=$(jq -n \
-            --arg compose "$COMPOSE_CONTENT" \
-            --arg secretId "$SECRET_ID" \
-            --arg region "$AWS_REGION" \
-            --arg registry "$ECR_REGISTRY" \
-            --arg imageTag "$IMAGE_TAG" \
-            '{
-              executionTimeout: ["900"],
-              commands: [
-
-                "set -e",
-
-
-                "echo ========== PREPARING DEPLOYMENT ==========",
-
-                "mkdir -p /opt/outreach",
-
-
-                "echo ========== WRITING DOCKER COMPOSE FILE ==========",
-
-                (
-                  "echo " +
-                  $compose +
-                  " | base64 -d > /opt/outreach/docker-compose.production.yml"
-                ),
-
-
-                "echo ========== FETCHING PRODUCTION SECRETS ==========",
-
-                (
-                  "aws secretsmanager get-secret-value " +
-                  "--secret-id " + $secretId + " " +
-                  "--query SecretString " +
-                  "--output text " +
-                  "--region " + $region +
-                  " | jq -r '\''to_entries | .[] | \"\\(.key)=\\(.value)\"'\'' " +
-                  "> /opt/outreach/.env"
-                ),
-
-
-                "echo ========== WRITING DEPLOYMENT VARIABLES ==========",
-
-                (
-                  "echo ECR_REGISTRY=" +
-                  $registry +
-                  " > /opt/outreach/.deploy.env"
-                ),
-
-                (
-                  "echo IMAGE_TAG=" +
-                  $imageTag +
-                  " >> /opt/outreach/.deploy.env"
-                ),
-
-
-                "echo ========== LOGGING INTO AMAZON ECR ==========",
-
-                (
-                  "aws ecr get-login-password --region " +
-                  $region +
-                  " | docker login --username AWS --password-stdin " +
-                  $registry
-                ),
-
-
-                "echo ========== DISK SPACE BEFORE DEPLOY ==========",
-
-                "df -h",
-
-
-                "echo ========== DOCKER DISK USAGE ==========",
-
-                "docker system df",
-
-
-                "echo ========== PRUNING OLD DOCKER IMAGES ==========",
-
-                "docker image prune -af --filter \"until=24h\" || true",
-
-
-                "echo ========== PULLING NEW IMAGES ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml pull",
-
-
-                "echo ========== RUNNING DATABASE MIGRATIONS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml run --rm migration",
-
-
-                "echo ========== DATABASE MIGRATIONS COMPLETED ==========",
-
-
-                "echo ========== STARTING PRODUCTION CONTAINERS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml up -d --remove-orphans || { echo \"========== CONTAINER LOGS ON FAILURE ==========\"; docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=100; exit 1; }",
-
-
-                "echo ========== CONTAINER STATUS ==========",
-
-                "docker ps",
-
-
-                "echo ========== COMPOSE STATUS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml ps",
-
-
-                "echo ========== HTTP SERVER LOGS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 http-server || true",
-
-
-                "echo ========== WORKER LOGS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 worker || true",
-
-
-                "echo ========== WEB LOGS ==========",
-
-                "docker compose --env-file /opt/outreach/.deploy.env --env-file /opt/outreach/.env -f /opt/outreach/docker-compose.production.yml logs --tail=50 web || true",
-
-
-                "echo ========== CLEANING UNUSED IMAGES ==========",
-
-                "docker image prune -f",
-
-
-                "echo ========== DISK SPACE AFTER DEPLOY ==========",
-
-                "df -h",
-
-
-                "echo ========== DEPLOYMENT COMPLETED =========="
-              ]
-            }')
-
-
-          # Validate the generated SSM payload without printing the full Compose
-          # content into the CI log.
-          jq -e . >/dev/null <<<"$COMMANDS"
-
+          set -e
 
           COMMAND_ID=$(aws ssm send-command \
-            --instance-ids "$EC2_INSTANCE_ID" \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploy Outreach Production $IMAGE_TAG" \
-            --parameters "$COMMANDS" \
-            --timeout-seconds 900 \
-            --region "$AWS_REGION" \
+            --comment "Deploying version ${{ env.IMAGE_TAG }}" \
+            --parameters 'commands=["bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
+            --region "${{ env.AWS_REGION }}" \
             --query "Command.CommandId" \
             --output text)
 
-
           echo "SSM Command ID: $COMMAND_ID"
 
+          echo "Waiting for EC2 deployment..."
 
-          echo "Waiting for SSM command completion..."
-          for i in {1..60}; do
-            STATUS=$(aws ssm get-command-invocation \
-              --command-id "$COMMAND_ID" \
-              --instance-id "$EC2_INSTANCE_ID" \
-              --region "$AWS_REGION" \
-              --query "Status" \
-              --output text 2>/dev/null || echo "Pending")
-
-            if [ "$STATUS" = "Success" ] || [ "$STATUS" = "Failed" ] || [ "$STATUS" = "Cancelled" ] || [ "$STATUS" = "TimedOut" ]; then
-              break
-            fi
-
-            echo "Deployment in progress... ($STATUS - waiting 10s [$i/60])"
-            sleep 10
-          done
-
-
-          echo "========== DEPLOYMENT STATUS =========="
-          echo "$STATUS"
-
-
-          echo "========== SSM INVOCATION DETAILS =========="
-          aws ssm get-command-invocation \
+          aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --region "$AWS_REGION" \
-            --query '{Status: Status, StatusDetails: StatusDetails, ResponseCode: ResponseCode, ExecutionStartDateTime: ExecutionStartDateTime, ExecutionElapsedTime: ExecutionElapsedTime, ExecutionEndDateTime: ExecutionEndDateTime}' \
-            --output json
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}"
 
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
+            --query "Status" \
+            --output text)
 
-          echo "========== STANDARD OUTPUT =========="
+          echo "Deployment status: $STATUS"
+
+          echo "========== EC2 OUTPUT =========="
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --region "$AWS_REGION" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --region "${{ env.AWS_REGION }}" \
             --query "StandardOutputContent" \
             --output text
 
-
-          echo "========== STANDARD ERROR =========="
-
-          aws ssm get-command-invocation \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$EC2_INSTANCE_ID" \
-            --region "$AWS_REGION" \
-            --query "StandardErrorContent" \
-            --output text
-
-
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed on EC2. If StatusDetails mentions an SSM document worker or IPC timeout, inspect and restart the amazon-ssm-agent on the instance; Docker and application commands did not run."
+            echo "Deployment failed!"
             exit 1
           fi
+
+          echo "Deployment successful!"
