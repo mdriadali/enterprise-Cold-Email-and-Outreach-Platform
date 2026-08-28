@@ -32,6 +32,11 @@ ENV NODE_ENV=production
 COPY --from=installer /app/node_modules ./node_modules
 COPY --from=installer /app/apps/http-server/dist ./apps/http-server/dist
 COPY --from=installer /app/apps/http-server/package.json ./apps/http-server/package.json
+# The migration Compose service uses this image, so include the database
+# package's Prisma configuration, schema, and migration history at runtime.
+COPY --from=installer /app/packages/db/package.json ./packages/db/package.json
+COPY --from=installer /app/packages/db/prisma.config.ts ./packages/db/prisma.config.ts
+COPY --from=installer /app/packages/db/prisma ./packages/db/prisma
 
 EXPOSE 4000
 CMD ["bun", "--no-env-file", "./apps/http-server/dist/index.js"]

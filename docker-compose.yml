@@ -49,7 +49,7 @@ services:
     env_file:
       - .env.docker
 
-    command: bun run db:migrate:deploy
+    command: bun run --cwd=packages/db prisma:migrate:deploy
 
     depends_on:
       postgres:
