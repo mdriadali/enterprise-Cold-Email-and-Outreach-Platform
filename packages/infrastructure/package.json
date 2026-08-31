@@ -3,15 +3,12 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
-
   "devDependencies": {
     "@types/bun": "latest"
   },
-
   "peerDependencies": {
     "typescript": "^5"
   },
-
   "exports": {
     "./auth": "./src/auth/index.ts",
     "./repositories": "./src/repositories/index.ts",
@@ -19,8 +16,8 @@
     "./cache": "./src/cache/repositories/index.ts",
     "./logger": "./src/logger/index.ts"
   },
-
   "dependencies": {
+    "@axiomhq/js": "^2.0.0",
     "@google/genai": "^2.9.0",
     "@logtail/node": "^0.5.8",
     "@logtail/pino": "^0.5.8",
