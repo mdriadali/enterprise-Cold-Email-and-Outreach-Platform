@@ -35,7 +35,7 @@ export const smtpSchema = {
 
 export const loggerSchema = {
   NODE_ENV: z.enum(["development", "production", "test"]).optional().default("development"),
-  BETTER_STACK_SOURCE_TOKEN: z.string().optional(),
-  BETTER_STACK_INGESTING_HOST: z.string().optional(),
+  AXIOM_TOKEN: z.string().optional(),
+  AXIOM_DATASET: z.string().optional(),
   LOG_LEVEL: z.string().optional().default("info"),
 };

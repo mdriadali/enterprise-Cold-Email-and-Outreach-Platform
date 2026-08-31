@@ -1,58 +1,51 @@
 import { loggerEnv } from "@repo/env/logger-env";
+import { Axiom } from "@axiomhq/js";
 import pino from "pino";
-import pinoPretty from "pino-pretty";
 import build from "pino-abstract-transport";
-import { Logtail } from "@logtail/node";
+import pinoPretty from "pino-pretty";
 
-function createBetterStackStream(sourceToken: string, ingestingHost: string) {
-  const logtail = new Logtail(sourceToken, {
-    endpoint: `https://${ingestingHost}`,
-  });
+function createAxiomStream(dataset: string, token: string) {
+  const axiom = new Axiom({ token, axiomClient: "outreach-platform" });
 
   return build(
-    async function (source) {
-      for await (const obj of source) {
-        if (!obj) continue;
-        const { time, msg, message, level, v, ...meta } = obj;
+    async (source) => {
+      for await (const log of source) {
+        const { time, level, ...event } = log;
 
-        let dt: Date | undefined;
-        if (time) {
-          const parsed = new Date(time);
-          if (!isNaN(parsed.valueOf())) dt = parsed;
-        }
-
-        const logMsg = msg || message || "";
-
-        let levelName = "info";
-        if (typeof level === "number") {
-          if (level <= 10) levelName = "trace";
-          else if (level <= 20) levelName = "debug";
-          else if (level <= 30) levelName = "info";
-          else if (level <= 40) levelName = "warn";
-          else if (level <= 50) levelName = "error";
-          else if (level >= 60) levelName = "fatal";
-        } else if (typeof level === "string") {
-          levelName = level;
-        }
-
-        logtail.log(logMsg, levelName, { ...meta, dt });
+        axiom.ingest(dataset, {
+          _time: time,
+          level: toAxiomLogLevel(level),
+          ...event,
+        });
       }
     },
     {
       async close() {
-        await logtail.flush();
+        await axiom.flush();
       },
     }
   );
 }
 
+function toAxiomLogLevel(level: unknown): string {
+  if (typeof level === "string") return level;
+  if (typeof level !== "number") return "info";
+  if (level <= 10) return "trace";
+  if (level <= 20) return "debug";
+  if (level <= 30) return "info";
+  if (level <= 40) return "warn";
+  if (level <= 50) return "error";
+  if (level <= 60) return "fatal";
+
+  return "silent";
+}
+
 export function createLogger(service: string) {
-  console.log("RAW NODE_ENV:", process.env.NODE_ENV);
-  console.log("LOGGER NODE_ENV:", loggerEnv.NODE_ENV);
   const isProduction = loggerEnv.NODE_ENV === "production";
 
   const streams: (pino.DestinationStream | pino.StreamEntry)[] = [];
 
+  // Development Environment: Pretty Print Logs
   if (!isProduction) {
     streams.push({
       stream: pinoPretty({
@@ -64,20 +57,24 @@ export function createLogger(service: string) {
     });
   }
 
+  // Bundling Pino transport targets prevents Pino from resolving them at runtime.
+  // Use the same abstract transport interface directly so the Axiom client is
+  // statically included in the Bun bundle.
   if (
     isProduction &&
-    loggerEnv.BETTER_STACK_SOURCE_TOKEN &&
-    loggerEnv.BETTER_STACK_INGESTING_HOST
+    loggerEnv.AXIOM_TOKEN &&
+    loggerEnv.AXIOM_DATASET
   ) {
     streams.push({
-      stream: createBetterStackStream(
-        loggerEnv.BETTER_STACK_SOURCE_TOKEN,
-        loggerEnv.BETTER_STACK_INGESTING_HOST
+      stream: createAxiomStream(
+        loggerEnv.AXIOM_DATASET,
+        loggerEnv.AXIOM_TOKEN
       ),
-      level: "info",
+      level: (loggerEnv.LOG_LEVEL || "info") as pino.Level,
     });
   }
 
+  // Console Backup Stream
   if (streams.length === 0 || isProduction) {
     streams.push({
       stream: process.stdout,
@@ -90,14 +87,11 @@ export function createLogger(service: string) {
   return pino(
     {
       level: loggerEnv.LOG_LEVEL || "info",
-
       timestamp: pino.stdTimeFunctions.isoTime,
-
       base: {
         service,
         environment: isProduction ? "production" : "development",
       },
-
       redact: {
         paths: [
           "password",
@@ -110,6 +104,6 @@ export function createLogger(service: string) {
         censor: "[REDACTED]",
       },
     },
-    destination,
+    destination
   );
 }
