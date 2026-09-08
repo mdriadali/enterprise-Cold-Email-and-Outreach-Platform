@@ -14,6 +14,7 @@ export type { IWorkspaceRepository } from "./src/repositories/WorkspaceRepositor
 export type { ISmtpAccountRepository } from "./src/repositories/SmtpAccountRepository-ports";
 export type { ICampaignRepository } from "./src/repositories/campignRepository-ports";
 export type{ ICampaignEmailRepository } from "./src/repositories/campaignEmailRepository-ports";
+export type { IAdminRepository } from "./src/repositories/AdminRepository-ports";
 // Ai ports
 export type { IAiProvider } from "./src/ai/AiProvider-ports";
 

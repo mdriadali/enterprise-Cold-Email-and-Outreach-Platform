@@ -20,7 +20,7 @@ export function VerifyEmailForm({ email, token }: { email: string; token: string
         setMessage(result.message);
       } else {
         setStatus("error");
-        setMessage(result.message ?? "This verification link is invalid or has expired.");
+        setMessage(result.message);
       }
     })();
     return () => { active = false; };
@@ -46,7 +46,7 @@ export function VerifyEmailForm({ email, token }: { email: string; token: string
           <>
             <div className="mx-auto mb-6 grid size-16 place-items-center rounded-2xl bg-[#ba1a1a]/10 text-[#ba1a1a]"><XCircle className="size-8" /></div>
             <h1 className="mb-2 text-3xl leading-10 font-bold tracking-[-.01em] text-[#191b23]">Verification failed</h1>
-            <p className="mb-8 text-base leading-6 text-[#434655]">{message ?? "This verification link is invalid or has expired."}</p>
+            <p className="mb-8 text-base leading-6 text-[#434655]">{message}</p>
             <Link className="inline-flex items-center justify-center rounded-lg bg-[#2563eb] px-6 py-3 text-sm leading-5 font-semibold text-white shadow-sm transition hover:shadow-md" href="/login">Go to sign in</Link>
           </>
         )}

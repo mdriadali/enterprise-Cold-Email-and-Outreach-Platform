@@ -143,8 +143,8 @@ export function JobDetailClient({ workspaceId, job }: Props) {
       } else {
         notify({ title: "Failed to start", message: result.message, tone: "error" });
       }
-    } catch {
-      notify({ title: "Failed to start", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed to start", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -154,8 +154,8 @@ export function JobDetailClient({ workspaceId, job }: Props) {
     setActionLoading("pause");
     try {
       notify({ title: "Job paused", message: "The generation job has been paused.", tone: "success" });
-    } catch {
-      notify({ title: "Failed to pause", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed to pause", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -165,8 +165,8 @@ export function JobDetailClient({ workspaceId, job }: Props) {
     setActionLoading("delete");
     try {
       notify({ title: "Job deleted", message: "The generation job has been deleted.", tone: "success" });
-    } catch {
-      notify({ title: "Failed to delete", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed to delete", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setActionLoading(null);
     }

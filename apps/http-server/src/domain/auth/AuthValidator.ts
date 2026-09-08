@@ -1,11 +1,12 @@
 import type { RefreshtokenData } from "@repo/types"
+import { AppError } from "../AppError"
 import { UnauthorizedError } from "./Error"
 
 
 export class AuthValidator {
     static isHashValidate(match: boolean) {
         if (match === false) {
-            throw new Error("Invalid credentials")
+            throw new AppError("Invalid credentials")
         }
     }
 

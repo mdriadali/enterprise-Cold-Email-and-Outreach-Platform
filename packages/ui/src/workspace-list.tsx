@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { Hexagon, Home, Rocket, UsersRound } from "lucide-react";
+import { ArrowUpRight, Hexagon, Home, Rocket, UsersRound } from "lucide-react";
 
 export type WorkspaceData = {
   id: string;
@@ -52,24 +52,47 @@ function WorkspaceCard({ workspace, index }: { workspace: WorkspaceData; index: 
   const workspaceName = workspace.name || `Workspace ${workspace.workspaceId.slice(0, 8)}`;
   const campaigns = workspace.activeCampaigns ?? 0;
   const leads = workspace.totalLeads ?? 0;
+  const isOwner = workspace.role === "OWNER";
 
   return (
-    <div className="group bg-white border border-[#c3c6d7] rounded-xl p-6 flex items-center justify-between hover:border-[#004ac6] hover:shadow-md transition-all duration-300">
-      <div className="flex items-center gap-6">
-        <div className={`size-12 shrink-0 ${colors.bg} rounded-xl flex items-center justify-center ${colors.text}`}>
-          <Icon className="size-7" strokeWidth={1.5} fill="currentColor" />
+    <div className="group relative overflow-hidden bg-white border border-[#c3c6d7] rounded-2xl p-6 flex items-center justify-between gap-6 hover:border-[#004ac6] hover:shadow-lg hover:shadow-[#004ac6]/5 transition-all duration-300">
+      <div className={`absolute inset-y-0 left-0 w-1 ${colors.bg}`} />
+      <div className="flex items-center gap-5 min-w-0">
+        <div className={`relative size-14 shrink-0 ${colors.bg} rounded-2xl flex items-center justify-center ${colors.text}`}>
+          <Icon className="size-8" strokeWidth={1.5} fill="currentColor" />
         </div>
-        <div>
-          <h4 className="text-sm leading-5 font-semibold tracking-[0.05em] text-[#191b23] group-hover:text-[#004ac6] transition-colors">{workspaceName}</h4>
-          <p className="text-xs leading-4 text-[#434655]">{campaigns} Active Campaign{campaigns !== 1 ? "s" : ""} &bull; {leads.toLocaleString()} Lead{leads !== 1 ? "s" : ""}</p>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="text-base leading-6 font-semibold tracking-[0.01em] text-[#191b23] group-hover:text-[#004ac6] transition-colors truncate">{workspaceName}</h4>
+            <span className={`shrink-0 text-[10px] leading-4 font-semibold tracking-[0.06em] uppercase px-2 py-0.5 rounded-full ${isOwner ? "bg-[#e0f5f2] text-[#006a63]" : "bg-[#e7e7f3] text-[#434655]"}`}>
+              {isOwner ? "Owner" : "Member"}
+            </span>
+          </div>
+          <p className="mt-1 font-mono text-[11px] leading-4 text-[#8a8da0] truncate">ID: {workspace.workspaceId}</p>
+          <div className="mt-2.5 flex items-center gap-4">
+            <Stat label="Active" value={`${campaigns}`} suffix={campaigns !== 1 ? "Campaigns" : "Campaign"} />
+            <span className="text-[#c3c6d7]">|</span>
+            <Stat label="Leads" value={`${leads.toLocaleString()}`} />
+          </div>
         </div>
       </div>
-      <div className="flex items-center gap-6">
-        <span className="text-xs leading-4 font-medium px-4 py-1 bg-[#e7e7f3] rounded-full text-[#434655]">{workspace.role === "OWNER" ? "Owner" : "Member"}</span>
-        <Link href={`/workspace/${workspace.workspaceId}`} className="px-6 py-2 bg-[#2563eb] text-[#eeefff] text-sm leading-5 font-semibold tracking-[0.05em] rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95">
-          Manage
-        </Link>
-      </div>
+      <Link
+        href={`/workspace/${workspace.workspaceId}`}
+        className="shrink-0 inline-flex items-center gap-1.5 px-6 py-2.5 bg-[#2563eb] text-[#eeefff] text-sm leading-5 font-semibold tracking-[0.05em] rounded-xl shadow-sm hover:shadow-md hover:bg-[#1d4ed8] transition-all active:scale-95"
+      >
+        Manage
+        <ArrowUpRight className="size-4" />
+      </Link>
     </div>
+  );
+}
+
+function Stat({ label, value, suffix }: { label: string; value: string; suffix?: string }) {
+  return (
+    <span className="flex items-baseline gap-1.5">
+      <span className="text-[#191b23] text-sm font-bold">{value}</span>
+      <span className="text-xs leading-4 text-[#6a6d80]">{suffix ?? label}</span>
+      <span className="sr-only">{label}</span>
+    </span>
   );
 }

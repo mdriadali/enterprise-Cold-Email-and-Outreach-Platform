@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { callApi } from "./api-client";
+import { extractMessage } from "./shared";
 
 export type LogoutState = { status: "success" | "error"; message: string };
 
@@ -21,7 +22,7 @@ export async function signOutEnterpriseAccount(): Promise<LogoutState> {
 
   const payload = result.data as Record<string, unknown>;
   if (!payload || !("sucess" in payload) || payload.sucess !== true) {
-    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Sign out failed." };
+    return { status: "error", message: extractMessage(payload) ?? "Sign out failed." };
   }
 
   cookieStore.delete("accessToken");

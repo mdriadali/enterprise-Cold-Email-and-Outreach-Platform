@@ -1,6 +1,7 @@
 import type { leadInputdata } from "@repo/types";
 
 import { LeadValidator } from "../../../domain/lead/leadvalidator";
+import { LeadError } from "../../../domain/lead/leadError";
 
 import type { IGenerationJobRepository, ILeadRepository } from "@repo/ports";
 
@@ -19,13 +20,13 @@ export class CreateBulkLeadUseCase {
 
 
         if (!Array.isArray(leads)) {
-            throw new Error(
+            throw new LeadError(
                 "Leads must be an array"
             );
         }
 
         if (leads.length === 0) {
-            throw new Error(
+            throw new LeadError(
                 "No leads provided"
             );
         }

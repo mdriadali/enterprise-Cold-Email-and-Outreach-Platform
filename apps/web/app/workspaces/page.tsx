@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { WorkspaceList } from "@repo/ui/workspace-list";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, ShieldCheck } from "lucide-react";
 
 import { requireSession, requireEmailVerification } from "../src/auth/require-session";
 import { getCurrentUserProfile } from "../src/actions/auth/profile";
@@ -28,6 +28,14 @@ export default async function WorkspacesPage() {
               Create New Workspace
             </Link>
           </div>
+          {profile.data.role === "ADMIN" && (
+            <div className="mb-6">
+              <Link href="/admin/stats" className="inline-flex items-center gap-2 text-[#006a63] text-sm leading-5 font-semibold tracking-[0.05em] hover:bg-[#e0f5f2] px-4 py-2.5 rounded-lg border border-[#c3c6d7] transition-all active:scale-95">
+                <ShieldCheck className="size-5" />
+                Admin Panel
+              </Link>
+            </div>
+          )}
           <WorkspaceList workspaces={profile.data.workspaceMember} />
         </div>
       </main>

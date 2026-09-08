@@ -1,5 +1,6 @@
 ﻿"use server";
 
+import { databaseSchema } from "@repo/env/schema";
 import { callApi } from "./api-client";
 
 export type WorkspaceMember = {
@@ -30,6 +31,7 @@ export async function getCurrentUserProfile(): Promise<ProfileResult> {
 
   const data = (result.data as Record<string, unknown>)?.data;
   if (!isProfile(data)) return { status: "error", message: "We couldn't load your profile." };
+  console.log(data)
   return { status: "success", data };
 }
 

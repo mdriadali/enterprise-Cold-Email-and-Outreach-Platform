@@ -1,6 +1,7 @@
 "use server";
 
 import { callApi } from "./api-client";
+import { extractMessage } from "./shared";
 import type { AuthenticationState } from "../../states/auth.states";
 import { signInSchema } from "../../components/auth/auth-schemas";
 
@@ -19,7 +20,7 @@ export async function signInEnterpriseAccount(formData: FormData): Promise<Authe
 
   const payload = result.data as Record<string, unknown>;
   if (!payload || !("sucess" in payload) || payload.sucess !== true) {
-    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Authentication failed." };
+    return { status: "error", message: extractMessage(payload) ?? "Authentication failed." };
   }
 
   return { status: "success", message: "You are signed in successfully." };

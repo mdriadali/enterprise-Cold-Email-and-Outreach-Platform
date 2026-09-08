@@ -186,7 +186,7 @@ export function LeadsClient({ workspaceId }: Props) {
           <div className="size-1 rounded-full bg-[#c3c6d7]" />
           <div className="flex items-center gap-[8px]">
             <Server className="size-[16px]" />
-            <span className="text-[12px] leading-[16px] font-semibold tracking-[0.05em]">Active Instance: {workspaceId.slice(0, 8)}</span>
+            <span className="text-[12px] leading-[16px] font-semibold tracking-[0.05em]">Active Instance: {workspaceId}</span>
           </div>
         </footer>
       </div>

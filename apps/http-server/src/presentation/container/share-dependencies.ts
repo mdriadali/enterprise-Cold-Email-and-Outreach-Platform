@@ -1,6 +1,6 @@
 import { BcryptPasswordHasher, JwtTokenGenerator } from "@repo/infrastructure/auth"
 import { RedisAuthEmailQueue, RedisCampaignQueue, RedisVerificationTokenStore } from "@repo/infrastructure/cache"
-import { PrismaAiApiRepository, PrismaCampaignEmailRepository, PrismaCampaignRepository, PrismaGenerationJobRepository, PrismaLeadRepository, PrismaRefreshToken, PrismaSmtpAccountRepository, PrismaUserRepository, PrismaWorkspace, PrismaWorkspaceMember } from "@repo/infrastructure/repositories"
+import { PrismaAdminRepository, PrismaAiApiRepository, PrismaCampaignEmailRepository, PrismaCampaignRepository, PrismaGenerationJobRepository, PrismaLeadRepository, PrismaRefreshToken, PrismaSmtpAccountRepository, PrismaUserRepository, PrismaWorkspace, PrismaWorkspaceMember } from "@repo/infrastructure/repositories"
 import { serverEnv } from "@repo/env/server-env"
 
 
@@ -16,6 +16,7 @@ export const leadRepository=new PrismaLeadRepository
 export const smtpAccountRepository=new PrismaSmtpAccountRepository
 export const campaignRepository=new PrismaCampaignRepository
 export const campaignEmailRepository=new PrismaCampaignEmailRepository
+export const adminRepository=new PrismaAdminRepository
 
 export const campaignqueue=new RedisCampaignQueue
 export const verificationTokenStore = new RedisVerificationTokenStore

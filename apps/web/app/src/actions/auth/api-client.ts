@@ -2,6 +2,7 @@ import axios, { type AxiosRequestConfig } from "axios";
 import { cookies, headers } from "next/headers";
 import { webEnv } from "@repo/env/web-env";
 import { persistSessionCookies } from "./session";
+import { extractMessage } from "./shared";
 
 export type ApiResult =
   | { status: "success"; data: unknown }
@@ -32,12 +33,7 @@ export async function callApi(config: AxiosRequestConfig): Promise<ApiResult> {
   } catch (error: unknown) {
     if (!axios.isAxiosError(error)) return { status: "error", message: "Something went wrong." };
 
-    const data = error.response?.data;
-    const msg = data && typeof data === "object"
-      ? (("message" in data ? (data as Record<string, unknown>).message : "massage" in data ? (data as Record<string, unknown>).massage : "massae" in data ? (data as Record<string, unknown>).massae : null) as string | null)
-      : typeof data === "string" ? data : null;
-
-    const message = msg ?? "Something went wrong.";
+    const message = extractMessage(error.response?.data) ?? "Something went wrong.";
     const code = error.response?.status === 400 && message === "This user is not a member of this workspace."
       ? "NOT_WORKSPACE_MEMBER"
       : undefined;

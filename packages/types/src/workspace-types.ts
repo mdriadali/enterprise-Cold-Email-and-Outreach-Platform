@@ -11,7 +11,8 @@ export interface workspaceMemberData {
   workspaceId: string,
   userId: string,
   role: WorkspaceMemberRole,
-  createdAt: Date
+  createdAt: Date,
+  name?: string | null
 }
 
 
