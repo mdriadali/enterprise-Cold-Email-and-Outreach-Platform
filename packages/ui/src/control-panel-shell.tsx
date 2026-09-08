@@ -17,7 +17,9 @@ import {
   Settings,
   Users,
   UserPlus,
-  Astroid
+  Astroid,
+  Briefcase,
+  LineChart,
 } from "lucide-react";
 
 export type ControlPanelNavigationItem = {
@@ -35,6 +37,7 @@ type ControlPanelShellProps = {
   sidebarAccount?: ReactNode;
   workspaceId?: string;
   workspaceName?: string;
+  isAdmin?: boolean;
 };
 
 const icons: Record<ControlPanelNavigationItem["icon"], ComponentType<{ className?: string }>> = {
@@ -63,6 +66,19 @@ const defaultNavigation: ControlPanelNavigationItem[] = [
   { href: "/settings", label: "Settings", icon: "settings" },
 ];
 
+type AdminNavigationItem = {
+  href: string;
+  label: string;
+  icon: ComponentType<{ className?: string }>;
+};
+
+const adminNavigation: AdminNavigationItem[] = [
+  { href: "/admin/users", label: "User Management", icon: Users },
+  { href: "/admin/workspaces", label: "Workspace Management", icon: Briefcase },
+  { href: "/admin/campaigns", label: "Campaign Management", icon: Send },
+  { href: "/admin/stats", label: "Platform Statistics", icon: LineChart },
+];
+
 function prefixedHref(href: string, workspaceId?: string) {
   if (!workspaceId) return href;
   if (href === "/dashboard") return `/workspace/${workspaceId}`;
@@ -70,7 +86,9 @@ function prefixedHref(href: string, workspaceId?: string) {
 }
 
 /** Shared authenticated application shell. Keep route content in the app, not this component. */
-export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount, workspaceId}: Readonly<ControlPanelShellProps>) {
+export function ControlPanelShell({ children, activePath, navigation = defaultNavigation, user = { name: "Marcus Sterling", email: "m.sterling@enterprise.com" }, sidebarFooter, sidebarAccount, workspaceId, isAdmin}: Readonly<ControlPanelShellProps>) {
+  const isOnAdminRoute = activePath.startsWith("/admin");
+
   return (
     <div className="flex h-svh w-full overflow-hidden bg-[#4f46e5] font-[Inter,Arial,sans-serif] text-white">
       <aside className="hidden w-[260px] shrink-0 flex-col py-6 text-white/90 lg:flex">
@@ -87,12 +105,39 @@ export function ControlPanelShell({ children, activePath, navigation = defaultNa
           ) : null}
         </div>
         <nav className="flex-1 space-y-1 px-4" aria-label="Main navigation">
-          {navigation.map((item) => {
-            const Icon = icons[item.icon];
-            const href = prefixedHref(item.href, workspaceId);
-            const active = activePath === href;
-            return <Link className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={href} key={item.href}><Icon className="size-5" />{item.label}</Link>;
-          })}
+          {isOnAdminRoute ? (
+            adminNavigation.map((item) => {
+              const active = activePath === item.href;
+              return (
+                <Link
+                  className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`}
+                  href={item.href}
+                  key={item.href}
+                >
+                  <item.icon className="size-5" />
+                  {item.label}
+                </Link>
+              );
+            })
+          ) : (
+            navigation.map((item) => {
+              const Icon = icons[item.icon];
+              const href = prefixedHref(item.href, workspaceId);
+              const active = activePath === href;
+              return <Link className={`relative flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-semibold tracking-[.05em] transition-colors hover:bg-white/10 ${active ? "bg-white/[.15] text-white after:absolute after:right-0 after:top-1/2 after:h-6 after:w-[3px] after:-translate-y-1/2 after:rounded-l after:bg-white" : ""}`} href={href} key={item.href}><Icon className="size-5" />{item.label}</Link>;
+            })
+          )}
+          {isAdmin ? (
+            isOnAdminRoute ? (
+              <Link className="relative mt-2 flex items-center gap-4 rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold tracking-[.05em] text-white transition-colors hover:bg-white/10" href="/">
+                <LayoutDashboard className="size-5" />Go to User Dashboard
+              </Link>
+            ) : (
+              <Link className="relative mt-2 flex items-center gap-4 rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold tracking-[.05em] text-white transition-colors hover:bg-white/10" href="/admin/users">
+                <Server className="size-5" />Go to Admin Panel
+              </Link>
+            )
+          ) : null}
         </nav>
         <div className="mt-auto px-4">
           {sidebarAccount ?? <><button className="flex w-full items-center gap-2 rounded-xl p-2 text-left transition-colors hover:bg-white/10" type="button"><span className="grid size-10 shrink-0 place-items-center rounded-full border border-white/20 bg-white/20 text-sm font-bold text-white">{user.name.slice(0, 1)}</span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold tracking-[.05em] text-white">{user.name}</span><span className="block truncate text-[11px] text-white/50">{user.email}</span></span><MoreVertical className="size-5 text-white/40" /></button>{sidebarFooter ? <div className="mt-3 border-t border-white/10 pt-3">{sidebarFooter}</div> : null}</>}
@@ -106,7 +151,7 @@ export function ControlPanelShell({ children, activePath, navigation = defaultNa
             <button className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold tracking-[.05em] text-[#4f46e5] shadow-lg transition hover:bg-[#faf8ff] active:scale-95 sm:px-6" type="button"><UserPlus className="size-5" /><span className="hidden sm:inline">Invite users</span></button>
           </div>
         </header>
-        <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden rounded-tl-[40px] bg-white text-[#191b23] shadow-[0_-8px_30px_rgb(0_0_0_/_0.12)]">{children}</main>
+        <main className="relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden rounded-tl-[40px] bg-white text-[#191b23] shadow-[0_-8px_30px_rgb(0_0_0_/_0.12)]">{children}</main>
       </div>
     </div>
   );

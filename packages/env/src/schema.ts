@@ -3,7 +3,7 @@ import z from "zod";
 
 export const webSchema = {
   APP_NAME: z.string(),
-  HTTP_SERVER_URL:z.string().url()
+  HTTP_SERVER_URL:z.string().url(),
 };
 export const databaseSchema = {
   DATABASE_URL: z.string().url(),

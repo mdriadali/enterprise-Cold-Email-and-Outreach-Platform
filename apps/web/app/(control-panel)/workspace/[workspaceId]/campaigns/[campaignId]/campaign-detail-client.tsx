@@ -92,8 +92,8 @@ export function CampaignDetailClient({ workspaceId, campaign: initialCampaign }:
       }
       setCampaign({ ...campaign, ...result.data });
       notify({ title: `Campaign ${label}`, message: `The campaign has been ${label}.`, tone: "success" });
-    } catch {
-      notify({ title: "Failed", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -122,8 +122,8 @@ export function CampaignDetailClient({ workspaceId, campaign: initialCampaign }:
       }
       notify({ title: "Campaign deleted", message: "The campaign has been deleted.", tone: "success" });
       window.location.href = `/workspace/${workspaceId}/campaigns`;
-    } catch {
-      notify({ title: "Failed", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setActionLoading(null);
     }
@@ -159,8 +159,8 @@ export function CampaignDetailClient({ workspaceId, campaign: initialCampaign }:
       setCampaign({ ...campaign, ...result.data });
       setShowEditModal(false);
       notify({ title: "Campaign updated", message: "Changes saved successfully.", tone: "success" });
-    } catch {
-      notify({ title: "Update failed", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Update failed", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setSaving(false);
     }

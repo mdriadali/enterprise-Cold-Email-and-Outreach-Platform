@@ -8,4 +8,5 @@ export { PrismaWorkspaceMember } from "./PrismaWorkspaceMemberRepository";
 export { PrismaSmtpAccountRepository } from "./PrismaSmtpAccountRepository";
 export { PrismaCampaignRepository } from "./PrismaCampaignRepository";
 export { PrismaCampaignEmailRepository } from "./PrismaCampaignEmailRepository";
+export { PrismaAdminRepository } from "./PrismaAdminRepository";
 

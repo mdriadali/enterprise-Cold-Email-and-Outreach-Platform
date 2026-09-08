@@ -1,6 +1,7 @@
 "use server";
 
 import { callApi } from "./api-client";
+import { extractMessage } from "./shared";
 import { RegistrationState } from "../../states/auth.states";
 import { registrationSchema } from "../../components/auth/auth-schemas";
 
@@ -23,7 +24,7 @@ export async function registerEnterpriseAccount(formData: FormData): Promise<Reg
 
   const payload = result.data as Record<string, unknown>;
   if (!payload || !("sucess" in payload) || payload.sucess !== true) {
-    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Registration failed." };
+    return { status: "error", message: extractMessage(payload) ?? "Registration failed." };
   }
 
   return { status: "success" };

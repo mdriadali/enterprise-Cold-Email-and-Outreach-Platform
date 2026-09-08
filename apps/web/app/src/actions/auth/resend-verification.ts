@@ -1,6 +1,7 @@
 "use server";
 
 import { callApi } from "./api-client";
+import { extractMessage } from "./shared";
 
 export type ResendVerificationResult = { status: "success"; message: string } | { status: "error"; message: string };
 
@@ -10,7 +11,7 @@ export async function resendVerificationEmail(): Promise<ResendVerificationResul
 
   const payload = result.data as Record<string, unknown>;
   if (!payload || !("sucess" in payload) || payload.sucess !== true) {
-    return { status: "error", message: (payload?.message as string) ?? "Failed to resend verification email." };
+    return { status: "error", message: extractMessage(payload) ?? "Failed to resend verification email." };
   }
 
   return { status: "success", message: "Verification email sent. Please check your inbox." };

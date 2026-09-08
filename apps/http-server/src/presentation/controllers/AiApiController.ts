@@ -25,13 +25,13 @@ export class AiApiController {
 
         } catch (error) {
             if (error instanceof AppError) {
-                res.status(400).json({
-                    massae: error.message
+                return res.status(400).json({
+                    message: error.message
                 })
             }
 
-            res.status(500).json({
-                massage: "Internal Server Error"
+            return res.status(500).json({
+                message: "Internal Server Error"
             })
         }
     }
@@ -45,13 +45,13 @@ export class AiApiController {
 
         } catch (error) {
             if (error instanceof AppError) {
-                res.status(400).json({
-                    massae: error.message
+                return res.status(400).json({
+                    message: error.message
                 })
             }
 
-            res.status(500).json({
-                massage: "Internal Server Error"
+            return res.status(500).json({
+                message: "Internal Server Error"
             })
         }
     }
@@ -67,13 +67,13 @@ export class AiApiController {
             })
         } catch (error) {
             if (error instanceof AppError) {
-                res.status(400).json({
-                    massae: error.message
+                return res.status(400).json({
+                    message: error.message
                 })
             }
 
-            res.status(500).json({
-                massage: "Internal Server Error"
+            return res.status(500).json({
+                message: "Internal Server Error"
             })
         }
     }
@@ -88,13 +88,13 @@ export class AiApiController {
             })
         } catch (error) {
             if (error instanceof AppError) {
-                res.status(400).json({
-                    massae: error.message
+                return res.status(400).json({
+                    message: error.message
                 })
             }
 
-            res.status(500).json({
-                massage: "Internal Server Error"
+            return res.status(500).json({
+                message: "Internal Server Error"
             })
         }
     }

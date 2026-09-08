@@ -7,4 +7,5 @@ export * from "./src/generationJob-types";
 export * from "./src/lead-types";
 export * from "./src/smtp-types";
 export * from "./src/campaign-types";
+export * from "./src/admin-types";
 

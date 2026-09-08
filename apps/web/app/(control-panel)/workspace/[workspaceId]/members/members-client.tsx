@@ -105,8 +105,8 @@ export function MembersClient({ workspaceId }: Props) {
       setShowInviteModal(false);
       setInviteEmail("");
       router.refresh();
-    } catch {
-      notify({ title: "Failed", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     } finally {
       setInviteLoading(false);
     }
@@ -124,8 +124,8 @@ export function MembersClient({ workspaceId }: Props) {
       }
       notify({ title: "Member removed", message: `${removingMember.name} has been removed.`, tone: "success" });
       router.refresh();
-    } catch {
-      notify({ title: "Failed", message: "Something went wrong.", tone: "error" });
+    } catch (error) {
+      notify({ title: "Failed", message: error instanceof Error ? error.message : "Something went wrong.", tone: "error" });
     }
   }
 
@@ -278,9 +278,10 @@ export function MembersClient({ workspaceId }: Props) {
         </div>
 
         {/* Invitations / Pending Column */}
+        
         <div className="col-span-12 xl:col-span-4 flex flex-col gap-[24px]">
           {/* Pending Invitations */}
-          <div className="bg-white/70 backdrop-blur-[8px] border border-[#c3c6d7]/30 rounded-xl p-[24px]">
+          {/* <div className="bg-white/70 backdrop-blur-[8px] border border-[#c3c6d7]/30 rounded-xl p-[24px]">
             <div className="flex items-center justify-between mb-[16px]">
               <h3 className="text-[24px] leading-[32px] font-semibold tracking-[-0.01em] text-[#191b23]">Pending Invitations</h3>
               <span className="px-[8px] py-[4px] bg-[#632ecd] text-white text-[12px] leading-[16px] font-semibold tracking-[0.05em] rounded-full">2</span>
@@ -325,10 +326,10 @@ export function MembersClient({ workspaceId }: Props) {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
 
           {/* Seat Usage Card */}
-          <div className="bg-[#004ac6] border border-[#004ac6] rounded-xl p-[24px] text-white">
+          {/* <div className="bg-[#004ac6] border border-[#004ac6] rounded-xl p-[24px] text-white">
             <div className="flex items-center gap-[16px] mb-[16px]">
               <div className="p-[8px] bg-white/20 rounded-lg">
                 <Zap className="size-[20px]" />
@@ -347,8 +348,9 @@ export function MembersClient({ workspaceId }: Props) {
             <p className="text-[14px] leading-[20px] text-white/80">
               You have {memberLimit - memberCount} enterprise seats available. Add more members to maximize your outreach velocity.
             </p>
-          </div>
+          </div> */}
         </div>
+
       </div>
 
       {showInviteModal && (

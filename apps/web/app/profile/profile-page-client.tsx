@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Edit3, X, Check, LogOut } from "lucide-react";
+import { CheckCircle2, Edit3, X, Check, LogOut, LayoutGrid, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useNotification } from "@repo/ui/notification-provider";
 import { signOutEnterpriseAccount } from "../src/actions/auth/logout";
@@ -125,6 +126,22 @@ export function ProfilePage({ name, email, role, onUpdateName }: ProfilePageProp
                 <ProfileField label="Full Name">{name}</ProfileField>
               )}
               <ProfileField label="Email Address" verified>{email}</ProfileField>
+            </div>
+          </div>
+
+          <div className="bg-white border border-[#c3c6d7] rounded-xl p-6 shadow-sm">
+            <h3 className="text-2xl leading-8 font-semibold tracking-[-0.01em] text-[#191b23] mb-4">Navigation</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Link href="/workspaces" className="flex items-center gap-3 text-[#004ac6] text-sm leading-5 font-semibold tracking-[0.05em] hover:bg-[#dbe1ff] px-4 py-3 rounded-lg border border-[#c3c6d7] transition-colors active:scale-95">
+                <LayoutGrid className="size-5" />
+                All Workspaces
+              </Link>
+              {role === "ADMIN" && (
+                <Link href="/admin/stats" className="flex items-center gap-3 text-[#006a63] text-sm leading-5 font-semibold tracking-[0.05em] hover:bg-[#e0f5f2] px-4 py-3 rounded-lg border border-[#c3c6d7] transition-colors active:scale-95">
+                  <ShieldCheck className="size-5" />
+                  Admin Panel
+                </Link>
+              )}
             </div>
           </div>
 

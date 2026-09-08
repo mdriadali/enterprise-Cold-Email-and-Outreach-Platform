@@ -10,12 +10,14 @@ export function ActiveShell({
   user,
   sidebarFooter,
   sidebarAccount,
+  isAdmin,
 }: {
   children: React.ReactNode;
   navigation?: ControlPanelNavigationItem[];
   user?: { name: string; email: string };
   sidebarFooter?: React.ReactNode;
   sidebarAccount?: React.ReactNode;
+  isAdmin?: boolean;
 }) {
   const pathname = usePathname();
   const workspaceMatch = pathname.match(/^\/workspace\/([^/]+)/);
@@ -30,6 +32,7 @@ export function ActiveShell({
       sidebarAccount={sidebarAccount}
       workspaceId={workspaceId}
       workspaceName={workspaceId ? selectedWorkspace?.name ?? "" : undefined}
+      isAdmin={isAdmin}
     >
       {children}
     </ControlPanelShell>

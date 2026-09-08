@@ -1070,6 +1070,7 @@ Before writing code:
 [ ] Does this require HTTP server changes?
 [ ] Does this require worker changes?
 [ ] If yes, did I ask permission?
+[ ] Is this admin work placed inside web `(control-panel)/admin` — not a new app?
 [ ] Do I understand the technology involved?
 ```
 
@@ -1205,3 +1206,59 @@ Explain
 ```
 
 This process must be followed for every future feature.
+
+---
+
+# 49. No Separate Admin Application — ADMIN LIVES INSIDE THE WEB APP
+
+This is a HIGH-PRIORITY architectural rule.
+
+DO NOT create a separate admin workspace/application (for example `apps/admin`).
+
+This project has NO standalone admin app.
+
+All admin/console functionality MUST be built inside the existing web application under:
+
+```text
+apps/web/app/(control-panel)/admin/...
+```
+
+Admin Server Actions MUST be placed in:
+
+```text
+apps/web/app/src/actions/admin/...
+```
+
+Admin UI MUST reuse the shared design system:
+
+```text
+packages/ui
+```
+
+Admin backend logic MUST live inside `apps/http-server`:
+
+```text
+apps/http-server/src/application/use-cases/admin/...
+apps/http-server/src/domain/admin/...
+apps/http-server/src/presentation/routes/admin.routes.ts
+apps/http-server/src/presentation/controllers/AdminController.ts
+apps/http-server/src/presentation/middlewares/AdminMiddleware.ts
+```
+
+If a request asks to "build an admin app" as a new workspace/package:
+
+1. Refuse to create a new app.
+2. Explain that admin surfaces belong in `apps/web/app/(control-panel)/admin`, reusing `packages/ui`, `packages/types`, and the existing admin use cases/controllers.
+3. Reuse the existing control panel shell (`@repo/ui/control-panel-shell`) and the `(control-panel)` route group.
+4. Only implement it inside the web app.
+
+Rule of thumb:
+
+```text
+No apps/admin. No standalone admin workspace.
+Admin UI        → apps/web/app/(control-panel)/admin/...
+Admin actions   → apps/web/app/src/actions/admin/...
+Shared UI       → packages/ui (reuse, do not fork)
+Types           → packages/types/src/admin-types.ts
+Backend admin   → apps/http-server admin use-cases / AdminController / admin.routes.ts
+```

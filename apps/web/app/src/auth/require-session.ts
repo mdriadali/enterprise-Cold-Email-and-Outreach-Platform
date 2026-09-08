@@ -16,6 +16,8 @@ export async function requireSession() {
 
 /** Server-side email verification guard. Redirects to pending page if email is not verified. */
 export async function requireEmailVerification() {
+  if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") return;
+
   const result = await callApi({ method: "GET", url: "user/profile" });
   if (result.status === "error") return;
 

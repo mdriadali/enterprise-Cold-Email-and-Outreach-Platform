@@ -41,7 +41,15 @@ export class PrismaWorkspaceMember implements IWorkspaceMemberRepository {
        return await prismaClient.workspaceMember.findMany({
             where:{
                 userId:userId
+            },
+            include: {
+                workspace: {
+                    select: { name: true }
+                }
             }
-        })
+        }).then(members => members.map(member => ({
+            ...member,
+            name: member.workspace?.name ?? null
+        })))
     }
 }

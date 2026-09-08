@@ -1,6 +1,7 @@
 "use server";
 
 import { callApi } from "./api-client";
+import { extractMessage } from "./shared";
 import type { AuthenticationState } from "../../states/auth.states";
 
 export async function resetPasswordAction(params: { email: string; token: string; password: string }): Promise<AuthenticationState> {
@@ -9,7 +10,7 @@ export async function resetPasswordAction(params: { email: string; token: string
 
   const payload = result.data as Record<string, unknown>;
   if (!payload || !("sucess" in payload) || payload.sucess !== true) {
-    return { status: "error", message: (payload?.message as string) ?? (payload?.massage as string) ?? "Password reset failed." };
+    return { status: "error", message: extractMessage(payload) ?? "Password reset failed." };
   }
 
   return { status: "success", message: "Your password has been reset. You can now sign in." };

@@ -53,7 +53,7 @@ export class AuthController {
 
       if (error instanceof AppError) {
         return res.status(400).json({
-          massage: error.message
+          message: error.message
         })
       }
 
@@ -155,7 +155,7 @@ export class AuthController {
       }
 
       return res.status(500).json({
-        massage: "Internal Server Error"
+        message: "Internal Server Error"
       })
     }
 
