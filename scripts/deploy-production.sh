@@ -6,6 +6,8 @@ IMAGE_TAG="${1:?IMAGE_TAG is required}"
 
 APP_DIR="/opt/outreach"
 ENV_FILE="${APP_DIR}/.env.production"
+HEALTHCHECK_TIMEOUT_SECONDS=180
+HEALTHCHECK_INTERVAL_SECONDS=5
 
 cd "$APP_DIR"
 
@@ -93,15 +95,57 @@ echo "========================================"
 
 docker compose \
   --env-file "$ENV_FILE" \
-  up -d
+  up -d \
+  --remove-orphans
 
 echo "Production services started."
 
 echo "========================================"
-echo "Waiting for services"
+echo "Waiting for the HTTP server health check"
 echo "========================================"
 
-sleep 10
+deadline=$((SECONDS + HEALTHCHECK_TIMEOUT_SECONDS))
+
+while true; do
+  http_container_id=$(docker compose --env-file "$ENV_FILE" ps -q http-server)
+
+  if [ -n "$http_container_id" ]; then
+    http_health=$(docker inspect \
+      --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' \
+      "$http_container_id")
+
+    if [ "$http_health" = "healthy" ]; then
+      echo "HTTP server is healthy."
+      break
+    fi
+
+    if [ "$http_health" = "unhealthy" ]; then
+      echo "ERROR: HTTP server became unhealthy. Keeping previous images for recovery."
+      docker compose --env-file "$ENV_FILE" logs --tail=100 http-server || true
+      exit 1
+    fi
+  fi
+
+  if [ "$SECONDS" -ge "$deadline" ]; then
+    echo "ERROR: HTTP server did not become healthy within ${HEALTHCHECK_TIMEOUT_SECONDS} seconds."
+    docker compose --env-file "$ENV_FILE" logs --tail=100 http-server || true
+    exit 1
+  fi
+
+  sleep "$HEALTHCHECK_INTERVAL_SECONDS"
+done
+
+for service in http-server worker web; do
+  service_container_id=$(docker compose --env-file "$ENV_FILE" ps -q "$service")
+
+  if [ -z "$service_container_id" ] || [ "$(docker inspect --format '{{.State.Status}}' "$service_container_id")" != "running" ]; then
+    echo "ERROR: ${service} is not running. Keeping previous images for recovery."
+    docker compose --env-file "$ENV_FILE" logs --tail=100 "$service" || true
+    exit 1
+  fi
+done
+
+echo "All production services are running."
 
 echo "========================================"
 echo "Current services"
@@ -120,10 +164,13 @@ docker compose \
   logs --tail=50 http-server || true
 
 echo "========================================"
-echo "Cleaning old Docker images"
+echo "Cleaning images and build cache after verified deployment"
 echo "========================================"
 
+# This runs only after the new version is healthy, so failed deployments retain
+# their pulled image and the previous image for recovery and investigation.
 docker image prune -af
+docker builder prune -af
 
 echo "========================================"
 echo "DEPLOYMENT COMPLETED SUCCESSFULLY"
