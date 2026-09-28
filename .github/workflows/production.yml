@@ -246,28 +246,58 @@ jobs:
 
           echo "Sending deployment command to EC2..."
 
+          # AWS-RunShellScript accepts a list of commands. Keep each entry below
+          # the SSM document command limit; encoded scripts and secrets can exceed
+          # it when sent as one printf command.
+          COMMANDS_FILE=$(mktemp)
+          trap 'rm -f "$COMMANDS_FILE"' EXIT
+
+          jq -n '{commands: [
+            "set -e",
+            "echo Starting SSM deployment bootstrap",
+            "id",
+            "mkdir -p /opt/outreach"
+          ]}' > "$COMMANDS_FILE"
+
+          add_ssm_command() {
+            local command="$1"
+            jq --arg command "$command" '.commands += [$command]' "$COMMANDS_FILE" > "${COMMANDS_FILE}.tmp"
+            mv "${COMMANDS_FILE}.tmp" "$COMMANDS_FILE"
+          }
+
+          copy_base64_file() {
+            local encoded_content="$1"
+            local destination="$2"
+            local file_mode="${3:-}"
+            local encoded_tmp="${destination}.b64.tmp"
+            local destination_tmp="${destination}.tmp"
+            local chunk
+
+            add_ssm_command ": > '${encoded_tmp}'"
+
+            while IFS= read -r chunk || [ -n "$chunk" ]; do
+              add_ssm_command "printf '%s' '${chunk}' >> '${encoded_tmp}'"
+            done < <(printf '%s' "$encoded_content" | fold -w 2000)
+
+            add_ssm_command "base64 -d '${encoded_tmp}' > '${destination_tmp}'"
+            if [ -n "$file_mode" ]; then
+              add_ssm_command "chmod '${file_mode}' '${destination_tmp}'"
+            fi
+            add_ssm_command "mv '${destination_tmp}' '${destination}'"
+            add_ssm_command "rm -f '${encoded_tmp}'"
+          }
+
+          copy_base64_file "$COMPOSE_B64" "/opt/outreach/docker-compose.production.yml"
+          copy_base64_file "$ENV_B64" "/opt/outreach/.env.production" "600"
+          copy_base64_file "$DEPLOY_SCRIPT_B64" "/opt/outreach/deploy.sh" "700"
+          add_ssm_command "echo Files copied successfully"
+          add_ssm_command "bash /opt/outreach/deploy.sh '${IMAGE_TAG}'"
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying version ${IMAGE_TAG}" \
-            --parameters "commands=[
-              \"set -e\",
-              \"echo 'Starting SSM deployment bootstrap'\",
-              \"id\",
-              \"ls -ld /opt /opt/outreach || true\",
-              \"mkdir -pv /opt/outreach\",
-              \"printf '%s' '${COMPOSE_B64}' | base64 -d > /opt/outreach/docker-compose.production.yml.tmp\",
-              \"mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml\",
-              \"printf '%s' '${ENV_B64}' | base64 -d > /opt/outreach/.env.production.tmp\",
-              \"chmod 600 /opt/outreach/.env.production.tmp\",
-              \"mv /opt/outreach/.env.production.tmp /opt/outreach/.env.production\",
-              \"printf '%s' '${DEPLOY_SCRIPT_B64}' | base64 -d > /opt/outreach/deploy.sh.tmp\",
-              \"chmod 700 /opt/outreach/deploy.sh.tmp\",
-              \"mv /opt/outreach/deploy.sh.tmp /opt/outreach/deploy.sh\",
-              \"echo 'Files copied successfully'\",
-              \"cd /opt/outreach\",
-              \"bash ./deploy.sh '${IMAGE_TAG}'\"
-            ]" \
+            --parameters "file://${COMMANDS_FILE}" \
             --region "${AWS_REGION}" \
             --query "Command.CommandId" \
             --output text)
