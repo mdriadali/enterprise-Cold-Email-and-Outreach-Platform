@@ -1,23 +1,30 @@
 #!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-IMAGE_TAG="$1"
+IMAGE_TAG="${1:?IMAGE_TAG is required}"
 
 cd /opt/outreach
 
-echo "Deploying version: $IMAGE_TAG"
+echo "Loading production environment..."
 
-export IMAGE_TAG="$IMAGE_TAG"
+set -a
+source /opt/outreach/.env.production
+set +a
+
+export IMAGE_TAG
+
+echo "Deploying version: $IMAGE_TAG"
+echo "ECR Registry: ${ECR_REGISTRY}"
 
 echo "Logging into ECR..."
 
 aws ecr get-login-password \
-  --region eu-north-1 \
+  --region "${AWS_REGION:-eu-north-1}" \
   | docker login \
-    --username AWS \
-    --password-stdin \
-    "${ECR_REGISTRY}"
+      --username AWS \
+      --password-stdin \
+      "${ECR_REGISTRY}"
 
 echo "Pulling images..."
 
