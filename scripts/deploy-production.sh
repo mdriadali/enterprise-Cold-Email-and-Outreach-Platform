@@ -21,17 +21,12 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-echo "Loading production environment..."
-
-set -a
-source "$ENV_FILE"
-set +a
-
 export IMAGE_TAG
 
 AWS_REGION="${AWS_REGION:-eu-north-1}"
+ECR_REGISTRY=$(awk -F= '$1 == "ECR_REGISTRY" { sub(/^[^=]*=/, ""); sub(/\r$/, ""); print; exit }' "$ENV_FILE")
 
-if [ -z "${ECR_REGISTRY:-}" ]; then
+if [ -z "$ECR_REGISTRY" ]; then
   echo "ERROR: ECR_REGISTRY is not set"
   exit 1
 fi
