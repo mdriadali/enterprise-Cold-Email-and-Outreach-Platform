@@ -6,71 +6,105 @@ IMAGE_TAG="${1:?IMAGE_TAG is required}"
 
 cd /opt/outreach
 
+echo "========================================"
+echo "Starting Production Deployment"
+echo "========================================"
+
+echo "Image tag: ${IMAGE_TAG}"
+
+echo ""
+echo "Loading environment..."
+
+if [ ! -f /opt/outreach/.env.production ]; then
+    echo "ERROR: .env.production does not exist"
+    exit 1
+fi
+
+set -a
+source /opt/outreach/.env.production
+set +a
+
 export IMAGE_TAG
 
-echo "======================================"
-echo "Deploying version: $IMAGE_TAG"
-echo "======================================"
+echo "Environment loaded"
 
-echo "Loading ECR configuration..."
+echo ""
+echo "Checking required variables..."
 
-ECR_REGISTRY=$(grep '^ECR_REGISTRY=' .env.production | cut -d '=' -f2-)
+: "${ECR_REGISTRY:?ECR_REGISTRY is missing}"
 
-AWS_REGION="${AWS_REGION:-eu-north-1}"
+echo "ECR Registry: ${ECR_REGISTRY}"
+echo "AWS Region: ${AWS_REGION:-eu-north-1}"
 
-echo "ECR Registry: $ECR_REGISTRY"
-echo "AWS Region: $AWS_REGION"
-
-echo "======================================"
-echo "Logging into ECR..."
-echo "======================================"
+echo ""
+echo "========================================"
+echo "Logging into Amazon ECR"
+echo "========================================"
 
 aws ecr get-login-password \
-  --region "$AWS_REGION" \
-  | docker login \
-      --username AWS \
-      --password-stdin \
-      "$ECR_REGISTRY"
+    --region "${AWS_REGION:-eu-north-1}" \
+    | docker login \
+        --username AWS \
+        --password-stdin \
+        "${ECR_REGISTRY}"
 
-echo "======================================"
-echo "Pulling images..."
-echo "======================================"
+echo ""
+echo "ECR login successful"
 
-docker compose \
-  --env-file .env.production \
-  pull
-
-echo "======================================"
-echo "Running database migrations..."
-echo "======================================"
+echo ""
+echo "========================================"
+echo "Pulling Docker Images"
+echo "========================================"
 
 docker compose \
-  --env-file .env.production \
-  --profile migration \
-  run --rm migration
+    --env-file .env.production \
+    pull
 
-echo "======================================"
-echo "Starting services..."
-echo "======================================"
+echo ""
+echo "Docker images pulled successfully"
+
+echo ""
+echo "========================================"
+echo "Running Database Migration"
+echo "========================================"
 
 docker compose \
-  --env-file .env.production \
-  up -d
+    --env-file .env.production \
+    --profile migration \
+    run --rm migration
 
-echo "======================================"
-echo "Cleaning old images..."
-echo "======================================"
+echo ""
+echo "Database migration completed"
+
+echo ""
+echo "========================================"
+echo "Starting Services"
+echo "========================================"
+
+docker compose \
+    --env-file .env.production \
+    up -d
+
+echo ""
+echo "Services started"
+
+echo ""
+echo "========================================"
+echo "Cleaning Old Images"
+echo "========================================"
 
 docker image prune -af
 
-echo "======================================"
-echo "Current services:"
-echo "======================================"
+echo ""
+echo "========================================"
+echo "Current Services"
+echo "========================================"
 
 docker compose \
-  --env-file .env.production \
-  ps
+    --env-file .env.production \
+    ps
 
-echo "======================================"
-echo "Deployment completed successfully."
-echo "======================================"
+echo ""
+echo "========================================"
+echo "Deployment Completed Successfully"
+echo "========================================"
