@@ -236,7 +236,6 @@ jobs:
         env:
           COMPOSE_B64: ${{ steps.compose.outputs.content }}
           DEPLOY_SCRIPT_B64: ${{ steps.deploy-script.outputs.content }}
-
         run: |
           set -e
 
@@ -251,26 +250,19 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploying version ${IMAGE_TAG}" \
             --parameters "commands=[
-              \"set -x\",
-              \"echo 'SSM command started'\",
+              \"set -e\",
               \"mkdir -p /opt/outreach\",
-              \"echo 'Writing docker-compose.production.yml'\",
               \"printf '%s' '${COMPOSE_B64}' | base64 -d > /opt/outreach/docker-compose.production.yml.tmp\",
               \"mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml\",
-              \"echo 'Writing .env.production'\",
               \"printf '%s' '${ENV_B64}' | base64 -d > /opt/outreach/.env.production.tmp\",
               \"chmod 600 /opt/outreach/.env.production.tmp\",
               \"mv /opt/outreach/.env.production.tmp /opt/outreach/.env.production\",
-              \"echo 'Writing deploy.sh'\",
               \"printf '%s' '${DEPLOY_SCRIPT_B64}' | base64 -d > /opt/outreach/deploy.sh.tmp\",
               \"chmod 700 /opt/outreach/deploy.sh.tmp\",
               \"mv /opt/outreach/deploy.sh.tmp /opt/outreach/deploy.sh\",
-              \"echo 'Checking files'\",
-              \"ls -lah /opt/outreach\",
-              \"echo 'Checking deploy.sh syntax'\",
-              \"bash -n /opt/outreach/deploy.sh\",
-              \"echo 'Starting deploy.sh'\",
-              \"cd /opt/outreach && bash ./deploy.sh '${IMAGE_TAG}'\"
+              \"echo 'Files copied successfully'\",
+              \"cd /opt/outreach\",
+              \"bash ./deploy.sh '${IMAGE_TAG}'\"
             ]" \
             --region "${AWS_REGION}" \
             --query "Command.CommandId" \
@@ -285,7 +277,6 @@ jobs:
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
             --region "${AWS_REGION}" || true
 
-          echo ""
           echo "========================================"
           echo "SSM DEPLOYMENT DETAILS"
           echo "========================================"
@@ -303,9 +294,8 @@ jobs:
             }' \
             --output table
 
-          echo ""
           echo "========================================"
-          echo "STDOUT"
+          echo "STANDARD OUTPUT"
           echo "========================================"
 
           aws ssm get-command-invocation \
@@ -315,9 +305,8 @@ jobs:
             --query "StandardOutputContent" \
             --output text
 
-          echo ""
           echo "========================================"
-          echo "STDERR"
+          echo "STANDARD ERROR"
           echo "========================================"
 
           aws ssm get-command-invocation \
@@ -334,8 +323,9 @@ jobs:
             --query "Status" \
             --output text)
 
-          echo ""
-          echo "Final deployment status: $STATUS"
+          echo "========================================"
+          echo "FINAL STATUS: $STATUS"
+          echo "========================================"
 
           if [ "$STATUS" != "Success" ]; then
             echo "Deployment failed!"
@@ -343,7 +333,6 @@ jobs:
           fi
 
           echo "Deployment successful!"
-
 
       # ----------------------------------------------------------
       # Get Detailed SSM Information
