@@ -16,7 +16,7 @@ env:
 jobs:
 
   # ============================================================
-  # BUILD & PUSH
+  # BUILD & PUSH IMAGES
   # ============================================================
 
   build-and-push:
@@ -48,13 +48,25 @@ jobs:
 
     steps:
 
+      # ----------------------------------------------------------
+      # Checkout
+      # ----------------------------------------------------------
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
 
+      # ----------------------------------------------------------
+      # Docker Buildx
+      # ----------------------------------------------------------
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+
+      # ----------------------------------------------------------
+      # AWS OIDC
+      # ----------------------------------------------------------
 
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -63,10 +75,18 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
 
+      # ----------------------------------------------------------
+      # Login to ECR
+      # ----------------------------------------------------------
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+
+      # ----------------------------------------------------------
+      # Build & Push
+      # ----------------------------------------------------------
 
       - name: Build and Push Image
         uses: docker/build-push-action@v6
@@ -82,7 +102,6 @@ jobs:
             ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.image_name }}:${{ env.IMAGE_TAG }}
 
           cache-from: type=gha,scope=${{ matrix.app.name }}
-
           cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
 
 
@@ -101,9 +120,17 @@ jobs:
 
     steps:
 
+      # ----------------------------------------------------------
+      # Checkout
+      # ----------------------------------------------------------
+
       - name: Checkout Deployment Configuration
         uses: actions/checkout@v4
 
+
+      # ----------------------------------------------------------
+      # AWS OIDC
+      # ----------------------------------------------------------
 
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -112,9 +139,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
 
-      # --------------------------------------------------------
+      # ----------------------------------------------------------
       # Encode Docker Compose
-      # --------------------------------------------------------
+      # ----------------------------------------------------------
 
       - name: Encode Production Compose
         id: compose
@@ -122,9 +149,9 @@ jobs:
           echo "content=$(base64 -w 0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
 
 
-      # --------------------------------------------------------
-      # Create production env from GitHub Secrets
-      # --------------------------------------------------------
+      # ----------------------------------------------------------
+      # Create Production Environment
+      # ----------------------------------------------------------
 
       - name: Create Production Environment File
         env:
@@ -158,6 +185,7 @@ jobs:
 
         run: |
           cat > .env.production <<EOF
+
           ECR_REGISTRY=${ECR_REGISTRY}
           IMAGE_TAG=${IMAGE_TAG}
 
@@ -186,19 +214,23 @@ jobs:
           AXIOM_DATASET=${AXIOM_DATASET:-}
 
           LOG_LEVEL=${LOG_LEVEL:-info}
+
           EOF
 
 
-      # --------------------------------------------------------
-      # Send files + secrets to EC2 through SSM
-      # --------------------------------------------------------
+      # ----------------------------------------------------------
+      # Encode Deployment Script
+      # ----------------------------------------------------------
 
       - name: Encode Deployment Script
         id: deploy-script
         run: |
           echo "content=$(base64 -w 0 scripts/deploy-production.sh)" >> "$GITHUB_OUTPUT"
 
-          
+
+      # ----------------------------------------------------------
+      # Deploy to EC2 via SSM
+      # ----------------------------------------------------------
 
       - name: Deploy to EC2 via SSM
         env:
@@ -207,7 +239,11 @@ jobs:
 
         run: |
 
+          echo "Preparing deployment..."
+
           ENV_B64=$(base64 -w 0 .env.production)
+
+          echo "Sending deployment command to EC2..."
 
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
@@ -230,6 +266,11 @@ jobs:
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
+
+          # Make COMMAND_ID available to the next GitHub Actions step
+          echo "COMMAND_ID=$COMMAND_ID" >> "$GITHUB_ENV"
+
+          echo "Waiting for EC2 deployment..."
 
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
@@ -271,9 +312,14 @@ jobs:
           echo "Deployment successful!"
 
 
-                - name: Get SSM Deployment Details
+      # ----------------------------------------------------------
+      # Get Detailed SSM Information
+      # ----------------------------------------------------------
+
+      - name: Get SSM Deployment Details
         if: always()
         run: |
+
           echo "========== STATUS =========="
 
           aws ssm get-command-invocation \
@@ -283,6 +329,7 @@ jobs:
             --query '{Status:Status,StatusDetails:StatusDetails,ResponseCode:ResponseCode,ExecutionStartDateTime:ExecutionStartDateTime,ExecutionElapsedTime:ExecutionElapsedTime}' \
             --output table
 
+
           echo "========== STDOUT =========="
 
           aws ssm get-command-invocation \
@@ -291,6 +338,7 @@ jobs:
             --region "${AWS_REGION}" \
             --query "StandardOutputContent" \
             --output text
+
 
           echo "========== STDERR =========="
 
