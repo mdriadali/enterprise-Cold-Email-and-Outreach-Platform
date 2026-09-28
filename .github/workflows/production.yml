@@ -14,22 +14,31 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
-  # Job 1: Build & Push Images IN PARALLEL on GitHub Cloud Runners
+
+  # ============================================================
+  # BUILD & PUSH
+  # ============================================================
+
   build-and-push:
     name: Build ${{ matrix.app.name }} Image
+
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
+
       matrix:
         app:
           - name: http-server
             dockerfile: ./apps/http-server/Dockerfile.http
             image_name: outreach-http
             build_args: ""
+
           - name: worker
             dockerfile: ./apps/worker/Dockerfile.worker
             image_name: outreach-worker
             build_args: ""
+
           - name: web
             dockerfile: ./apps/web/Dockerfile.web
             image_name: outreach-web
@@ -38,11 +47,14 @@ jobs:
               HTTP_SERVER_URL=http://16.170.11.164:4000/api/v1/
 
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
 
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -50,30 +62,48 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
 
       - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.app.dockerfile }}
+
           push: true
+
           build-args: ${{ matrix.app.build_args }}
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.image_name }}:${{ env.IMAGE_TAG }}
+
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ matrix.app.image_name }}:${{ env.IMAGE_TAG }}
+
           cache-from: type=gha,scope=${{ matrix.app.name }}
+
           cache-to: type=gha,mode=max,scope=${{ matrix.app.name }}
 
-  # Job 2: Trigger Remote EC2 Deployment via SSM
+
+  # ============================================================
+  # DEPLOY TO EC2
+  # ============================================================
+
   deploy-to-ec2:
-    name: Execute Remote Deployment via SSM
-    needs: build-and-push
+
+    name: Deploy to EC2
+
+    needs:
+      - build-and-push
+
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout Deployment Configuration
         uses: actions/checkout@v4
+
 
       - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
@@ -81,60 +111,144 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Encode Production Compose Configuration
+
+      # --------------------------------------------------------
+      # Encode Docker Compose
+      # --------------------------------------------------------
+
+      - name: Encode Production Compose
         id: compose
-        run: echo "content=$(base64 --wrap=0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
-
-      - name: Encode Production Deployment Script
-        id: deploy-script
-        run: echo "content=$(base64 --wrap=0 scripts/deploy-production.sh)" >> "$GITHUB_OUTPUT"
-
-      - name: Send Deployment Command to EC2
         run: |
+          echo "content=$(base64 -w 0 docker-compose.production.yml)" >> "$GITHUB_OUTPUT"
+
+
+      # --------------------------------------------------------
+      # Create production env from GitHub Secrets
+      # --------------------------------------------------------
+
+      - name: Create Production Environment File
+        env:
+          ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
+
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+
+          JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
+          JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
+
+          HTTP_PORT: ${{ secrets.HTTP_PORT }}
+
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          APP_URL: ${{ secrets.APP_URL }}
+
+          SMTP_ENCRYPTION: ${{ secrets.SMTP_ENCRYPTION }}
+
+          BETTER_STACK_SOURCE_TOKEN: ${{ secrets.BETTER_STACK_SOURCE_TOKEN }}
+          BETTER_STACK_INGESTING_HOST: ${{ secrets.BETTER_STACK_INGESTING_HOST }}
+
+          AXIOM_TOKEN: ${{ secrets.AXIOM_TOKEN }}
+          AXIOM_DATASET: ${{ secrets.AXIOM_DATASET }}
+
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+
+        run: |
+          cat > .env.production <<EOF
+          ECR_REGISTRY=${ECR_REGISTRY}
+          IMAGE_TAG=${IMAGE_TAG}
+
+          DATABASE_URL=${DATABASE_URL}
+          REDIS_URL=${REDIS_URL}
+
+          JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+          JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+
+          HTTP_PORT=${HTTP_PORT:-4000}
+
+          SMTP_HOST=${SMTP_HOST:-}
+          SMTP_PORT=${SMTP_PORT:-587}
+          SMTP_USER=${SMTP_USER:-}
+          SMTP_PASS=${SMTP_PASS:-}
+
+          MAIL_FROM=${MAIL_FROM:-}
+          APP_URL=${APP_URL:-}
+
+          SMTP_ENCRYPTION=${SMTP_ENCRYPTION:-none}
+
+          BETTER_STACK_SOURCE_TOKEN=${BETTER_STACK_SOURCE_TOKEN:-}
+          BETTER_STACK_INGESTING_HOST=${BETTER_STACK_INGESTING_HOST:-}
+
+          AXIOM_TOKEN=${AXIOM_TOKEN:-}
+          AXIOM_DATASET=${AXIOM_DATASET:-}
+
+          LOG_LEVEL=${LOG_LEVEL:-info}
+          EOF
+
+
+      # --------------------------------------------------------
+      # Send files + secrets to EC2 through SSM
+      # --------------------------------------------------------
+
+      - name: Deploy to EC2 via SSM
+        env:
+          COMPOSE_B64: ${{ steps.compose.outputs.content }}
+
+        run: |
+
+          ENV_B64=$(base64 -w 0 .env.production)
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
-            --comment "Deploying version ${{ env.IMAGE_TAG }}" \
-            --parameters 'commands=["printf %s '\''${{ steps.compose.outputs.content }}'\'' | base64 --decode > /opt/outreach/docker-compose.production.yml.tmp && mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml", "printf %s '\''${{ steps.deploy-script.outputs.content }}'\'' | base64 --decode > /opt/outreach/deploy.sh.tmp && chmod 700 /opt/outreach/deploy.sh.tmp && mv /opt/outreach/deploy.sh.tmp /opt/outreach/deploy.sh", "bash /opt/outreach/deploy.sh '${{ env.IMAGE_TAG }}'"]' \
-            --region "${{ env.AWS_REGION }}" \
+            --comment "Deploying version ${IMAGE_TAG}" \
+            --parameters "commands=[
+              \"mkdir -p /opt/outreach\",
+              \"printf '%s' '${COMPOSE_B64}' | base64 -d > /opt/outreach/docker-compose.production.yml.tmp\",
+              \"mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml\",
+              \"printf '%s' '${ENV_B64}' | base64 -d > /opt/outreach/.env.production.tmp\",
+              \"chmod 600 /opt/outreach/.env.production.tmp\",
+              \"mv /opt/outreach/.env.production.tmp /opt/outreach/.env.production\",
+              \"cd /opt/outreach && bash deploy.sh '${IMAGE_TAG}'\"
+            ]" \
+            --region "${AWS_REGION}" \
             --query "Command.CommandId" \
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
-          echo "Waiting for EC2 deployment..."
 
-          # Wait for SSM command execution (ignore waiter non-zero exit code to capture logs)
           aws ssm wait command-executed \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --region "${{ env.AWS_REGION }}" || true
+            --region "${AWS_REGION}" || true
 
           STATUS=$(aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --region "${{ env.AWS_REGION }}" \
+            --region "${AWS_REGION}" \
             --query "Status" \
             --output text)
+
           echo "Deployment status: $STATUS"
 
-          echo "========== EC2 OUTPUT =========="
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --region "${{ env.AWS_REGION }}" \
+            --region "${AWS_REGION}" \
             --query "StandardOutputContent" \
             --output text
 
-          echo "========== EC2 ERRORS =========="
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \
             --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
-            --region "${{ env.AWS_REGION }}" \
+            --region "${AWS_REGION}" \
             --query "StandardErrorContent" \
             --output text
 
           if [ "$STATUS" != "Success" ]; then
-            echo "Deployment failed with status: $STATUS"
             exit 1
           fi
 
