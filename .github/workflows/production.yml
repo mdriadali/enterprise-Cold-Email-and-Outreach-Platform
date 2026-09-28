@@ -233,6 +233,7 @@ jobs:
       # ----------------------------------------------------------
 
       - name: Deploy to EC2 via SSM
+        id: deploy
         env:
           COMPOSE_B64: ${{ steps.compose.outputs.content }}
           DEPLOY_SCRIPT_B64: ${{ steps.deploy-script.outputs.content }}
@@ -251,7 +252,10 @@ jobs:
             --comment "Deploying version ${IMAGE_TAG}" \
             --parameters "commands=[
               \"set -e\",
-              \"mkdir -p /opt/outreach\",
+              \"echo 'Starting SSM deployment bootstrap'\",
+              \"id\",
+              \"ls -ld /opt /opt/outreach || true\",
+              \"mkdir -pv /opt/outreach\",
               \"printf '%s' '${COMPOSE_B64}' | base64 -d > /opt/outreach/docker-compose.production.yml.tmp\",
               \"mv /opt/outreach/docker-compose.production.yml.tmp /opt/outreach/docker-compose.production.yml\",
               \"printf '%s' '${ENV_B64}' | base64 -d > /opt/outreach/.env.production.tmp\",
@@ -269,6 +273,7 @@ jobs:
             --output text)
 
           echo "SSM Command ID: $COMMAND_ID"
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
 
           echo "Waiting for EC2 deployment..."
 
@@ -339,7 +344,9 @@ jobs:
       # ----------------------------------------------------------
 
       - name: Get SSM Deployment Details
-        if: always()
+        if: always() && steps.deploy.outputs.command_id != ''
+        env:
+          COMMAND_ID: ${{ steps.deploy.outputs.command_id }}
         run: |
 
           echo "========== STATUS =========="
