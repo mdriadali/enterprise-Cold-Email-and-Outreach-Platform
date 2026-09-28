@@ -9,6 +9,8 @@ ENV_FILE="${APP_DIR}/.env.production"
 COMPOSE_FILE="${APP_DIR}/docker-compose.production.yml"
 HEALTHCHECK_TIMEOUT_SECONDS=180
 HEALTHCHECK_INTERVAL_SECONDS=5
+MIGRATION_MAX_ATTEMPTS=5
+MIGRATION_RETRY_DELAY_SECONDS=15
 
 cd "$APP_DIR"
 
@@ -85,11 +87,20 @@ echo "========================================"
 echo "Running database migrations"
 echo "========================================"
 
-docker_compose \
-  --profile migration \
-  run --rm migration
+for attempt in $(seq 1 "$MIGRATION_MAX_ATTEMPTS"); do
+  if docker_compose --profile migration run --rm migration; then
+    echo "Database migration completed."
+    break
+  fi
 
-echo "Database migration completed."
+  if [ "$attempt" -eq "$MIGRATION_MAX_ATTEMPTS" ]; then
+    echo "ERROR: Database migration failed after ${MIGRATION_MAX_ATTEMPTS} attempts."
+    exit 1
+  fi
+
+  echo "Migration attempt ${attempt} failed; retrying in ${MIGRATION_RETRY_DELAY_SECONDS} seconds..."
+  sleep "$MIGRATION_RETRY_DELAY_SECONDS"
+done
 
 echo "========================================"
 echo "Starting production services"
