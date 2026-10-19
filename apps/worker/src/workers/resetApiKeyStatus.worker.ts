@@ -9,7 +9,7 @@ const workerLogger = logger.child({
 
 workerLogger.info("Reset Api Key Status worker started");
 
-const worker = new Worker(
+export const worker = new Worker(
   "reset-api-key-status",
   async (job) => {
     const { apiKeyId } = job.data as { apiKeyId: string };

@@ -14,11 +14,13 @@
     "./repositories": "./src/repositories/index.ts",
     "./ai": "./src/ai/index.ts",
     "./cache": "./src/cache/repositories/index.ts",
-    "./logger": "./src/logger/index.ts"
+    "./logger": "./src/logger/index.ts",
+    "./resilience": "./src/resilience/index.ts"
   },
   "dependencies": {
     "@axiomhq/js": "^2.0.0",
     "@google/genai": "^2.9.0",
+    "@repo/common": "workspace:*",
     "@logtail/node": "^0.5.8",
     "@logtail/pino": "^0.5.8",
     "@repo/db": "*",

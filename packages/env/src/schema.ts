@@ -7,6 +7,10 @@ export const webSchema = {
 };
 export const databaseSchema = {
   DATABASE_URL: z.string().url(),
+  // Pool size is env driven so the total connection budget stays predictable
+  // when services are scaled (pool max x replicas < database max_connections).
+  DB_POOL_MAX: z.coerce.number().int().positive().optional(),
+  DB_STATEMENT_TIMEOUT_MS: z.coerce.number().int().positive().optional(),
 };
 
 export const authSchema = {
@@ -38,4 +42,24 @@ export const loggerSchema = {
   AXIOM_TOKEN: z.string().optional(),
   AXIOM_DATASET: z.string().optional(),
   LOG_LEVEL: z.string().optional().default("info"),
+};
+
+/**
+ * Shared resilience policy for every service.
+ *
+ * Platform rule: bounded retries, then fail fast. Dependencies are tried at most
+ * 3 times, and a service that keeps crashing stays down instead of restarting
+ * forever ("onek onek retry" must never happen).
+ */
+export const resilienceSchema = {
+  /** How often runtime health checks run. */
+  HEALTH_CHECK_INTERVAL_MS: z.coerce.number().int().positive().optional().default(15_000),
+  /** Consecutive failures tolerated before the process gives up. */
+  FAILURE_THRESHOLD: z.coerce.number().int().positive().optional().default(3),
+  /** Container restarts allowed before the service stays down. */
+  CRASH_LOOP_MAX_RESTARTS: z.coerce.number().int().positive().optional().default(3),
+  /** Window in which those restarts are counted. */
+  CRASH_LOOP_WINDOW_MS: z.coerce.number().int().positive().optional().default(300_000),
+  /** Where the crash counter is persisted (container writable layer). */
+  CRASH_STATE_DIR: z.string().optional(),
 };

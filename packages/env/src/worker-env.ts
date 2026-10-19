@@ -3,6 +3,7 @@ import {
   databaseSchema,
   redisSchema,
   smtpSchema,
+  resilienceSchema,
 } from "./schema";
 
 export const workerEnv = createEnv({
@@ -10,6 +11,7 @@ export const workerEnv = createEnv({
     ...databaseSchema,
     ...redisSchema,
     ...smtpSchema,
+    ...resilienceSchema,
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

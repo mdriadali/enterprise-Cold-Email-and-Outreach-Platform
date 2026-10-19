@@ -12,11 +12,18 @@ function createAxiomStream(dataset: string, token: string) {
       for await (const log of source) {
         const { time, level, ...event } = log;
 
-        axiom.ingest(dataset, {
-          _time: time,
-          level: toAxiomLogLevel(level),
-          ...event,
-        });
+        try {
+          // Awaiting gives the stream natural backpressure, so a slow or failing
+          // Axiom endpoint cannot spawn an unbounded number of concurrent
+          // ingest requests. Log shipping must never take the app down either.
+          await axiom.ingest(dataset, {
+            _time: time,
+            level: toAxiomLogLevel(level),
+            ...event,
+          });
+        } catch (error) {
+          console.error("[axiom] log ingest failed, dropping batch", error);
+        }
       }
     },
     {

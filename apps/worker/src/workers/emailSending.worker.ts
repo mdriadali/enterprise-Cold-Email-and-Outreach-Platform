@@ -10,7 +10,7 @@ const workerLogger = logger.child({
 
 workerLogger.info("Email sending worker started");
 
-const worker = new Worker(
+export const worker = new Worker(
   "email-sending",
   async (job) => {
     const data = job.data as AuthEmailJobData;

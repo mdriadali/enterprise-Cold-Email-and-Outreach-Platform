@@ -295,5 +295,6 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // `api/health` is a container health probe and must stay unauthenticated.
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/health).*)"],
 };

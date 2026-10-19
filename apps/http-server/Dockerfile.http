@@ -9,6 +9,13 @@ FROM base AS installer
 WORKDIR /app
 ENV NODE_ENV=production
 
+# `prisma generate` loads packages/db/prisma.config.ts, which strictly requires
+# DIRECT_DATABASE_URL, but generation never opens a database connection.
+# A build-only placeholder keeps the image build hermetic; the real value is
+# injected at runtime by Docker Compose for `prisma migrate deploy`.
+# This never reaches the runner stage, which starts from a fresh base image.
+ENV DIRECT_DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build"
+
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/bun.lock ./bun.lock
 
@@ -20,9 +27,11 @@ COPY --from=pruner /app/out/full/ .
 RUN bun run db:generate
 RUN bun run build:http
 
-# Production Prune (removes unnecessary dev dependencies/cache)
+# The production install recreates node_modules, which also removes the
+# generated Prisma Client, so regenerate it after pruning dev dependencies.
 RUN rm -rf node_modules && \
     bun install --production --frozen-lockfile && \
+    bun run db:generate && \
     bunx --no-install prisma --version && \
     bun run --cwd=packages/db prisma:migrate:deploy --help
 
