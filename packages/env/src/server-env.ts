@@ -4,6 +4,7 @@ import {
   authSchema,
   httpSchema,
   smtpSchema,
+  resilienceSchema,
 } from "./schema";
 
 export const serverEnv = createEnv({
@@ -12,6 +13,7 @@ export const serverEnv = createEnv({
     ...authSchema,
     ...httpSchema,
     ...smtpSchema,
+    ...resilienceSchema,
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

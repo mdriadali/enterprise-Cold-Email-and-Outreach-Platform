@@ -9,7 +9,7 @@ const workerLogger = logger.child({
 
 workerLogger.info("Mailsend worker started");
 
-const worker = new Worker(
+export const worker = new Worker(
   "campaign-mail-send",
   async (job) => {
     const { campaignId, minDelay, maxDelay } = job.data;

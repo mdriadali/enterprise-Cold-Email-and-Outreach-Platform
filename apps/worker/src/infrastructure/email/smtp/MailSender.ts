@@ -1,9 +1,11 @@
-import nodemailer from "nodemailer";
 import type { SmtpAccount } from "@repo/db";
-
 
 import type { IEmailSender } from "../../../application/Ports/iEmailSender-ports";
 import { classifySmtpError } from "./SmtpError";
+import {
+  getSmtpTransporter,
+  invalidateSmtpTransporter,
+} from "./SmtpTransporter";
 import { logger } from "../../../logger";
 
 const mailLogger = logger.child({
@@ -18,15 +20,7 @@ export class MailSender implements IEmailSender {
     html: string;
     text: string;
   }): Promise<void> {
-    const transporter = nodemailer.createTransport({
-      host: options.smtp.host,
-      port: options.smtp.port,
-      secure: options.smtp.encryption === "SSL",
-      auth: {
-        user: options.smtp.username,
-        pass: options.smtp.password,
-      },
-    });
+    const transporter = getSmtpTransporter(options.smtp);
 
     try {
       const send = await transporter.sendMail({
@@ -52,6 +46,12 @@ export class MailSender implements IEmailSender {
       );
     } catch (err) {
       const smtpError = classifySmtpError(err);
+
+      // A failed auth or dead connection leaves the pooled socket unusable;
+      // drop it so the next attempt reconnects cleanly.
+      if (smtpError.code === "AUTH_FAILED" || smtpError.code === "CONNECTION") {
+        invalidateSmtpTransporter(options.smtp.id);
+      }
 
       mailLogger.error(
         {

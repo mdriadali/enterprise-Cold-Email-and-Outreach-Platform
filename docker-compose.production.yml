@@ -15,7 +15,9 @@ services:
   http-server:
     image: ${ECR_REGISTRY}/outreach-http:${IMAGE_TAG}
 
-    restart: unless-stopped
+    # `on-failure` (not `unless-stopped`): when the app gives up it exits 0, and
+    # the orchestrator must then keep it down instead of restarting it forever.
+    restart: on-failure
 
     environment:
       NODE_ENV: production
@@ -43,25 +45,34 @@ services:
 
       LOG_LEVEL: ${LOG_LEVEL:-info}
 
+      # Resilience policy: bounded retries, then fail fast.
+      HEALTH_CHECK_INTERVAL_MS: ${HEALTH_CHECK_INTERVAL_MS:-15000}
+      FAILURE_THRESHOLD: ${FAILURE_THRESHOLD:-3}
+      CRASH_LOOP_MAX_RESTARTS: ${CRASH_LOOP_MAX_RESTARTS:-3}
+      CRASH_LOOP_WINDOW_MS: ${CRASH_LOOP_WINDOW_MS:-300000}
+      CRASH_STATE_DIR: ${CRASH_STATE_DIR:-/tmp/outreach-platform}
+
     ports:
       - "4000:4000"
 
+    # Readiness also requires the worker heartbeat, so a deployment without a
+    # live worker is reported unhealthy instead of silently serving traffic.
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "bun -e \"fetch('http://localhost:4000/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))\""
+          "bun -e \"fetch('http://localhost:4000/ready').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))\""
         ]
       interval: 30s
       timeout: 5s
-      retries: 3
-      start_period: 15s
+      retries: 5
+      start_period: 45s
 
 
   worker:
     image: ${ECR_REGISTRY}/outreach-worker:${IMAGE_TAG}
 
-    restart: unless-stopped
+    restart: on-failure
 
     environment:
       NODE_ENV: production
@@ -85,17 +96,28 @@ services:
       BETTER_STACK_SOURCE_TOKEN: ${BETTER_STACK_SOURCE_TOKEN:-}
       BETTER_STACK_INGESTING_HOST: ${BETTER_STACK_INGESTING_HOST:-}
 
+      # The logger actually ships to Axiom; without these the worker produced no
+      # remote logs at all.
+      AXIOM_TOKEN: ${AXIOM_TOKEN:-}
+      AXIOM_DATASET: ${AXIOM_DATASET:-}
+
       LOG_LEVEL: ${LOG_LEVEL:-info}
 
-    depends_on:
-      http-server:
-        condition: service_healthy
+      # Resilience policy: bounded retries, then fail fast.
+      HEALTH_CHECK_INTERVAL_MS: ${HEALTH_CHECK_INTERVAL_MS:-15000}
+      FAILURE_THRESHOLD: ${FAILURE_THRESHOLD:-3}
+      CRASH_LOOP_MAX_RESTARTS: ${CRASH_LOOP_MAX_RESTARTS:-3}
+      CRASH_LOOP_WINDOW_MS: ${CRASH_LOOP_WINDOW_MS:-300000}
+      CRASH_STATE_DIR: ${CRASH_STATE_DIR:-/tmp/outreach-platform}
 
+    # Intentionally NO dependency on http-server: http-server readiness waits for
+    # this worker's heartbeat, so depending on it as well would deadlock. Postgres
+    # and Redis are managed services, so there is nothing to wait for here.
 
   web:
     image: ${ECR_REGISTRY}/outreach-web:${IMAGE_TAG}
 
-    restart: unless-stopped
+    restart: on-failure
 
     ports:
       - "3000:3000"
@@ -106,6 +128,20 @@ services:
       APP_NAME: "Cold Out Reach"
 
       HTTP_SERVER_URL: "http://http-server:4000/api/v1/"
+
+      HEALTH_CHECK_INTERVAL_MS: ${HEALTH_CHECK_INTERVAL_MS:-15000}
+      FAILURE_THRESHOLD: ${FAILURE_THRESHOLD:-3}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bun -e \"fetch('http://localhost:3000/api/health').then(r => r.ok ? process.exit(0) : process.exit(1)).catch(() => process.exit(1))\""
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 45s
 
     depends_on:
       http-server:

@@ -10,7 +10,7 @@ const workerLogger = logger.child({
 
 workerLogger.info("Generation worker started");
 
-const worker = new Worker(
+export const worker = new Worker(
   "generation",
   async (job) => {
     const { jobId } = job.data as { jobId: string };

@@ -1,10 +1,10 @@
 import { createEnv } from "@t3-oss/env-core";
-import z from "zod";
+import { databaseSchema } from "./schema";
 
-// Server-only env — used only by http-server
+// Server-only env — used only by the database package.
 export const dbEnv = createEnv({
   server: {
-    DATABASE_URL: z.string().url(),
+    ...databaseSchema,
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

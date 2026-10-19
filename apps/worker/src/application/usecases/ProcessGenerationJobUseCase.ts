@@ -9,6 +9,7 @@ import type { AiProviderFactory } from "@repo/infrastructure/ai";
 import { coldEmailPrompt } from "../../infrastructure/prompts/cold-email.prompt";
 import { isErrorResponse } from "../../utils/isErrorResponse";
 import { resetApiStatusQueue } from "@repo/queue";
+import { BackoffHelper } from "@repo/common";
 import { logger } from "../../logger";
 
 export class ProcessGenerationUseCase {
@@ -72,10 +73,18 @@ export class ProcessGenerationUseCase {
         let apiLength = apis.length
         let reateLimit = 0
 
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+        // Bounded per-lead attempts. Combined with the provider-level retry cap
+        // this guarantees a lead can never trigger an unbounded request storm.
+        const MAX_PROVIDER_ATTEMPTS_PER_LEAD = 3;
+
         for (const lead of leads) {
 
-            while (apis.length > 0) {
+            let providerAttempts = 0;
+            let leadSucceeded = false;
+
+            while (apis.length > 0 && providerAttempts < MAX_PROVIDER_ATTEMPTS_PER_LEAD) {
+
+                providerAttempts++;
 
                 const api = apis.shift()!;
 
@@ -127,10 +136,12 @@ export class ProcessGenerationUseCase {
                             case "SERVICE_UNAVAILABLE":
 
                                 apis.push(api);
+                                await BackoffHelper.delay(2000);
                                 continue;
 
                             default:
                                 apis.push(api);
+                                await BackoffHelper.delay(2000);
                                 continue;
                         }
                     }
@@ -161,11 +172,12 @@ export class ProcessGenerationUseCase {
                     );
 
                     successCount++;
+                    leadSucceeded = true;
 
 
                     apis.push(api);
 
-                    await delay(4000);
+                    await BackoffHelper.delay(4000);
 
                     break;
 
@@ -179,6 +191,14 @@ export class ProcessGenerationUseCase {
 
                     break;
                 }
+            }
+
+            if (!leadSucceeded && providerAttempts >= MAX_PROVIDER_ATTEMPTS_PER_LEAD) {
+                failedCount++;
+                logger.warn(
+                    { jobId, leadId: lead.id, providerAttempts },
+                    "Lead skipped after reaching max provider attempts"
+                );
             }
 
         }
