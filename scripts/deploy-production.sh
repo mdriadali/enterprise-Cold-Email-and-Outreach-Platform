@@ -33,6 +33,48 @@ docker_compose() {
   docker compose --env-file "$ENV_FILE" --file "$COMPOSE_FILE" "$@"
 }
 
+# Anything below can fail, and a failed deploy that only prints one line is very
+# hard to debug from the GitHub Actions side (SSM only returns the first 24,000
+# characters of stdout). Print the host state that usually explains a failure -
+# disk/inode exhaustion, docker state, and the SSM agent's own log - before the
+# process exits. `exit_code` is preserved so the caller still sees the failure.
+on_exit() {
+  local exit_code=$?
+
+  if [ "$exit_code" -eq 0 ]; then
+    return
+  fi
+
+  echo "========================================"
+  echo "DEPLOYMENT FAILED (exit code ${exit_code}) - collecting diagnostics"
+  echo "========================================"
+
+  echo "--- disk usage ---"
+  df -h 2>&1 || true
+
+  echo "--- inode usage ---"
+  df -i 2>&1 || true
+
+  echo "--- docker disk usage ---"
+  docker system df 2>&1 || true
+
+  echo "--- containers ---"
+  docker_compose ps 2>&1 || true
+
+  echo "--- recent http-server logs ---"
+  docker_compose logs --tail=50 http-server 2>&1 || true
+
+  echo "--- SSM agent log (tail) ---"
+  tail -n 100 /var/log/amazon/ssm/amazon-ssm-agent.log 2>&1 || true
+
+  echo "--- SSM agent errors (tail) ---"
+  tail -n 100 /var/log/amazon/ssm/errors.log 2>&1 || true
+
+  exit "$exit_code"
+}
+
+trap on_exit EXIT
+
 export IMAGE_TAG
 
 AWS_REGION="${AWS_REGION:-eu-north-1}"
